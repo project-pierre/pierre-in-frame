@@ -36,23 +36,21 @@ class GenreChats:
         plt.xticks(rotation=30)
         # plt.legend()
 
-        saving_file = PathDirFile.set_dataset_graphics_file(dataset, 'user_model_size_by_number_of_genres.eps')
+        saving_file = PathDirFile.preprocessing_graphics_file(dataset, 'user_model_size_by_number_of_genres.eps')
         # Salvar figura no disco
         plt.savefig(
             saving_file,
             format='eps',
             dpi=ChartsConfig.DPI_VALUE,
-            quality=ChartsConfig.QUALITY_VALUE,
             bbox_inches='tight'
         )
 
-        saving_file = PathDirFile.set_dataset_graphics_file(dataset, 'user_model_size_by_number_of_genres.png')
+        saving_file = PathDirFile.preprocessing_graphics_file(dataset, 'user_model_size_by_number_of_genres.png')
         # Salvar figura no disco
         plt.savefig(
             saving_file,
             format='png',
             dpi=ChartsConfig.DPI_VALUE,
-            quality=ChartsConfig.QUALITY_VALUE,
             bbox_inches='tight'
         )
         plt.close('all')
@@ -86,23 +84,21 @@ class GenreChats:
 
         plt.xticks(rotation=90)
 
-        saving_file = PathDirFile.set_dataset_graphics_file(dataset, 'compare_genre_distribution_bar.eps')
+        saving_file = PathDirFile.preprocessing_graphics_file(dataset, 'compare_genre_distribution_bar.eps')
         # Salvar figura no disco
         plt.savefig(
             saving_file,
             format='eps',
             dpi=ChartsConfig.DPI_VALUE,
-            quality=ChartsConfig.QUALITY_VALUE,
             bbox_inches='tight'
         )
 
-        saving_file = PathDirFile.set_dataset_graphics_file(dataset, 'compare_genre_distribution_bar.png')
+        saving_file = PathDirFile.preprocessing_graphics_file(dataset, 'compare_genre_distribution_bar.png')
         # Salvar figura no disco
         plt.savefig(
             saving_file,
             format='png',
             dpi=ChartsConfig.DPI_VALUE,
-            quality=ChartsConfig.QUALITY_VALUE,
             bbox_inches='tight'
         )
         plt.close('all')

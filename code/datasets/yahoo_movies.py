@@ -1,8 +1,10 @@
 import os
 
+import numpy as np
 import pandas as pd
 
 from datasets.utils.base import Dataset
+from settings.constants import Constants
 from settings.labels import Label
 from settings.path_dir_file import PathDirFile
 
@@ -63,9 +65,12 @@ class YahooMovies(Dataset):
 
         self.set_transactions(
             new_transactions=YahooMovies.cut_users(
-                raw_transactions[raw_transactions[Label.ITEM_ID].isin(self.items[Label.ITEM_ID].tolist())]))
+                raw_transactions[raw_transactions[Label.ITEM_ID].isin(self.items[Label.ITEM_ID].tolist())], 4))
         self.set_items(
             new_items=self.items[self.items[Label.ITEM_ID].isin(self.transactions[Label.ITEM_ID].unique().tolist())])
+
+        if Constants.NORMALIZED_SCORE:
+            self.transactions[Label.TRANSACTION_VALUE] = np.where(self.transactions[Label.TRANSACTION_VALUE] >= 4, 1, 0)
 
         self.transactions.to_csv(os.path.join(self.dataset_clean_path, PathDirFile.TRANSACTIONS_FILE),
                                  index=False)

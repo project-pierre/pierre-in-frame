@@ -1,5 +1,5 @@
 import multiprocessing
-from settings.utils import get_size
+from utils.utils import get_size
 
 import os
 
@@ -15,13 +15,8 @@ class Constants:
     N_CORES = multiprocessing.cpu_count()
     os.environ['NUMEXPR_MAX_THREADS'] = str(N_CORES)
 
-    # Experimental #
-    K_FOLDS_VALUE = 5
-    N_TRIAL_VALUE = 7
-    PROFILE_LEN_CUT_VALUE = K_FOLDS_VALUE
-
     # SEARCH
-    N_INTER = 127
+    N_INTER = 7
 
     # Algorithm hyper param #
     ALPHA_VALUE = 0.01
@@ -32,3 +27,9 @@ class Constants:
 
     # Minkowski Distance param
     DIMENSION_VALUE = 3
+
+    # Experimental #
+    K_FOLDS_VALUE = 5
+    N_TRIAL_VALUE = 1
+    PROFILE_LEN_CUT_VALUE = K_FOLDS_VALUE * RECOMMENDATION_LIST_SIZE
+    NORMALIZED_SCORE = True

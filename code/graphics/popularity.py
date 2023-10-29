@@ -4,11 +4,7 @@ from settings.charts import ChartsConfig
 from settings.labels import Label
 from settings.path_dir_file import PathDirFile
 
-# matplotlib.use('Agg')
-
 import matplotlib.pyplot as plt
-
-# matplotlib.style.use('ggplot')
 
 
 def long_tail_graphic(data, dataset):
@@ -41,24 +37,58 @@ def long_tail_graphic(data, dataset):
     cut_value = cuted_df[Label.TOTAL_TIMES].min()
     plt.axhline(y=cut_value)
     # Pasta para salvar a figura
-    saving_file = PathDirFile.set_dataset_graphics_file(dataset, 'long_tail.eps')
+    saving_file = PathDirFile.preprocessing_graphics_file(dataset, 'long_tail.eps')
     # Salvar figura no disco
     plt.savefig(
         saving_file,
         format='eps',
         dpi=ChartsConfig.DPI_VALUE,
-        quality=ChartsConfig.QUALITY_VALUE,
         bbox_inches='tight'
     )
     # Pasta para salvar a figura
-    saving_file = PathDirFile.set_dataset_graphics_file(dataset, 'long_tail.png')
+    saving_file = PathDirFile.preprocessing_graphics_file(dataset, 'long_tail.png')
     # Salvar figura no disco
     plt.savefig(
         saving_file,
         format='png',
         dpi=ChartsConfig.DPI_VALUE,
-        quality=ChartsConfig.QUALITY_VALUE,
         bbox_inches='tight'
     )
     # Closing figure
     plt.close('all')
+
+
+def popularity_group_graphic(data, dataset):
+    matplotlib.use('Agg')
+    matplotlib.style.use('ggplot')
+
+    plt.figure(figsize=(10, 5))
+
+    plt.bar(data['group'], data['values'])
+
+    plt.rc('xtick', labelsize=16)
+    plt.rc('ytick', labelsize=16)
+    plt.xlabel("Popularity Groups", fontsize=ChartsConfig.FONT_SIZE_VALUE)
+    plt.ylabel("Percent of Each Group", fontsize=ChartsConfig.FONT_SIZE_VALUE)
+
+    # Pasta para salvar a figura
+    saving_file = PathDirFile.preprocessing_graphics_file(dataset, 'popularity_group.eps')
+    # Salvar figura no disco
+    plt.savefig(
+        saving_file,
+        format='eps',
+        dpi=ChartsConfig.DPI_VALUE,
+        bbox_inches='tight'
+    )
+    # Pasta para salvar a figura
+    saving_file = PathDirFile.preprocessing_graphics_file(dataset, 'popularity_group.png')
+    # Salvar figura no disco
+    plt.savefig(
+        saving_file,
+        format='png',
+        dpi=ChartsConfig.DPI_VALUE,
+        bbox_inches='tight'
+    )
+    # Closing figure
+    plt.close('all')
+

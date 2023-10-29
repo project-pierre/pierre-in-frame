@@ -54,6 +54,13 @@ class Dataset:
         self.create_clean_dir()
 
     # ######################################### #
+    # ############## Get and Sets ############# #
+    # ######################################### #
+
+    def get_dataset_name(self) -> str:
+        return self.system_name
+
+    # ######################################### #
     # ############# Transactions ############## #
     # ######################################### #
 
@@ -264,67 +271,87 @@ class Dataset:
         for trial in range(1, n_trials + 1):
             logger.info("+ Preparing trial: " + str(trial))
             results = split.split_with_joblib(transactions_df=self.transactions, trial=trial, n_folds=n_folds)
-            train_df = results[0]
-            test_df = results[1]
             for k in range(Constants.K_FOLDS_VALUE):
+                train_df, test_df = results[k]
+
                 logger.info("+ + Preparing fold: " + str(k + 1))
                 fold_dir = "/".join([self.dataset_clean_path, "trial-" + str(trial), "fold-" + str(k + 1)])
                 if not os.path.exists(fold_dir):
                     os.makedirs(fold_dir)
 
                 train_path = os.path.join(fold_dir, PathDirFile.TRAIN_FILE)
-                if 'index' in train_df[k].columns.tolist():
-                    train_df[k].drop(columns=['index'], inplace=True)
-                train_df[k].to_csv(train_path, index=False)
+                if 'index' in train_df.columns.tolist():
+                    train_df.drop(columns=['index'], inplace=True)
+                train_df.to_csv(train_path, index=False)
 
                 test_path = os.path.join(fold_dir, PathDirFile.TEST_FILE)
-                if 'index' in test_df[k].columns.tolist():
-                    test_df[k].drop(columns=['index'], inplace=True)
-                test_df[k].to_csv(test_path, index=False)
+                if 'index' in test_df.columns.tolist():
+                    test_df.drop(columns=['index'], inplace=True)
+                test_df.to_csv(test_path, index=False)
 
     @staticmethod
-    def cut_users(transactions: pd.DataFrame) -> pd.DataFrame:
+    def cut_users(transactions: pd.DataFrame, item_cut_value: float = 4) -> pd.DataFrame:
         """
         Cleaning the raw transactions and save as clean transactions.
         The specific implementation is created by the children.
+
         :return: A pandas Dataframe with the users transactions.
         """
-        user_counts = transactions[Label.USER_ID].value_counts()
-        return transactions[transactions[Label.USER_ID].isin(
-            [k for k, v in user_counts.items() if v > Constants.PROFILE_LEN_CUT_VALUE])].copy()
+        lower_transactions = transactions[transactions[Label.TRANSACTION_VALUE] < item_cut_value].copy()
+        higher_transactions = transactions[transactions[Label.TRANSACTION_VALUE] >= item_cut_value]
 
-    ################################################
+        user_counts = higher_transactions[Label.USER_ID].value_counts()
+        selected_users = [k for k, v in user_counts.items() if v > Constants.PROFILE_LEN_CUT_VALUE]
+        return pd.concat(
+            [higher_transactions[higher_transactions[Label.USER_ID].isin(selected_users)].copy(),
+             lower_transactions[lower_transactions[Label.USER_ID].isin(selected_users)].copy()])
+
+    # ######################################### #
+    # ############# Data Analyze ############## #
+    # ######################################### #
+    @staticmethod
+    def classes(item):
+        """
+        This method is to split the item genre.
+        """
+        splitted = item.split('|')
+        return [c for c in splitted]
+
     def raw_data_basic_info(self):
+        """
+        This method is to print the raw basic information
+        """
         self.load_raw_items()
         self.load_raw_transactions()
 
-        def classes(item):
-            # item_genre = getattr(row, GENRES_LABEL)
-            splitted = item.split('|')
-            return [c for c in splitted]
         total_of_users = len(self.raw_transactions[Label.USER_ID].unique())
         total_of_items = len(self.raw_items)
         total_of_transactions = len(self.raw_transactions)
-        total_of_classes = len(set(list(itertools.chain.from_iterable(list(map(classes, self.raw_items[Label.GENRES].tolist()))))))
+        total_of_classes = len(
+            set(list(itertools.chain.from_iterable(list(map(Dataset.classes, self.raw_items[Label.GENRES].tolist()))))))
+        print("*" * 50)
         print("RAW DATASET INFORMATION")
         print("Total of Users: ", total_of_users)
         print("Total of Items: ", total_of_items)
         print("Total of Transactions: ", total_of_transactions)
         print("Total of Classes: ", total_of_classes)
+        print("*" * 50)
 
     def clean_data_basic_info(self):
+        """
+        This method is to print the cleaned dataset information
+        """
         self.load_clean_dataset()
 
-        def classes(item):
-            # item_genre = getattr(row, GENRES_LABEL)
-            splitted = item.split('|')
-            return [c for c in splitted]
         total_of_users = len(self.transactions[Label.USER_ID].unique())
         total_of_items = len(self.items)
         total_of_transactions = len(self.transactions)
-        total_of_classes = len(set(list(itertools.chain.from_iterable(list(map(classes, self.items[Label.GENRES].tolist()))))))
+        total_of_classes = len(
+            set(list(itertools.chain.from_iterable(list(map(Dataset.classes, self.items[Label.GENRES].tolist()))))))
+        print("*" * 50)
         print("CLEAN DATASET INFORMATION")
         print("Total of Users: ", total_of_users)
         print("Total of Items: ", total_of_items)
         print("Total of Transactions: ", total_of_transactions)
         print("Total of Classes: ", total_of_classes)
+        print("*" * 50)

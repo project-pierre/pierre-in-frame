@@ -6,7 +6,7 @@ from settings.path_dir_file import PathDirFile
 
 
 def setup_logging(
-        default_path='src/config/logging.json',
+        default_path='./logging.json',
         default_level=logging.DEBUG,
         env_key='LOG_CFG',
         log_info='info.log',

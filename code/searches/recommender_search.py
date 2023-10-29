@@ -1,4 +1,3 @@
-import json
 import logging
 
 from surprise import SVD, KNNBasic
@@ -6,24 +5,23 @@ from surprise.model_selection import RandomizedSearchCV
 from surprise.prediction_algorithms.co_clustering import CoClustering
 from surprise.prediction_algorithms.matrix_factorization import SVDpp, NMF
 
-from conversions.pandas_surprise import PandasSurprise
+from processing.conversions.pandas_surprise import PandasSurprise
 from datasets.registred_datasets import RegisteredDataset
 from settings.constants import Constants
-from .surprise_params import SurpriseParams
+from settings.save_and_load import SaveAndLoad
+from searches.parameters import SurpriseParams
 from settings.labels import Label
-
-from settings.path_dir_file import PathDirFile
 
 logger = logging.getLogger(__name__)
 
 
-class SurpriseSearch:
+class RecommenderSearch:
     """
     Class used to lead with the Random Search
     """
 
     def __init__(self, recommender: str, dataset: str):
-        self.measures = ['mae']
+        self.measures = ['rmse', 'mae']
         self.dataset = RegisteredDataset.load_dataset(dataset)
         self.recommender_name = recommender
         self.recommender = None
@@ -63,6 +61,7 @@ class SurpriseSearch:
         Search and save the best param values
         """
         gs = self.__search()
-        # Saving the the best
-        with open(PathDirFile.set_hyperparameter_file(self.dataset.system_name, self.recommender_name), 'w') as fp:
-            json.dump(gs.best_params['mae'], fp)
+        # Saving
+        SaveAndLoad.save_hyperparameters_recommender(
+            best_params=gs.best_params, dataset=self.dataset.system_name, algorithm=self.recommender_name
+        )
