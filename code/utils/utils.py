@@ -1,6 +1,7 @@
 
 from psutil import virtual_memory
-
+import json
+import numpy as np
 
 def get_size(mbytes=virtual_memory().total, suffix="B"):
     """
@@ -14,3 +15,14 @@ def get_size(mbytes=virtual_memory().total, suffix="B"):
         if mbytes < factor:
             return f"{mbytes:.2f}{unit}{suffix}"
         mbytes /= factor
+
+
+class NpEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return super(NpEncoder, self).default(obj)
