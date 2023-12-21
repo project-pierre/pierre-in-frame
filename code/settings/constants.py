@@ -10,7 +10,7 @@ class Constants:
     Responsible for leading with all constant values used by the system
     """
 
-    # Machine config #
+    # Machine config
     MEM_RAM = get_size()
     N_CORES = multiprocessing.cpu_count()
     os.environ['NUMEXPR_MAX_THREADS'] = str(N_CORES)
@@ -18,18 +18,19 @@ class Constants:
     # SEARCH
     N_INTER = 7
 
-    # Algorithm hyper param #
+    # Algorithm hyper param
     ALPHA_VALUE = 0.01
 
-    # Data Model config #
+    # Data Model config
     RECOMMENDATION_LIST_SIZE = 10
     CANDIDATES_LIST_SIZE = 100
 
     # Minkowski Distance param
     DIMENSION_VALUE = 3
 
-    # Experimental #
+    # Experimental
     K_FOLDS_VALUE = 5
     N_TRIAL_VALUE = 1
-    PROFILE_LEN_CUT_VALUE = K_FOLDS_VALUE * RECOMMENDATION_LIST_SIZE
+    PROFILE_LEN_CUT_VALUE = 100
+    # PROFILE_LEN_CUT_VALUE = K_FOLDS_VALUE * RECOMMENDATION_LIST_SIZE
     NORMALIZED_SCORE = True

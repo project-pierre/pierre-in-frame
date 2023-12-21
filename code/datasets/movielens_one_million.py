@@ -13,7 +13,7 @@ from settings.path_dir_file import PathDirFile
 class MovielensOneMillion(Dataset):
     """
     Movielens 1Million dataset.
-    This class organize the work with the dataset.
+    This class organizes the work with the dataset.
     """
     # Class information.
     dir_name = "ml-1m"
@@ -27,6 +27,9 @@ class MovielensOneMillion(Dataset):
 
     # Clean paths.
     dataset_clean_path = "/".join([PathDirFile.CLEAN_DATASETS_DIR, dir_name])
+
+    # Constant Values
+    cut_value = 4
 
     # ######################################### #
     # ############## Constructor ############## #
@@ -67,10 +70,10 @@ class MovielensOneMillion(Dataset):
 
         # Cut users and set the new data into the instance.
         self.set_transactions(
-            new_transactions=MovielensOneMillion.cut_users(filtered_raw_transactions, 4))
+            new_transactions=MovielensOneMillion.cut_users(filtered_raw_transactions, self.cut_value))
 
         if Constants.NORMALIZED_SCORE:
-            self.transactions[Label.TRANSACTION_VALUE] = np.where(self.transactions[Label.TRANSACTION_VALUE] >= 4, 1, 0)
+            self.transactions[Label.TRANSACTION_VALUE] = np.where(self.transactions[Label.TRANSACTION_VALUE] >= self.cut_value, 1, 0)
 
         # Save the clean transactions as CSV.
         self.transactions.to_csv(

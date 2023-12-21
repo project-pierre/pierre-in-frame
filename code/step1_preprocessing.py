@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 class PierreStep1(Step):
     """
-    This class is for administrating Step 1 of the framework.
+    This class is for administrating the Step 1 of the framework.
     """
 
     def read_the_entries(self):
@@ -45,13 +45,19 @@ class PierreStep1(Step):
         """
         # Logging machine data
         logger.info("$" * 50)
+
         self.machine_information()
-        logger.info("-" * 50)
+
         # Logging the experiment setup
         logger.info(f"> DATASET (PREPROCESSING STEP) - {self.experimental_settings['opt']}")
         logger.info(" ".join(['>>', 'Dataset:', self.experimental_settings['dataset']]))
-        logger.info(" ".join(['>>', 'Number of Folds:', str(self.experimental_settings['n_folds'])]))
-        logger.info(" ".join(['>>', 'Number of Trials:', str(self.experimental_settings['n_trials'])]))
+        if self.experimental_settings['opt'] == Label.DATASET_SPLIT:
+            logger.info(" ".join(['>>', 'Number of Folds:', str(self.experimental_settings['n_folds'])]))
+            logger.info(" ".join(['>>', 'Number of Trials:', str(self.experimental_settings['n_trials'])]))
+        else:
+            logger.info(" ".join(['>>', 'Fold to use:', str(self.experimental_settings['fold'])]))
+            logger.info(" ".join(['>>', 'Trial to use:', str(self.experimental_settings['trial'])]))
+
         logger.info("$" * 50)
 
     def create_folds(self):
@@ -60,6 +66,7 @@ class PierreStep1(Step):
         """
         # Starting the counter
         self.start_count()
+
         # Executing the pre-processing
         RegisteredDataset.preprocessing(
             dataset=self.experimental_settings['dataset'],
@@ -98,9 +105,12 @@ class PierreStep1(Step):
             dataset=self.experimental_settings['dataset']
         )
         # Print the Raw dataset information
-        dataset_instance.raw_data_basic_info()
+        raw_dataset_info_df = dataset_instance.raw_data_basic_info()
         # Print the Clean dataset information
-        dataset_instance.clean_data_basic_info()
+        clean_dataset_info_df = dataset_instance.clean_data_basic_info()
+
+        dataset_info_df = pd.concat([raw_dataset_info_df, clean_dataset_info_df])
+
 
     def create_distribution(self):
         """

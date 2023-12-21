@@ -20,7 +20,7 @@ class Label:
     YEAR = 'YEAR'
 
     ########################################################
-    # Preprocessing choice labels
+    # Preprocessing OPTION labels
     DATASET_SPLIT = 'SPLIT'
     DATASET_CHART = 'CHART'
     DATASET_ANALYZE = 'ANALYZE'

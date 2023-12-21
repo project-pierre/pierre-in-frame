@@ -7,7 +7,7 @@ from settings.labels import Label
 
 class Input:
     """
-    TODO: Docstring
+    This class is responsible for reading the terminal/keyboard entries.
     """
     @staticmethod
     def default() -> dict:
@@ -39,7 +39,7 @@ class Input:
         """
         Method to read the settings from the terminal/keyboard. The possible options are:
 
-        - opt can be: SPLIT, CHART, ANALYZE, and DISTRIBUTION. Ex: -opt=CHAT
+        - opt can be: SPLIT, CHART, ANALYZE, and DISTRIBUTION. Ex: -opt=CHART
 
         - dataset can be: ml-1m, yahoo-movies (see the registered datasets). Ex: --dataset=ml-1m
 
@@ -47,7 +47,7 @@ class Input:
 
         - n_trials can be: 1, 2, 3 or higher. Ex --n_trials=7
 
-        - distribution can be: CWS, and WPS. Ex: --distribution=CWS
+        - distribution can be: CWS, or WPS. Ex: --distribution=CWS
 
         - fold can be: 1, 2, 3 and others (based on the n_folds). Ex: --fold=5
 
@@ -65,15 +65,23 @@ class Input:
         experimental_setup['n_trials'] = Constants.N_TRIAL_VALUE
 
         experimental_setup['distribution'] = Label.DEFAULT_DISTRIBUTION
-        experimental_setup['fold'] = list(range(1, Constants.K_FOLDS_VALUE + 1))
-        experimental_setup['trial'] = list(range(1, Constants.N_TRIAL_VALUE + 1))
+        experimental_setup['fold'] = 1
+        experimental_setup['trial'] = 1
 
         if len(sys.argv) > 1:
             for arg in sys.argv[1:]:
                 param, value = arg.split('=')
 
+                # Reading the work Option
+                if param == '-opt':
+                    if value not in Label.PREPROCESSING_OPTS:
+                        print(f'Option {value} does not exists!')
+                        print("The possibilities are: ", Label.PREPROCESSING_OPTS)
+                        exit(1)
+                    experimental_setup['opt'] = str(value)
+
                 # Reading the "dataset"
-                if param == '--dataset':
+                elif param == '--dataset':
                     if value not in RegisteredDataset.DATASET_LIST:
                         print('Dataset not registered!')
                         exit(1)
@@ -114,20 +122,12 @@ class Input:
                         exit(1)
                     experimental_setup['trial'] = value
 
-                # Reading the work Option
-                elif param == '-opt':
-                    if value not in Label.PREPROCESSING_OPTS:
-                        print(f'Option {value} does not exists!')
-                        print("The possibilities are: ", Label.PREPROCESSING_OPTS)
-                        exit(1)
-                    experimental_setup['opt'] = str(value)
-
                 else:
                     print(f"The parameter {param} is not configured in this feature.")
                     exit(1)
         else:
             print("More information are needed!")
-            print("All params possibilities are: "
+            print("All params possibilities are: \n"
                   "-opt, --dataset, --n_folds, --n_trials, --fold, --trial, --distribution.")
             print("Example: python step1_preprocessing.py -opt=SPLIT --dataset=ml-1m --n_trials=10 --n_folds=5")
             exit(1)

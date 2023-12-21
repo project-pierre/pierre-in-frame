@@ -336,6 +336,10 @@ class Dataset:
         print("Total of Transactions: ", total_of_transactions)
         print("Total of Classes: ", total_of_classes)
         print("*" * 50)
+        return pd.DataFrame(
+            [['Raw', total_of_users, total_of_items, total_of_transactions, total_of_classes]],
+            columns=['Dataset', 'Users', 'Items', 'Transactions', 'Classes']
+        )
 
     def clean_data_basic_info(self):
         """
@@ -355,3 +359,7 @@ class Dataset:
         print("Total of Transactions: ", total_of_transactions)
         print("Total of Classes: ", total_of_classes)
         print("*" * 50)
+        return pd.DataFrame(
+            [['Clean', total_of_users, total_of_items, total_of_transactions, total_of_classes]],
+            columns=['Dataset', 'Users', 'Items', 'Transactions', 'Classes']
+        )
