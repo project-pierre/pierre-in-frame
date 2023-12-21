@@ -156,6 +156,8 @@ class Input:
         experimental_setup['recommender'] = Label.DEFAULT_REC
         experimental_setup['distribution'] = Label.DEFAULT_DISTRIBUTION
         experimental_setup['cluster'] = Label.REGISTERED_UNSUPERVISED
+        experimental_setup['fold'] = 1
+        experimental_setup['trial'] = 1
 
         if len(sys.argv) > 1:
             for arg in sys.argv[1:]:
@@ -186,6 +188,20 @@ class Input:
                         print(f'This option does not exists! {value}')
                         exit(1)
                     experimental_setup['opt'] = str(value)
+
+                # Reading the "fold" number
+                elif param == '--fold':
+                    if int(value) <= 0 or int(value) > Constants.K_FOLDS_VALUE:
+                        print('Fold out of range!')
+                        exit(1)
+                    experimental_setup['fold'] = value
+
+                # Reading the "trial" number
+                elif param == '--trial':
+                    if int(value) <= 0 or int(value) > Constants.N_TRIAL_VALUE:
+                        print('Fold out of range!')
+                        exit(1)
+                    experimental_setup['trial'] = value
                 else:
                     print(f"The parameter {param} is not configured in this feature.")
         else:

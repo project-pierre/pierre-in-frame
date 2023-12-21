@@ -112,33 +112,37 @@ class PathDirFile:
     # [STEP 2] Search step methods - Hyperparameters
     # ########################################################################################### #
     @staticmethod
-    def set_recommender_hyperparameter_file(opt: str, dataset: str, algorithm: str) -> str:
+    def set_recommender_hyperparameter_file(opt: str, dataset: str, algorithm: str, trial: int, fold: int) -> str:
         """
         Method to set the file path, which deal with the hyperparameter values founded in the Search Step.
 
         :param opt: TODO.
         :param dataset: A string that's representing the dataset name.
         :param algorithm: A string that's representing the recommender algorithm name.
+        :param trial: The trial number.
+        :param fold: The fold number.
 
-        :return: A string like data/hyperparameters/{dataset}/{opt}/{algorithm}.json.
+        :return: A string like data/hyperparameters/{dataset}/{opt}/trial-{trial}/fold-{fold}/{algorithm}.json.
         """
-        save_in_dir = "/".join([PathDirFile.HYPERPARAMETERS_DIR, dataset, opt])
+        save_in_dir = "/".join([PathDirFile.HYPERPARAMETERS_DIR, dataset, opt, 'trial-' + str(trial), 'fold-' + str(fold)])
         if not os.path.exists(save_in_dir):
             os.makedirs(save_in_dir)
         return "/".join([save_in_dir, algorithm + ".json"])
 
     @staticmethod
-    def get_recommender_hyperparameter_file(opt: str, dataset: str, algorithm: str) -> str:
+    def get_recommender_hyperparameter_file(opt: str, dataset: str, algorithm: str, trial: int, fold: int) -> str:
         """
         Method to get the file path, which deal with the hyperparameter values founded in the Search Step.
 
         :param opt: TODO.
         :param dataset: A string that's representing the dataset name.
         :param algorithm: A string that's representing the recommender algorithm name.
+        :param trial: The trial number.
+        :param fold: The fold number.
 
-        :return: A string like data/hyperparameters/{dataset}/{opt}/{algorithm}.json.
+        :return: A string like data/hyperparameters/{dataset}/{opt}/trial-{trial}/fold-{fold}/{algorithm}.json.
         """
-        save_in_dir = "/".join([PathDirFile.HYPERPARAMETERS_DIR, dataset, opt])
+        save_in_dir = "/".join([PathDirFile.HYPERPARAMETERS_DIR, dataset, opt, 'trial-' + str(trial), 'fold-' + str(fold)])
         return "/".join([save_in_dir, algorithm + ".json"])
 
     @staticmethod

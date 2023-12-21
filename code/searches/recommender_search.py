@@ -20,8 +20,10 @@ class RecommenderSearch:
     Class used to lead with the Random Search
     """
 
-    def __init__(self, recommender: str, dataset: str):
+    def __init__(self, recommender: str, dataset: str, trial: int, fold: int):
         self.measures = ['rmse', 'mae']
+        self.trial = trial
+        self.fold = fold
         self.dataset = RegisteredDataset.load_dataset(dataset)
         self.recommender_name = recommender
         self.recommender = None
@@ -53,7 +55,11 @@ class RecommenderSearch:
         gs = RandomizedSearchCV(algo_class=self.recommender, param_distributions=self.params, measures=self.measures,
                                 n_iter=Constants.N_INTER, cv=Constants.K_FOLDS_VALUE,
                                 n_jobs=Constants.N_CORES, joblib_verbose=100, random_state=42)
-        gs.fit(PandasSurprise.pandas_transform_all_dataset_to_surprise(self.dataset.get_transactions()))
+        gs.fit(
+            PandasSurprise.pandas_transform_all_dataset_to_surprise(
+                self.dataset.get_train_transactions(trial=self.trial, fold=self.fold)
+            )
+        )
         return gs
 
     def fit(self):
@@ -63,5 +69,6 @@ class RecommenderSearch:
         gs = self.__search()
         # Saving
         SaveAndLoad.save_hyperparameters_recommender(
-            best_params=gs.best_params, dataset=self.dataset.system_name, algorithm=self.recommender_name
+            best_params=gs.best_params, dataset=self.dataset.system_name, algorithm=self.recommender_name,
+            trial=self.trial, fold=self.fold
         )

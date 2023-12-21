@@ -98,7 +98,10 @@ class PierreStep2(Step):
         # Executing the Random Search
         search_instance = RecommenderSearch(
             recommender=self.experimental_settings['recommender'],
-            dataset=self.experimental_settings['dataset'])
+            dataset=self.experimental_settings['dataset'],
+            trial=self.experimental_settings['trial'],
+            fold=self.experimental_settings['fold']
+        )
         search_instance.fit()
 
         # Finishing the counter
@@ -108,6 +111,7 @@ class PierreStep2(Step):
         SaveAndLoad.save_search_time(
             data=self.clock_data(),
             dataset=self.experimental_settings['dataset'], algorithm=self.experimental_settings['recommender']
+
         )
 
 
