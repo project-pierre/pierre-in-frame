@@ -2,24 +2,28 @@ from scipy.stats import randint, uniform
 
 
 class SurpriseParams:
+    size = 10
     # 1: User KNN
-    USER_KNN_SEARCH_PARAMS = {"k": randint(3, 101),
+    USER_KNN_SEARCH_PARAMS = {"k": randint(3, 203).rvs(size=size),
                               "sim_options": {'name': ['pearson', 'cosine', 'msd'], 'user_based': [True]}}
     # 2: Item KNN
-    ITEM_KNN_SEARCH_PARAMS = {"k": randint(3, 101),
+    ITEM_KNN_SEARCH_PARAMS = {"k": randint(3, 201).rvs(size=size),
                               "sim_options": {'name': ['pearson', 'cosine', 'msd'], 'user_based': [False]}}
     # 3: SVD
-    SVD_SEARCH_PARAMS = {"n_factors": randint(10, 150), "n_epochs": randint(10, 150), "lr_all": uniform(0.001, 0.01),
-                         "reg_all": uniform(0.01, 0.1)}
+    SVD_SEARCH_PARAMS = {"n_factors": randint(10, 150).rvs(size=size), "n_epochs": randint(10, 150).rvs(size=size),
+                         "lr_all": uniform(0.001, 0.01).rvs(size=size), "reg_all": uniform(0.01, 0.1).rvs(size=size)}
     # 4: SVD++
-    SVDpp_SEARCH_PARAMS = {"n_factors": randint(10, 150), "n_epochs": randint(10, 150), "lr_all": uniform(0.001, 0.01),
-                           "reg_all": uniform(0.01, 0.1)}
+    SVDpp_SEARCH_PARAMS = {"n_factors": randint(10, 150).rvs(size=size), "n_epochs": randint(10, 150).rvs(size=size),
+                           "lr_all": uniform(0.001, 0.01).rvs(size=size), "reg_all": uniform(0.01, 0.1).rvs(size=size)}
     # 5: NMF
-    NMF_SEARCH_PARAMS = {"n_factors": randint(10, 150), "n_epochs": randint(10, 150), "reg_pu": uniform(0.01, 0.1),
-                         "reg_qi": uniform(0.01, 0.1), "reg_bu": uniform(0.01, 0.1), "reg_bi": uniform(0.01, 0.1),
-                         "lr_bu": uniform(0.001, 0.01), "lr_bi": uniform(0.001, 0.01), "biased": [True]}
+    NMF_SEARCH_PARAMS = {"n_factors": randint(10, 150).rvs(size=size), "n_epochs": randint(10, 150).rvs(size=size),
+                         "reg_pu": uniform(0.01, 0.1).rvs(size=size), "reg_qi": uniform(0.01, 0.1).rvs(size=size),
+                         "reg_bu": uniform(0.01, 0.1).rvs(size=size), "reg_bi": uniform(0.01, 0.1).rvs(size=size),
+                         "lr_bu": uniform(0.001, 0.01).rvs(size=size), "lr_bi": uniform(0.001, 0.01).rvs(size=size),
+                         "biased": [True]}
     # 6: Co Clustering
-    CLUSTERING_SEARCH_PARAMS = {"n_cltr_u": randint(3, 11), "n_cltr_i": randint(3, 11), "n_epochs": randint(10, 150)}
+    CLUSTERING_SEARCH_PARAMS = {"n_cltr_u": randint(3, 110).rvs(size=size), "n_cltr_i": randint(3, 110).rvs(size=size),
+                                "n_epochs": randint(10, 150).rvs(size=size)}
 
 
 class ConformityParams:

@@ -20,8 +20,8 @@ class RecommenderSearch:
     Class used to lead with the Random Search
     """
 
-    def __init__(self, recommender: str, dataset: str, trial: int, fold: int):
-        self.measures = ['rmse', 'mae']
+    def __init__(self, recommender: str, dataset: str, trial: int = None, fold: int = None):
+        self.measures = ['rmse', 'mae', 'fcp', 'mse']
         self.trial = trial
         self.fold = fold
         self.dataset = RegisteredDataset.load_dataset(dataset)
@@ -72,3 +72,10 @@ class RecommenderSearch:
             best_params=gs.best_params, dataset=self.dataset.system_name, algorithm=self.recommender_name,
             trial=self.trial, fold=self.fold
         )
+
+    def fit_all(self):
+        for trial in range(1, Constants.N_TRIAL_VALUE + 1):
+            for fold in range(1, Constants.K_FOLDS_VALUE + 1):
+                self.trial = trial
+                self.fold = fold
+                self.fit()

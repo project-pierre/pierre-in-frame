@@ -156,8 +156,8 @@ class Input:
         experimental_setup['recommender'] = Label.DEFAULT_REC
         experimental_setup['distribution'] = Label.DEFAULT_DISTRIBUTION
         experimental_setup['cluster'] = Label.REGISTERED_UNSUPERVISED
-        experimental_setup['fold'] = 1
-        experimental_setup['trial'] = 1
+        experimental_setup['fold'] = None
+        experimental_setup['trial'] = None
 
         if len(sys.argv) > 1:
             for arg in sys.argv[1:]:

@@ -102,7 +102,11 @@ class PierreStep2(Step):
             trial=self.experimental_settings['trial'],
             fold=self.experimental_settings['fold']
         )
-        search_instance.fit()
+        if self.experimental_settings['trial'] is None:
+            search_instance.fit_all()
+
+        else:
+            search_instance.fit()
 
         # Finishing the counter
         self.finish_count()

@@ -4,6 +4,7 @@ from pandas import DataFrame, read_csv
 
 from settings.labels import Label
 from settings.path_dir_file import PathDirFile
+from utils.utils import NpEncoder
 
 
 class SaveAndLoad:
@@ -94,7 +95,7 @@ class SaveAndLoad:
         with open(PathDirFile.set_recommender_hyperparameter_file(
                 opt=Label.RECOMMENDER, dataset=dataset, algorithm=algorithm, trial=trial, fold=fold
         ), 'w') as fp:
-            json.dump(best_params['mae'], fp)
+            json.dump(best_params, fp, cls=NpEncoder)
 
     @staticmethod
     def load_hyperparameters_recommender(dataset: str, algorithm: str, trial: int, fold: int):
