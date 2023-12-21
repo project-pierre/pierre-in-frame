@@ -54,7 +54,7 @@ class PierreStep1(Step):
         if self.experimental_settings['opt'] == Label.DATASET_SPLIT:
             logger.info(" ".join(['>>', 'Number of Folds:', str(self.experimental_settings['n_folds'])]))
             logger.info(" ".join(['>>', 'Number of Trials:', str(self.experimental_settings['n_trials'])]))
-        else:
+        elif self.experimental_settings['opt'] == Label.DATASET_DISTRIBUTION:
             logger.info(" ".join(['>>', 'Fold to use:', str(self.experimental_settings['fold'])]))
             logger.info(" ".join(['>>', 'Trial to use:', str(self.experimental_settings['trial'])]))
 
@@ -110,7 +110,12 @@ class PierreStep1(Step):
         clean_dataset_info_df = dataset_instance.clean_data_basic_info()
 
         dataset_info_df = pd.concat([raw_dataset_info_df, clean_dataset_info_df])
+        print(dataset_info_df)
 
+        # Save the distributions
+        SaveAndLoad.save_dataset_analyze(
+            data=dataset_info_df, dataset=self.experimental_settings['dataset']
+        )
 
     def create_distribution(self):
         """

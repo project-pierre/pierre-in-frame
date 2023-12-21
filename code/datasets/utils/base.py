@@ -329,13 +329,13 @@ class Dataset:
         total_of_transactions = len(self.raw_transactions)
         total_of_classes = len(
             set(list(itertools.chain.from_iterable(list(map(Dataset.classes, self.raw_items[Label.GENRES].tolist()))))))
-        print("*" * 50)
-        print("RAW DATASET INFORMATION")
-        print("Total of Users: ", total_of_users)
-        print("Total of Items: ", total_of_items)
-        print("Total of Transactions: ", total_of_transactions)
-        print("Total of Classes: ", total_of_classes)
-        print("*" * 50)
+        # print("*" * 50)
+        # print("RAW DATASET INFORMATION")
+        # print("Total of Users: ", total_of_users)
+        # print("Total of Items: ", total_of_items)
+        # print("Total of Transactions: ", total_of_transactions)
+        # print("Total of Classes: ", total_of_classes)
+        # print("*" * 50)
         return pd.DataFrame(
             [['Raw', total_of_users, total_of_items, total_of_transactions, total_of_classes]],
             columns=['Dataset', 'Users', 'Items', 'Transactions', 'Classes']
@@ -352,13 +352,13 @@ class Dataset:
         total_of_transactions = len(self.transactions)
         total_of_classes = len(
             set(list(itertools.chain.from_iterable(list(map(Dataset.classes, self.items[Label.GENRES].tolist()))))))
-        print("*" * 50)
-        print("CLEAN DATASET INFORMATION")
-        print("Total of Users: ", total_of_users)
-        print("Total of Items: ", total_of_items)
-        print("Total of Transactions: ", total_of_transactions)
-        print("Total of Classes: ", total_of_classes)
-        print("*" * 50)
+        # print("*" * 50)
+        # print("CLEAN DATASET INFORMATION")
+        # print("Total of Users: ", total_of_users)
+        # print("Total of Items: ", total_of_items)
+        # print("Total of Transactions: ", total_of_transactions)
+        # print("Total of Classes: ", total_of_classes)
+        # print("*" * 50)
         return pd.DataFrame(
             [['Clean', total_of_users, total_of_items, total_of_transactions, total_of_classes]],
             columns=['Dataset', 'Users', 'Items', 'Transactions', 'Classes']

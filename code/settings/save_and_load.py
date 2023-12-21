@@ -64,6 +64,21 @@ class SaveAndLoad:
         return read_csv(preference_distribution_path, index_col=0)
 
     # ########################################################################################### #
+
+    @staticmethod
+    def save_dataset_analyze(
+            data: DataFrame, dataset: str, ext: str = 'csv'
+    ):
+        """
+        This method is to save the distribution file.
+        """
+        data.to_csv(
+            PathDirFile.dataset_analyze_file(
+                dataset=dataset, filename="general" + '.' + ext
+            ), index=False
+        )
+
+    # ########################################################################################### #
     # ########################################################################################### #
     # ########################################################################################### #
     # [STEP 2] Search step methods - Best Parameters

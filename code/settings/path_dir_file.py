@@ -24,6 +24,7 @@ class PathDirFile:
     RESULTS_METRICS_DIR = RESULTS_DIR + "/metrics"
     RESULTS_DECISION_DIR = RESULTS_DIR + "/decision"
     RESULTS_GRAPHICS_DIR = RESULTS_DIR + "/graphics"
+    RESULTS_ANALYZE_DIR = RESULTS_DIR + "/analyze"
     RESULTS_DATASET_GRAPHICS_DIR = RESULTS_GRAPHICS_DIR + "/dataset"
 
     # File
@@ -88,6 +89,21 @@ class PathDirFile:
         :return: A string like data/datasets/clean/{dataset}/trial-{trial}/fold-{fold}/{filename}
         """
         save_in_dir = "/".join([PathDirFile.CLEAN_DATASETS_DIR, dataset, 'trial-' + str(trial), 'fold-' + str(fold)])
+        if not os.path.exists(save_in_dir):
+            os.makedirs(save_in_dir)
+        return "/".join([save_in_dir, filename])
+
+    @staticmethod
+    def dataset_analyze_file(dataset: str, filename: str) -> str:
+        """
+        This method is to lead with the distribution file directory.
+
+        :param dataset: A string that's representing the dataset name.
+        :param filename: The distribution filename.
+
+        :return: A string like results/analyze/{dataset}/{filename}
+        """
+        save_in_dir = "/".join([PathDirFile.RESULTS_ANALYZE_DIR, dataset])
         if not os.path.exists(save_in_dir):
             os.makedirs(save_in_dir)
         return "/".join([save_in_dir, filename])
