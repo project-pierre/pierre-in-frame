@@ -52,6 +52,13 @@ class Label:
     REGISTERED_RECOMMENDERS = SURPRISE_RECOMMENDERS
 
     ########################################################
+    # Hyperparameter Search Metrics
+    RMSE_LABEL = 'rmse'
+    MAE_LABEL = 'mae'
+    MSE_LABEL = 'mse'
+    FCP_LABEL = 'fcp'
+    SEARCH_METRICS = [RMSE_LABEL, MAE_LABEL, MSE_LABEL, FCP_LABEL]
+    ########################################################
 
     CONFORMITY = 'CONFORMITY'
     RECOMMENDER = 'RECOMMENDER'

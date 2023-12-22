@@ -72,7 +72,7 @@ class Input:
             for arg in sys.argv[1:]:
                 param, value = arg.split('=')
 
-                # Reading the work Option
+                # Reading the work 'Option' (-opt) from the terminal entrance
                 if param == '-opt':
                     if value not in Label.PREPROCESSING_OPTS:
                         print(f'Option {value} does not exists!')
@@ -80,45 +80,45 @@ class Input:
                         exit(1)
                     experimental_setup['opt'] = str(value)
 
-                # Reading the "dataset"
+                # Reading the work 'Dataset' (--dataset) from the terminal entrance
                 elif param == '--dataset':
                     if value not in RegisteredDataset.DATASET_LIST:
                         print('Dataset not registered!')
                         exit(1)
                     experimental_setup['dataset'] = str(value)
 
-                # Reading number of "folds"
+                # Reading the work 'Number of Folds' (--n_folds) from the terminal entrance
                 elif param == '--n_folds':
                     if int(value) < 3:
                         print('The lower accepted value is 3!')
                         exit(1)
                     experimental_setup['n_folds'] = int(value)
 
-                # Reading number of "trials"
+                # Reading the work 'Number of Trials' (--n_trials) from the terminal entrance
                 elif param == '--n_trials':
                     if int(value) < 1:
                         print('Only positive numbers are accepted!')
                         exit(1)
                     experimental_setup['n_trials'] = int(value)
 
-                # Reading the "distribution" name
+                # Reading the work 'Distribution' (--distribution) from the terminal entrance
                 elif param == '--distribution':
                     if value not in Label.ACCESSIBLE_DISTRIBUTION_LIST:
                         print('Distribution not found!')
                         exit(1)
                     experimental_setup['distribution'] = value
 
-                # Reading the "fold" number
+                # Reading the work 'Fold Number' (--fold) from the terminal entrance
                 elif param == '--fold':
                     if int(value) <= 0 or int(value) > Constants.K_FOLDS_VALUE:
                         print('Fold out of range!')
                         exit(1)
                     experimental_setup['fold'] = value
 
-                # Reading the "trial" number
+                # Reading the work 'Trial Number' (--trial) from the terminal entrance
                 elif param == '--trial':
                     if int(value) <= 0 or int(value) > Constants.N_TRIAL_VALUE:
-                        print('Fold out of range!')
+                        print('Trial out of range!')
                         exit(1)
                     experimental_setup['trial'] = value
 
@@ -146,7 +146,7 @@ class Input:
 
         - cluster: TODO: Docstring
 
-        - distribution: TODO: Docstring
+        - distribution can be: CWS, or WPS. Ex: --distribution=CWS
 
         :return: A dict with the input settings.
         """
@@ -162,44 +162,53 @@ class Input:
         if len(sys.argv) > 1:
             for arg in sys.argv[1:]:
                 param, value = arg.split('=')
-                if param == '--recommender':
-                    if value not in Label.REGISTERED_RECOMMENDERS:
-                        print('Recommender not found!')
-                        exit(1)
-                    experimental_setup['recommender'] = value
-                # read the dataset to be used
-                elif param == '--dataset':
-                    if value not in RegisteredDataset.DATASET_LIST:
-                        print('Dataset not registered!')
-                        exit(1)
-                    experimental_setup['dataset'] = value
-                elif param == '--cluster':
-                    if value not in Label.REGISTERED_UNSUPERVISED:
-                        print('Cluster algorithm not registered!')
-                        exit(1)
-                    experimental_setup['cluster'] = [value]
-                elif param == '--distribution':
-                    if value not in Label.ACCESSIBLE_DISTRIBUTION_LIST:
-                        print('Distribution not found!')
-                        exit(1)
-                    experimental_setup['distribution'] = value
-                elif param == '-opt':
+
+                # Reading the work 'Option' (-opt) from the terminal entrance
+                if param == '-opt':
                     if value not in Label.SEARCH_OPTS:
                         print(f'This option does not exists! {value}')
                         exit(1)
                     experimental_setup['opt'] = str(value)
 
-                # Reading the "fold" number
+                # Reading the work 'Recommender Algorithm' (--recommender) from the terminal entrance
+                elif param == '--recommender':
+                    if value not in Label.REGISTERED_RECOMMENDERS:
+                        print('Recommender not found!')
+                        exit(1)
+                    experimental_setup['recommender'] = value
+
+                # Reading the work 'Dataset' (--dataset) from the terminal entrance
+                elif param == '--dataset':
+                    if value not in RegisteredDataset.DATASET_LIST:
+                        print('Dataset not registered!')
+                        exit(1)
+                    experimental_setup['dataset'] = value
+
+                # Reading the work 'Cluster Algorithm' (--cluster) from the terminal entrance
+                elif param == '--cluster':
+                    if value not in Label.REGISTERED_UNSUPERVISED:
+                        print('Cluster algorithm not registered!')
+                        exit(1)
+                    experimental_setup['cluster'] = [value]
+
+                # Reading the work 'Distribution' (--distribution) from the terminal entrance
+                elif param == '--distribution':
+                    if value not in Label.ACCESSIBLE_DISTRIBUTION_LIST:
+                        print('Distribution not found!')
+                        exit(1)
+                    experimental_setup['distribution'] = value
+
+                # Reading the work 'Fold Number' (--fold) from the terminal entrance
                 elif param == '--fold':
                     if int(value) <= 0 or int(value) > Constants.K_FOLDS_VALUE:
                         print('Fold out of range!')
                         exit(1)
                     experimental_setup['fold'] = value
 
-                # Reading the "trial" number
+                # Reading the work 'Trial Number' (--trial) from the terminal entrance
                 elif param == '--trial':
                     if int(value) <= 0 or int(value) > Constants.N_TRIAL_VALUE:
-                        print('Fold out of range!')
+                        print('Trial out of range!')
                         exit(1)
                     experimental_setup['trial'] = value
                 else:
@@ -226,9 +235,7 @@ class Input:
 
         - trial can be: 1, 2, 3 and others (based on the preprocessing n_trials).
 
-        - cluster: TODO: Docstring
-
-        - distribution: TODO: Docstring
+        - metric: Metric used to load the best hyperparameters. It can be: rmse, mae, mse, and fcp.
 
         :return: A dict with the input settings.
         """
@@ -238,40 +245,55 @@ class Input:
         experimental_setup['dataset'] = RegisteredDataset.DEFAULT_DATASET
         experimental_setup['fold'] = [fold for fold in range(1, Constants.K_FOLDS_VALUE + 1)]
         experimental_setup['trial'] = [trial for trial in range(1, Constants.N_TRIAL_VALUE + 1)]
+        experimental_setup['metric'] = 'rmse'
 
         if len(sys.argv) > 2:
             for arg in sys.argv[1:]:
                 param, value = arg.split('=')
-                if param == '--recommender':
+
+                # Reading the work 'Option' (opt) from the terminal entrance
+                if param == '-opt':
+                    if value not in Label.SEARCH_OPTS:
+                        print(f'This option does not exists! {value}')
+                        exit(1)
+                    experimental_setup['opt'] = str(value)
+
+                # Reading the work 'Recommender Algorithm' (--recommender) from the terminal entrance
+                elif param == '--recommender':
                     if value not in Label.REGISTERED_RECOMMENDERS:
                         print('Recommender not found! All possibilities are:')
                         print(Label.REGISTERED_RECOMMENDERS)
                         exit(1)
                     experimental_setup['recommender'] = value
-                # read the dataset to be used
+
+                # Reading the work 'Dataset' (--dataset) from the terminal entrance
                 elif param == '--dataset':
                     if value not in RegisteredDataset.DATASET_LIST:
                         print('Dataset not registered! All possibilities are:')
                         print(RegisteredDataset.DATASET_LIST)
                         exit(1)
                     experimental_setup['dataset'] = value
-                # read the fold number
+
+                # Reading the work 'Fold Number' (--fold) from the terminal entrance
                 elif param == '--fold':
                     if int(value) <= 0 or int(value) > Constants.K_FOLDS_VALUE:
                         print('Fold out of range!')
                         exit(1)
                     experimental_setup['fold'] = [value]
-                # read the trial number
+
+                # Reading the work 'Trial Number' (--trial) from the terminal entrance
                 elif param == '--trial':
                     if int(value) <= 0 or int(value) > Constants.N_TRIAL_VALUE:
                         print('Fold out of range!')
                         exit(1)
                     experimental_setup['trial'] = [value]
-                elif param == '-opt':
-                    if value not in Label.SEARCH_OPTS:
-                        print(f'This option does not exists! {value}')
+
+                # Reading the work 'Metric' (--metric) from the terminal entrance
+                elif param == '--metric':
+                    if value not in Label.SEARCH_METRICS:
+                        print(f'This Metric does not exists! {value}')
                         exit(1)
-                    experimental_setup['opt'] = str(value)
+                    experimental_setup['metric'] = str(value)
                 else:
                     print(f"The parameter {param} is not configured in this feature.")
         else:

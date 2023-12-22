@@ -15,20 +15,19 @@ logger = logging.getLogger(__name__)
 
 class PierreStep3(Step):
     """
-    TODO: Docstring
+    This class is administrating the Step 3 of the framework (Processing)
     """
 
     def read_the_entries(self):
         """
-        TODO: Docstring
+        This method reads the terminal entries.
         """
         self.experimental_settings = Input.step3()
-        print(self.experimental_settings)
 
     @staticmethod
     def set_the_logfile_by_instance(dataset: str, algorithm: str, trial: int, fold: int):
         """
-        TODO: Docstring
+        This method is to config the log file.
         """
         # Setup Log configuration
         setup_logging(
@@ -43,7 +42,7 @@ class PierreStep3(Step):
 
     def print_basic_info_by_instance(self, dataset: str, algorithm: str, trial: int, fold: int):
         """
-        TODO: Docstring
+        This method is to print basic information about the step and machine.
         """
 
         logger.info("$" * 50)
@@ -63,7 +62,7 @@ class PierreStep3(Step):
 
     def main(self):
         """
-        TODO: Docstring
+        Main method used to choice the run option.
         """
         self.recommender_parallelization()
 
@@ -77,6 +76,7 @@ class PierreStep3(Step):
             dataset=self.experimental_settings['dataset'],
             trial=trial, fold=fold
         ) for fold in self.experimental_settings['fold'] for trial in self.experimental_settings['trial'])
+
         # Finishing the Step
         logger.info(" ".join(['+' * 10, 'System shutdown', '+' * 10]))
 
@@ -101,7 +101,8 @@ class PierreStep3(Step):
 
         # Executing the processing step
         recommender_algorithm = SurpriseRecommenderAlgorithm(
-            dataset_name=dataset, trial=trial, fold=fold, recommender_name=recommender
+            dataset_name=dataset, trial=trial, fold=fold, recommender_name=recommender,
+            metric=self.experimental_settings['metric']
         )
         recommender_algorithm.run()
 

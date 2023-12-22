@@ -14,18 +14,18 @@ logger = logging.getLogger(__name__)
 
 class PierreStep2(Step):
     """
-    TODO: Docstring
+    This class is administrating the Step 2 of the framework (Hyperparameters search)
     """
 
     def read_the_entries(self):
         """
-        TODO: Docstring
+        This method reads the terminal entries.
         """
         self.experimental_settings = Input.step2()
 
     def set_the_logfile(self):
         """
-        TODO: Docstring
+        This method is to config the log file.
         """
         # Setup Log configuration
         setup_logging(
@@ -38,7 +38,7 @@ class PierreStep2(Step):
 
     def print_basic_info(self):
         """
-        TODO: Docstring
+        This method is to print basic information about the step and machine.
         """
         # Logging machine data
         logger.info("$" * 50)
@@ -47,18 +47,29 @@ class PierreStep2(Step):
         # Logging the experiment setup
         logger.info("-" * 50)
         logger.info("[Search Step] SEARCH FOR THE BEST PARAMETER VALUES")
-        logger.info(" ".join(['>>', 'Recommender:', self.experimental_settings['recommender']]))
+        logger.info(" ".join(['>>', 'Option:', self.experimental_settings['opt']]))
+        if self.experimental_settings['opt'] == Label.CONFORMITY:
+            logger.info(" ".join(['>>', 'Cluster:', self.experimental_settings['cluster']]))
+        elif self.experimental_settings['opt'] == Label.RECOMMENDER:
+            logger.info(" ".join(['>>', 'Recommender:', self.experimental_settings['recommender']]))
+
         logger.info(" ".join(['>>', 'Dataset:', self.experimental_settings['dataset']]))
+        if self.experimental_settings['trial'] is not None:
+            logger.info(" ".join(['>>', 'Fold to use:', str(self.experimental_settings['fold'])]))
+            logger.info(" ".join(['>>', 'Trial to use:', str(self.experimental_settings['trial'])]))
+
         logger.info("$" * 50)
 
     def main(self):
         """
-        TODO: Docstring
+        Main method used to choice the run option.
         """
         if self.experimental_settings['opt'] == Label.CONFORMITY:
             self.starting_cluster()
-        else:
+        elif self.experimental_settings['opt'] == Label.RECOMMENDER:
             self.starting_recommender()
+        else:
+            print("Option not found!")
 
     def starting_cluster(self):
         """

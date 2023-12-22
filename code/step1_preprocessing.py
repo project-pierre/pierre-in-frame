@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 class PierreStep1(Step):
     """
-    This class is for administrating the Step 1 of the framework.
+    This class is administrating the Step 1 of the framework (Pre-Processing).
     """
 
     def read_the_entries(self):
@@ -50,6 +50,7 @@ class PierreStep1(Step):
 
         # Logging the experiment setup
         logger.info(f"> DATASET (PREPROCESSING STEP) - {self.experimental_settings['opt']}")
+        logger.info(" ".join(['>>', 'Option:', self.experimental_settings['opt']]))
         logger.info(" ".join(['>>', 'Dataset:', self.experimental_settings['dataset']]))
         if self.experimental_settings['opt'] == Label.DATASET_SPLIT:
             logger.info(" ".join(['>>', 'Number of Folds:', str(self.experimental_settings['n_folds'])]))
@@ -106,11 +107,11 @@ class PierreStep1(Step):
         )
         # Print the Raw dataset information
         raw_dataset_info_df = dataset_instance.raw_data_basic_info()
+
         # Print the Clean dataset information
         clean_dataset_info_df = dataset_instance.clean_data_basic_info()
 
         dataset_info_df = pd.concat([raw_dataset_info_df, clean_dataset_info_df])
-        print(dataset_info_df)
 
         # Save the distributions
         SaveAndLoad.save_dataset_analyze(

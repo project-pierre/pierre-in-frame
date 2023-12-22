@@ -20,7 +20,7 @@ class SurpriseRecommenderAlgorithm:
     Class to lead with the surprise recommender algorithms, generating the recommendation and saving in the results path
     """
 
-    def __init__(self, recommender_name: str, dataset_name: str, fold: int, trial: int):
+    def __init__(self, recommender_name: str, dataset_name: str, fold: int, trial: int, metric: str):
         """
         Class constructor.
 
@@ -41,9 +41,11 @@ class SurpriseRecommenderAlgorithm:
         if self.recommender_name == Label.SLOPE:
             self.recommender = SlopeOne()
         else:
-            params = SaveAndLoad.load_hyperparameters_recommender(
-                dataset=self.dataset.system_name, algorithm=self.recommender_name
+            full_params = SaveAndLoad.load_hyperparameters_recommender(
+                dataset=self.dataset.system_name, algorithm=self.recommender_name,
+                trial=self.trial, fold=self.fold
             )
+            params = full_params[metric]
             if self.recommender_name == Label.SVD:
                 self.recommender = SVD(
                     n_factors=params['n_factors'], n_epochs=params['n_epochs'],
