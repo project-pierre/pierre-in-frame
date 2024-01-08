@@ -86,6 +86,12 @@ class Step:
         """
         return self.finish_time - self.start_time
 
+    def get_total_time_formatted(self):
+        """
+        This method returns the process total time.
+        """
+        return str(datetime.timedelta(seconds=self.finish_time - self.start_time))
+
     def clock_data(self) -> DataFrame:
         """
         This method creates a dataframe with the process times and returns it.

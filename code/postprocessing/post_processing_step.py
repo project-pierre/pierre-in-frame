@@ -5,7 +5,7 @@ import pandas as pd
 from datasets.candidate_items import CandidateItems
 from datasets.registred_datasets import RegisteredDataset
 from scikit_pierre.tradeoff.calibration import LinearCalibration, LogarithmBias
-from settings.path_dir_file import PathDirFile
+from settings.save_and_load import SaveAndLoad
 
 logger = logging.getLogger(__name__)
 
@@ -59,16 +59,23 @@ class PostProcessingStep:
         )
 
     def run(self):
+        """
+        TODO: Docstring
+        """
+
         # Execute the instance and get the recommendation list to all users.
         logger.info(">> Running... " + "-".join(
-            [self.dataset.system_name, self.recommender,
+            [self.dataset.system_name,
+             'trial-' + str(self.trial), 'fold-' + str(self.fold), self.recommender,
              self.tradeoff_component, self.distribution_component, self.relevance_component, self.selector_component,
-             self.fairness_component, self.tradeoff_weight_component,
-             'trial-' + str(self.trial), 'fold-' + str(self.fold)]))
+             self.fairness_component, self.tradeoff_weight_component])
+        )
         recommendation_lists = self.tradeoff_instance.fit()
         merged_results_df = pd.concat(recommendation_lists)
+
         # Save all recommendation lists
-        path = PathDirFile.set_recommendation_list_file(
+        SaveAndLoad.save_recommendation_lists(
+            data=merged_results_df,
             recommender=self.recommender, dataset=self.dataset.system_name,
             trial=self.trial, fold=self.fold,
             tradeoff=self.tradeoff_component,
@@ -78,4 +85,3 @@ class PostProcessingStep:
             tradeoff_weight=self.tradeoff_weight_component,
             select_item=self.selector_component
         )
-        merged_results_df.to_csv(path)

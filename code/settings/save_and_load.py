@@ -198,7 +198,28 @@ class SaveAndLoad:
         )
 
     # ########################################################################################### #
-    # [STEP 3] Post-Processing step methods - Recommendation Lists
+    # [STEP 4] Post-Processing step methods - Time
+    # ########################################################################################### #
+    @staticmethod
+    def save_postprocessing_time(
+        data: DataFrame, dataset: str, recommender: str, trial: int, fold: int,
+        tradeoff: str, distribution: str, fairness: str, relevance: str,
+        tradeoff_weight: str, select_item: str
+    ):
+        """
+        TODO: Docstring
+        """
+        data.to_csv(
+            PathDirFile.set_postprocessing_time_file(
+                dataset=dataset, recommender=recommender, fold=fold, trial=trial,
+                tradeoff=tradeoff, distribution=distribution, fairness=fairness,
+                relevance=relevance, tradeoff_weight=tradeoff_weight, select_item=select_item
+            ),
+            index=False
+        )
+
+    # ########################################################################################### #
+    # [STEP 4] Post-Processing step methods - Recommendation Lists
     # ########################################################################################### #
     @staticmethod
     def load_recommendation_lists(
@@ -215,6 +236,28 @@ class SaveAndLoad:
             relevance=relevance, tradeoff_weight=tradeoff_weight, select_item=select_item
         )
         return read_csv(recommendation_list_path)
+
+    @staticmethod
+    def save_recommendation_lists(
+        data: DataFrame,
+        dataset: str, recommender: str, trial: int, fold: int,
+        tradeoff: str, distribution: str, fairness: str, relevance: str,
+        tradeoff_weight: str, select_item: str
+    ):
+        """
+        TODO: Docstring
+        """
+        path = PathDirFile.set_recommendation_list_file(
+            recommender=recommender, dataset=dataset,
+            trial=trial, fold=fold,
+            tradeoff=tradeoff,
+            distribution=distribution,
+            fairness=fairness,
+            relevance=relevance,
+            tradeoff_weight=tradeoff_weight,
+            select_item=select_item
+        )
+        data.to_csv(path)
 
     # ########################################################################################### #
     # [STEP 5] Metrics step methods - Time
