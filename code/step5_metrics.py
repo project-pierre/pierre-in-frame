@@ -4,7 +4,8 @@ import logging
 from joblib import Parallel, delayed
 
 from evaluations.evaluation_interface import execution_time_fold, applying_map, \
-    applying_mrr, applying_mace, applying_mrmc
+    applying_mrr, applying_mace, applying_mrmc, applying_unexpectedness, applying_serendipity, applying_novelty, \
+    applying_coverage, applying_personalization
 from evaluations.conformity_algorithms import ConformityAlgorithms
 from settings.constants import Constants
 from settings.labels import Label
@@ -104,6 +105,31 @@ class PierreStep5(Step):
                 load_monitoring.append(
                     applying_mrmc(recommender, dataset, trial, fold, distribution, fairness, relevance, weight, tradeoff,
                                   selector)
+                )
+            elif m == "UNEXPECTEDNESS":
+                load_monitoring.append(
+                    applying_unexpectedness(recommender, dataset, trial, fold, distribution, fairness, relevance, weight,
+                                            tradeoff, selector)
+                )
+            elif m == "SERENDIPITY":
+                load_monitoring.append(
+                    applying_serendipity(recommender, dataset, trial, fold, distribution, fairness, relevance, weight,
+                                         tradeoff, selector)
+                )
+            elif m == "NOVELTY":
+                load_monitoring.append(
+                    applying_novelty(recommender, dataset, trial, fold, distribution, fairness, relevance, weight,
+                                     tradeoff, selector)
+                )
+            elif m == "COVERAGE":
+                load_monitoring.append(
+                    applying_coverage(recommender, dataset, trial, fold, distribution, fairness, relevance, weight,
+                                      tradeoff, selector)
+                )
+            elif m == "PERSONALIZATION":
+                load_monitoring.append(
+                    applying_personalization(recommender, dataset, trial, fold, distribution, fairness, relevance, weight,
+                                             tradeoff, selector)
                 )
             elif m == "TIME":
                 execution_time_fold(recommender, dataset, trial, fold,
