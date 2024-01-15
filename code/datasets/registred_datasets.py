@@ -1,3 +1,4 @@
+from datasets.last_fm_two_billion import LastFMTwoBillion
 from datasets.movielens_one_million import MovielensOneMillion
 from datasets.my_anime_list import MyAnimeList
 from datasets.taste_profile import TasteProfile
@@ -16,10 +17,12 @@ class RegisteredDataset:
     TASTE_PROFILE_DATASET = TasteProfile.system_name
     MY_ANIME_LIST_DATASET = MyAnimeList.system_name
     TWITTER_MOVIES_DATASET = TwitterMovies.system_name
+    LASTFM_TWO_BILLION_DATASET = LastFMTwoBillion.system_name
 
     # Allowed to be accessed
     DATASET_LIST = [
         MOVIELENS_ONE_MILLION_DATASET, YAHOO_MOVIES_DATASET, TWITTER_MOVIES_DATASET,
+        LASTFM_TWO_BILLION_DATASET,
         # TASTE_PROFILE_DATASET,
         # MY_ANIME_LIST_DATASET
     ]
@@ -49,6 +52,9 @@ class RegisteredDataset:
         # Twitter Movies
         elif dataset == RegisteredDataset.TWITTER_MOVIES_DATASET:
             return TwitterMovies()
+        # Last FM Two Billion
+        elif dataset == RegisteredDataset.LASTFM_TWO_BILLION_DATASET:
+            return LastFMTwoBillion()
         else:
             raise "The requested dataset is not registered in the system"
 
@@ -79,6 +85,10 @@ class RegisteredDataset:
         # Twitter Movies
         elif dataset == RegisteredDataset.TWITTER_MOVIES_DATASET:
             instance = TwitterMovies()
+            instance.mining_data_and_create_fold(n_trials=n_trials, n_folds=n_folds)
+        # Last FM Two Billion
+        elif dataset == RegisteredDataset.LASTFM_TWO_BILLION_DATASET:
+            instance = LastFMTwoBillion()
             instance.mining_data_and_create_fold(n_trials=n_trials, n_folds=n_folds)
         else:
             raise "The requested dataset is not registered in the system"

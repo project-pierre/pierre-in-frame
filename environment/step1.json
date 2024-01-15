@@ -1,0 +1,9 @@
+{
+  "opt": "SPLIT",
+  "dataset": "lfm-2b",
+  "n_folds": 5,
+  "n_trials": 1,
+  "distribution": "None",
+  "fold": "None",
+  "trial": "None"
+}
