@@ -12,6 +12,7 @@ class PathDirFile:
     DATA_DIR = BASE_DIR + "/data"
     LOG_DIR = BASE_DIR + '/logs/'
     RESULTS_DIR = BASE_DIR + "/results"
+    ENVIRONMENT_DIR = BASE_DIR + "/environment/"
 
     # Data Paths
     DATASETS_DIR = BASE_DIR + "/data/datasets"
@@ -38,6 +39,17 @@ class PathDirFile:
     METRICS_FILE = "metrics.csv"
     SYSTEM_METRICS_FILE = "system_metrics.csv"
     DECISION_FILE = 'decision.csv'
+
+    @staticmethod
+    def get_step_file(step_file: str) -> str:
+        """
+        Method to get the file path, which deal with the hyperparameter values founded in the Search Step.
+
+        :param step_file: TODO.
+
+        :return: A string like environment/{step_file}.json.
+        """
+        return "".join([PathDirFile.ENVIRONMENT_DIR, step_file + ".json"])
 
     # ########################################################################################### #
     # ########################################################################################### #

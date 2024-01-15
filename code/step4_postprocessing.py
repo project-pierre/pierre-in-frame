@@ -68,8 +68,8 @@ class PierreStep4(Step):
         logger.info("$" * 50)
 
     def checkpoint_verification(
-            self, recommender, fold, trial, dataset,
-            tradeoff, distribution, calibration, relevance, weight, selector
+        self, recommender, fold, trial, dataset,
+        tradeoff, distribution, calibration, relevance, weight, selector
     ):
 
         path = PathDirFile.get_recommendation_list_file(
@@ -135,11 +135,11 @@ class PierreStep4(Step):
 
     def main(self):
         combination = [
-            self.experimental_settings['recommenders'], self.experimental_settings['datasets'],
-            self.experimental_settings['folds'], self.experimental_settings['trials'],
-            self.experimental_settings['tradeoffs'], self.experimental_settings['relevances'],
-            self.experimental_settings['distributions'], self.experimental_settings['selectors'],
-            self.experimental_settings['weights'], self.experimental_settings['fairness'],
+            self.experimental_settings['recommender'], self.experimental_settings['dataset'],
+            self.experimental_settings['fold'], self.experimental_settings['trial'],
+            self.experimental_settings['tradeoff'], self.experimental_settings['relevance'],
+            self.experimental_settings['distribution'], self.experimental_settings['selector'],
+            self.experimental_settings['weight'], self.experimental_settings['fairness'],
             self.experimental_settings['list_size'], self.experimental_settings['alpha'],
             self.experimental_settings['d']
         ]

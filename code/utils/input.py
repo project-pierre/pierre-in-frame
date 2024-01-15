@@ -3,6 +3,7 @@ import sys
 from datasets.registred_datasets import RegisteredDataset
 from settings.constants import Constants
 from settings.labels import Label
+from settings.save_and_load import SaveAndLoad
 
 
 class Input:
@@ -335,20 +336,20 @@ class Input:
         :return: A dict with the input settings.
         """
         experimental_setup = dict()
-        experimental_setup['checkpoint'] = "YES"
+        experimental_setup['checkpoint'] = "NO"
 
-        experimental_setup['recommenders'] = Label.REGISTERED_RECOMMENDERS
+        experimental_setup['recommender'] = Label.REGISTERED_RECOMMENDERS
 
-        experimental_setup['datasets'] = [RegisteredDataset.DEFAULT_DATASET]
-        experimental_setup['folds'] = list(range(1, Constants.K_FOLDS_VALUE + 1))
-        experimental_setup['trials'] = list(range(1, Constants.N_TRIAL_VALUE + 1))
+        experimental_setup['dataset'] = [RegisteredDataset.DEFAULT_DATASET]
+        experimental_setup['fold'] = list(range(1, Constants.K_FOLDS_VALUE + 1))
+        experimental_setup['trial'] = list(range(1, Constants.N_TRIAL_VALUE + 1))
 
-        experimental_setup['tradeoffs'] = Label.ACCESSIBLE_TRADEOFF_LIST
+        experimental_setup['tradeoff'] = Label.ACCESSIBLE_TRADEOFF_LIST
         experimental_setup['fairness'] = Label.ACCESSIBLE_CALIBRATION_LIST
-        experimental_setup['relevances'] = Label.ACCESSIBLE_RELEVANCE_LIST
-        experimental_setup['weights'] = Label.ACCESSIBLE_WEIGHT_LIST
-        experimental_setup['distributions'] = Label.ACCESSIBLE_DISTRIBUTION_LIST
-        experimental_setup['selectors'] = Label.ACCESSIBLE_SELECTOR_LIST
+        experimental_setup['relevance'] = Label.ACCESSIBLE_RELEVANCE_LIST
+        experimental_setup['weight'] = Label.ACCESSIBLE_WEIGHT_LIST
+        experimental_setup['distribution'] = Label.ACCESSIBLE_DISTRIBUTION_LIST
+        experimental_setup['selector'] = Label.ACCESSIBLE_SELECTOR_LIST
 
         experimental_setup['list_size'] = [Constants.RECOMMENDATION_LIST_SIZE]
         experimental_setup['alpha'] = [Constants.ALPHA_VALUE]
@@ -485,9 +486,9 @@ class Input:
         :return: A dict with the input settings.
         """
         experimental_setup = dict()
-        experimental_setup['reload'] = "NO"
+        experimental_setup['checkpoint'] = "NO"
         experimental_setup['opt'] = Label.EVALUATION_METRICS
-        experimental_setup['metrics'] = Label.REGISTERED_METRICS
+        experimental_setup['metric'] = Label.REGISTERED_METRICS
 
         experimental_setup['recommender'] = Label.REGISTERED_RECOMMENDERS
         experimental_setup['cluster'] = Label.REGISTERED_UNSUPERVISED
@@ -618,6 +619,8 @@ class Input:
                     experimental_setup['weight'] = [value]
                 else:
                     print("The parameter {} is not configured in this feature.".format(param))
+        elif sys.argv[1].split('=')[1] == "YES":
+            experimental_setup = SaveAndLoad.load_step_file(step_file="step5")
         else:
             print("More information are needed!")
             exit(1)
@@ -653,6 +656,7 @@ class Input:
         :return: A dict with the input settings.
         """
         experimental_setup = dict()
+        experimental_setup['file'] = "NO"
         experimental_setup['opt'] = Label.EVALUATION_METRICS
         experimental_setup['metric'] = Label.REGISTERED_METRICS
 
@@ -671,67 +675,88 @@ class Input:
         if len(sys.argv) > 2:
             for arg in sys.argv[1:]:
                 param, value = arg.split('=')
+
+                # Reading the work 'Option' (-opt) from the terminal entrance
                 if param == '-opt':
                     if value not in Label.METRIC_OPT:
                         print(f'This option does not exists! {value}... All possibilities are:')
                         print(Label.METRIC_OPT)
                         exit(1)
                     experimental_setup['opt'] = str(value)
+
+                # Reading the work 'Metric' (--metric) from the terminal entrance
                 elif param == '-metric':
                     if value not in Label.REGISTERED_METRICS:
                         print('Metric not found! Options is:')
                         print(Label.REGISTERED_METRICS)
                         exit(1)
                     experimental_setup['metric'] = [value]
+
+                # Reading the work 'Conformity metric' (-conformity) from the terminal entrance
                 elif param == '-conformity':
                     if value not in Label.REGISTERED_UNSUPERVISED:
                         print('Cluster algorithm not registered! All possibilities are:')
                         print(Label.REGISTERED_UNSUPERVISED)
                         exit(1)
                     experimental_setup['conformity'] = [value]
+
+                # Reading the work 'Recommender Algorithm' (--recommender) from the terminal entrance
                 elif param == '--recommender':
                     if value not in Label.REGISTERED_RECOMMENDERS:
                         print('Recommender not found! All possibilities are:')
                         print(Label.REGISTERED_RECOMMENDERS)
                         exit(1)
                     experimental_setup['recommender'] = [value]
-                # read the dataset to be used
+
+                # Reading the work 'Dataset' (--dataset) from the terminal entrance
                 elif param == '--dataset':
                     if value not in RegisteredDataset.DATASET_LIST:
                         print('Dataset not registered! All possibilities are:')
                         print(RegisteredDataset.DATASET_LIST)
                         exit(1)
                     experimental_setup['dataset'] = [value]
+
+                # Reading the work 'Tradeoff Balance' (--tradeoff) from the terminal entrance
                 elif param == '--tradeoff':
                     if value not in Label.ACCESSIBLE_TRADEOFF_LIST:
                         print('Tradeoff not registered! Options is:')
                         print(Label.ACCESSIBLE_TRADEOFF_LIST)
                         exit(1)
                     experimental_setup['tradeoff'] = [value]
+
+                # Reading the work 'Relevance' (--relevance) from the terminal entrance
                 elif param == '--relevance':
                     if value not in Label.ACCESSIBLE_RELEVANCE_LIST:
                         print('Relevance not registered! Options is:')
                         print(Label.ACCESSIBLE_RELEVANCE_LIST)
                         exit(1)
                     experimental_setup['relevance'] = [value]
+
+                # Reading the work 'Calibration Measure' (--calibration) from the terminal entrance
                 elif param == '--calibration':
                     if value not in Label.ACCESSIBLE_CALIBRATION_LIST:
                         print('Calibration measure not registered! Options is:')
                         print(Label.ACCESSIBLE_CALIBRATION_LIST)
                         exit(1)
                     experimental_setup['fairness'] = [value]
+
+                # Reading the work 'Distribution Equation' (--distribution) from the terminal entrance
                 elif param == '--distribution':
                     if value not in Label.ACCESSIBLE_DISTRIBUTION_LIST:
                         print('Distribution not registered! Options is:')
                         print(Label.ACCESSIBLE_DISTRIBUTION_LIST)
                         exit(1)
                     experimental_setup['distribution'] = [value]
+
+                # Reading the work 'Selector Algorithm' (--selector) from the terminal entrance
                 elif param == '--selector':
                     if value not in Label.ACCESSIBLE_SELECTOR_LIST:
                         print('Selector not registered! Options is:')
                         print(Label.ACCESSIBLE_SELECTOR_LIST)
                         exit(1)
                     experimental_setup['selector'] = [value]
+
+                # Reading the work 'Tradeoff Weight' (--weight) from the terminal entrance
                 elif param == '--weight':
                     if value not in Label.ACCESSIBLE_WEIGHT_LIST:
                         print('Tradeoff Weight not registered! Options is:')
@@ -740,6 +765,8 @@ class Input:
                     experimental_setup['weight'] = [value]
                 else:
                     print("The parameter {} is not configured in this feature.".format(param))
+        elif sys.argv[1].split('=')[1] == "YES":
+            experimental_setup = SaveAndLoad.load_step_file(step_file="step6")
         else:
             print("More information are needed!")
             exit(1)

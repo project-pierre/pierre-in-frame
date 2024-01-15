@@ -245,12 +245,13 @@ def applying_unexpectedness(recommender, dataset, trial, fold, distribution, fai
     """
     Function that apply the evaluation metrics.
     """
-    exists_file = PathDirFile.get_metric_fold_file_by_name(
+    exists_file = PathDirFile.get_recommender_metric_fold_file(
         recommender=recommender, dataset=dataset, trial=trial, fold=fold,
         distribution=distribution, fairness=fairness, relevance=relevance,
         tradeoff_weight=weight, tradeoff=tradeoff, select_item=selector,
         filename='UNEXPECTEDNESS.csv'
     )
+
     try:
         # Check integrity
         if os.path.exists(exists_file):
@@ -277,13 +278,12 @@ def applying_unexpectedness(recommender, dataset, trial, fold, distribution, fai
         metric_value
     ]], columns=['UNEXPECTEDNESS'])
 
-    results.to_csv(
-        PathDirFile.set_metric_fold_file_by_name(
-            recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-            distribution=distribution, fairness=fairness, relevance=relevance,
-            tradeoff_weight=weight, tradeoff=tradeoff, select_item=selector,
-            filename='UNEXPECTEDNESS.csv'
-        ), index=False
+    SaveAndLoad.save_recommender_metric(
+        data=results,
+        recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+        distribution=distribution, fairness=fairness, relevance=relevance,
+        weight=weight, tradeoff=tradeoff, selector=selector,
+        metric='UNEXPECTEDNESS'
     )
     return "Finished"
 
@@ -292,7 +292,7 @@ def applying_serendipity(recommender, dataset, trial, fold, distribution, fairne
     """
     Function that apply the evaluation metrics.
     """
-    exists_file = PathDirFile.get_metric_fold_file_by_name(
+    exists_file = PathDirFile.get_recommender_metric_fold_file(
         recommender=recommender, dataset=dataset, trial=trial, fold=fold,
         distribution=distribution, fairness=fairness, relevance=relevance,
         tradeoff_weight=weight, tradeoff=tradeoff, select_item=selector,
@@ -331,14 +331,14 @@ def applying_serendipity(recommender, dataset, trial, fold, distribution, fairne
         metric_value
     ]], columns=['SERENDIPITY'])
 
-    results.to_csv(
-        PathDirFile.set_metric_fold_file_by_name(
-            recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-            distribution=distribution, fairness=fairness, relevance=relevance,
-            tradeoff_weight=weight, tradeoff=tradeoff, select_item=selector,
-            filename='SERENDIPITY.csv'
-        ), index=False
+    SaveAndLoad.save_recommender_metric(
+        data=results,
+        recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+        distribution=distribution, fairness=fairness, relevance=relevance,
+        weight=weight, tradeoff=tradeoff, selector=selector,
+        metric='SERENDIPITY'
     )
+
     return "Finished"
 
 
@@ -346,7 +346,7 @@ def applying_novelty(recommender, dataset, trial, fold, distribution, fairness, 
     """
     Function that apply the evaluation metrics.
     """
-    exists_file = PathDirFile.get_metric_fold_file_by_name(
+    exists_file = PathDirFile.get_recommender_metric_fold_file(
         recommender=recommender, dataset=dataset, trial=trial, fold=fold,
         distribution=distribution, fairness=fairness, relevance=relevance,
         tradeoff_weight=weight, tradeoff=tradeoff, select_item=selector,
@@ -384,14 +384,14 @@ def applying_novelty(recommender, dataset, trial, fold, distribution, fairness, 
         metric_value
     ]], columns=['NOVELTY'])
 
-    results.to_csv(
-        PathDirFile.set_metric_fold_file_by_name(
-            recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-            distribution=distribution, fairness=fairness, relevance=relevance,
-            tradeoff_weight=weight, tradeoff=tradeoff, select_item=selector,
-            filename='NOVELTY.csv'
-        ), index=False
+    SaveAndLoad.save_recommender_metric(
+        data=results,
+        recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+        distribution=distribution, fairness=fairness, relevance=relevance,
+        weight=weight, tradeoff=tradeoff, selector=selector,
+        metric='NOVELTY'
     )
+
     return "Finished"
 
 
@@ -399,7 +399,7 @@ def applying_coverage(recommender, dataset, trial, fold, distribution, fairness,
     """
     Function that apply the evaluation metrics.
     """
-    exists_file = PathDirFile.get_metric_fold_file_by_name(
+    exists_file = PathDirFile.get_recommender_metric_fold_file(
         recommender=recommender, dataset=dataset, trial=trial, fold=fold,
         distribution=distribution, fairness=fairness, relevance=relevance,
         tradeoff_weight=weight, tradeoff=tradeoff, select_item=selector,
@@ -434,14 +434,14 @@ def applying_coverage(recommender, dataset, trial, fold, distribution, fairness,
         metric_value
     ]], columns=['COVERAGE'])
 
-    results.to_csv(
-        PathDirFile.set_metric_fold_file_by_name(
-            recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-            distribution=distribution, fairness=fairness, relevance=relevance,
-            tradeoff_weight=weight, tradeoff=tradeoff, select_item=selector,
-            filename='COVERAGE.csv'
-        ), index=False
+    SaveAndLoad.save_recommender_metric(
+        data=results,
+        recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+        distribution=distribution, fairness=fairness, relevance=relevance,
+        weight=weight, tradeoff=tradeoff, selector=selector,
+        metric='COVERAGE'
     )
+
     return "Finished"
 
 
@@ -449,7 +449,7 @@ def applying_personalization(recommender, dataset, trial, fold, distribution, fa
     """
     Function that apply the evaluation metrics.
     """
-    exists_file = PathDirFile.get_metric_fold_file_by_name(
+    exists_file = PathDirFile.get_recommender_metric_fold_file(
         recommender=recommender, dataset=dataset, trial=trial, fold=fold,
         distribution=distribution, fairness=fairness, relevance=relevance,
         tradeoff_weight=weight, tradeoff=tradeoff, select_item=selector,
@@ -481,12 +481,12 @@ def applying_personalization(recommender, dataset, trial, fold, distribution, fa
         metric_value
     ]], columns=['PERSONALIZATION'])
 
-    results.to_csv(
-        PathDirFile.set_metric_fold_file_by_name(
-            recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-            distribution=distribution, fairness=fairness, relevance=relevance,
-            tradeoff_weight=weight, tradeoff=tradeoff, select_item=selector,
-            filename='PERSONALIZATION.csv'
-        ), index=False
+    SaveAndLoad.save_recommender_metric(
+        data=results,
+        recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+        distribution=distribution, fairness=fairness, relevance=relevance,
+        weight=weight, tradeoff=tradeoff, selector=selector,
+        metric='PERSONALIZATION'
     )
+
     return "Finished"

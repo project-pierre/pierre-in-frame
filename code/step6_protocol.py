@@ -9,7 +9,6 @@ from pandas import DataFrame
 from evaluations.metrics_comprises import MetricComprises
 from settings.constants import Constants
 from settings.labels import Label
-from settings.path_dir_file import PathDirFile
 from settings.save_and_load import SaveAndLoad
 from utils.input import Input
 from utils.logging_settings import setup_logging

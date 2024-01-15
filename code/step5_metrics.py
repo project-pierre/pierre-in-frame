@@ -185,7 +185,7 @@ class PierreStep5(Step):
 
         load = Parallel(n_jobs=Constants.N_CORES)(
             delayed(self.applying_evaluation_metrics)(
-                metrics=self.experimental_settings['metrics'],
+                metrics=self.experimental_settings['metric'],
                 recommender=recommender, dataset=dataset, trial=trial, fold=fold,
                 distribution=distribution, fairness=fairness, relevance=relevance,
                 weight=weight, tradeoff=tradeoff, selector=selector
@@ -201,7 +201,7 @@ class PierreStep5(Step):
         """
         TODO
         """
-        if self.experimental_settings["reload"] == "YES":
+        if self.experimental_settings["checkpoint"] == "YES":
             try:
                 metric_df = SaveAndLoad.load_conformity_metric(
                     dataset=dataset, trial=trial, fold=fold,
@@ -280,7 +280,7 @@ class PierreStep5(Step):
 
 if __name__ == '__main__':
     """
-    It starts the processing step
+    It starts the metric step
     """
     logger.info(" ".join(['+' * 10, 'System Starting', '+' * 10]))
     step = PierreStep5()

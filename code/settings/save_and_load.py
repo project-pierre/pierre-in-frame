@@ -12,6 +12,17 @@ class SaveAndLoad:
     TODO: Docstring
     """
 
+    @staticmethod
+    def load_step_file(step_file: str):
+        """
+        TODO: Docstring
+        """
+        path_to_open = PathDirFile.get_step_file(step_file=step_file)
+        with open(path_to_open) as json_file:
+            params = json.load(json_file)
+
+        return params
+
     # ########################################################################################### #
     # ########################################################################################### #
     # ########################################################################################### #
@@ -49,7 +60,8 @@ class SaveAndLoad:
         data.to_csv(
             PathDirFile.preference_distribution_file(
                 dataset=dataset, fold=fold, trial=trial, filename=distribution + '.' + ext
-            )
+            ),
+            index=False
         )
 
     @staticmethod
@@ -257,7 +269,7 @@ class SaveAndLoad:
             tradeoff_weight=tradeoff_weight,
             select_item=select_item
         )
-        data.to_csv(path)
+        data.to_csv(path, index=False)
 
     # ########################################################################################### #
     # [STEP 5] Metrics step methods - Time

@@ -1,0 +1,20 @@
+{
+  "checkpoint": "YES",
+  "recommenders": ["SVD"],
+  "cluster": [],
+  "datasets": ["ml-1m"],
+  "folds": [1, 2, 3, 4, 5],
+  "trials": [1],
+  "tradeoffs": ["LIN"],
+  "fairness": ["KL", "VICIS_EMANON2"],
+  "relevance": ["SUM", "NDCG"],
+  "weight": [
+    "C@0.0", "C@0.1", "C@0.2", "C@0.3", "C@0.4", "C@0.5",
+    "C@0.6", "C@0.7", "C@0.8", "C@0.9", "C@1.0"
+  ],
+  "distribution": ["TWB"],
+  "selector": ["SURROGATE"],
+  "list_size": [10],
+  "alpha": [0.01],
+  "d": [3]
+}

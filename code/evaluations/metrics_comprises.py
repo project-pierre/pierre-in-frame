@@ -32,10 +32,10 @@ class MetricComprises:
 
         merged_metrics_df = DataFrame([
             [mean(users_pref_list), metric,
-             recommender, metric, tradeoff, distribution, fairness, relevance, selector, weight]],
+             recommender, tradeoff, distribution, fairness, relevance, selector, weight]],
             columns=[
-                Label.EVALUATION_METRICS, Label.RECOMMENDER_METRIC,
-                Label.RECOMMENDER, Label.CONFORMITY, Label.TRADEOFF, Label.DISTRIBUTION_LABEL,
+                Label.EVALUATION_VALUE, Label.RECOMMENDER_METRIC,
+                Label.RECOMMENDER, Label.TRADEOFF, Label.DISTRIBUTION_LABEL,
                 Label.CALIBRATION_MEASURE_LABEL, Label.RELEVANCE, Label.SELECTOR_LABEL, Label.TRADEOFF_WEIGHT_LABEL
             ]
         )
