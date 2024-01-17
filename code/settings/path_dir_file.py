@@ -914,6 +914,21 @@ class PathDirFile:
         return save_in_dir + '/' + filename
 
     @staticmethod
+    def set_graphics_dataset_metric_file(dataset: str, metric: str, filename: str) -> str:
+        """
+        Method to set the file path, which deal with the graphics files.
+
+        :param dataset: A string that's representing the dataset name.
+        :param filename: A string that's representing the graphic file name.
+
+        :return: A string like results/graphics/results/{dataset}/{filename}
+        """
+        save_in_dir = "/".join([PathDirFile.RESULTS_GRAPHICS_DIR, "metrics", dataset, metric])
+        if not os.path.exists(save_in_dir):
+            os.makedirs(save_in_dir)
+        return save_in_dir + '/' + filename
+
+    @staticmethod
     def preprocessing_graphics_file(dataset: str, filename: str) -> str:
         """
         Method to get the file path, which deal with the graphics files.

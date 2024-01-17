@@ -1,6 +1,8 @@
+from pandas import DataFrame
 from scipy.stats import ttest_ind
 
 from analyses.results import results_by_component
+from settings.labels import Label
 
 
 def welch(data, order_by_metric, ascending):
@@ -53,3 +55,33 @@ def welch(data, order_by_metric, ascending):
     #     print("CONST < PERSON")
     # else:
     #     print("CONST == PERSON")
+
+
+class WelchHypothesisTest:
+    """
+    TODO: Docstring
+    """
+
+    @staticmethod
+    def compute_matrix_comparison(data: DataFrame, goal_label: str, goal_list: list) -> list:
+        """
+        TODO: Docstring
+        """
+        matrix = []
+        for goal_a in goal_list:
+            list_a = data[data[goal_label] == goal_a][Label.EVALUATION_VALUE].abs().tolist()
+            temp_matrix = []
+            for goal_b in goal_list:
+                list_b = data[data[goal_label] == goal_b][Label.EVALUATION_VALUE].abs().tolist()
+                const_person = ttest_ind(a=list_a, b=list_b)
+                temp_matrix.append(round(const_person[1], 3))
+            matrix.append(temp_matrix)
+        return matrix
+
+    @staticmethod
+    def compare_two_systems(data: DataFrame, goal_label: str, system_a_name: str, system_b_name: str):
+        system_a_list = data[data[goal_label] == system_a_name][Label.EVALUATION_VALUE].abs().tolist()
+        system_b_list = data[data[goal_label] == system_b_name][Label.EVALUATION_VALUE].abs().tolist()
+        const_person = ttest_ind(a=system_a_list, b=system_b_list, alternative='two-sided')
+        print(
+            f"{system_a_name} X {system_b_name} -> statistic: " + str(const_person[0]) + " || -> pvalue: " + str(round(const_person[1], 5)))

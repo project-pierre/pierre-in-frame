@@ -10,6 +10,106 @@ class Input:
     """
     This class is responsible for reading the terminal/keyboard entries.
     """
+    
+    @staticmethod
+    def __verify_checkpoint__(value):
+        if value not in ["YES", "NO"]:
+            print('Checkpoint option not found! Options is:')
+            print(["YES", "NO"])
+            exit(1)
+
+    @staticmethod
+    def __verify_trial__(value):
+        if int(value) <= 0 or int(value) > Constants.N_TRIAL_VALUE:
+            print('Trial out of range!')
+            exit(1)
+
+    @staticmethod
+    def __verify_fold__(value):
+        if int(value) <= 0 or int(value) > Constants.K_FOLDS_VALUE:
+            print('Fold out of range!')
+            exit(1)
+
+    @staticmethod
+    def __verify_dataset__(value):
+        if value not in RegisteredDataset.DATASET_LIST:
+            print('Dataset not registered! All possibilities are:')
+            print(RegisteredDataset.DATASET_LIST)
+            exit(1)
+
+    @staticmethod
+    def __verify_cluster__(value):
+        if value not in Label.REGISTERED_UNSUPERVISED:
+            print('Cluster algorithm not registered! All possibilities are:')
+            print(Label.REGISTERED_UNSUPERVISED)
+            exit(1)
+
+    @staticmethod
+    def __verify_recommender__(value):
+        if value not in Label.REGISTERED_RECOMMENDERS:
+            print('Recommender not found! All possibilities are:')
+            print(Label.REGISTERED_RECOMMENDERS)
+            exit(1)
+
+    @staticmethod
+    def __verify_tradeoff__(value):
+        if value not in Label.ACCESSIBLE_TRADEOFF_LIST:
+            print('Tradeoff not registered! Options is:')
+            print(Label.ACCESSIBLE_TRADEOFF_LIST)
+            exit(1)
+
+    @staticmethod
+    def __verify_relevance__(value):
+        if value not in Label.ACCESSIBLE_RELEVANCE_LIST:
+            print('Relevance not registered! Options is:')
+            print(Label.ACCESSIBLE_RELEVANCE_LIST)
+            exit(1)
+
+    @staticmethod
+    def __verify_calibration__(value):
+        if value not in Label.ACCESSIBLE_CALIBRATION_LIST:
+            print('Calibration measure not registered! Options is:')
+            print(Label.ACCESSIBLE_CALIBRATION_LIST)
+            exit(1)
+
+    @staticmethod
+    def __verify_distribution__(value):
+        if value not in Label.ACCESSIBLE_DISTRIBUTION_LIST:
+            print('Distribution not registered! Options is:')
+            print(Label.ACCESSIBLE_DISTRIBUTION_LIST)
+            exit(1)
+
+    @staticmethod
+    def __verify_selector__(value):
+        if value not in Label.ACCESSIBLE_SELECTOR_LIST:
+            print('Selector not registered! Options is:')
+            print(Label.ACCESSIBLE_SELECTOR_LIST)
+            exit(1)
+
+    @staticmethod
+    def __verify_weight__(value):
+        if value not in Label.ACCESSIBLE_WEIGHT_LIST:
+            print('Tradeoff Weight not registered! Options is:')
+            print(Label.ACCESSIBLE_WEIGHT_LIST)
+            exit(1)
+
+    @staticmethod
+    def __verify_conformity__(value):
+        if value not in Label.REGISTERED_UNSUPERVISED:
+            print('Cluster algorithm not registered! All possibilities are:')
+            print(Label.REGISTERED_UNSUPERVISED)
+            exit(1)
+    
+    @staticmethod
+    def __verify_metric__(value):
+        if value not in Label.REGISTERED_METRICS:
+            print(f'Metric {value} not found! Options is:')
+            print(Label.REGISTERED_METRICS)
+            exit(1)
+    
+    ####################################################################################################
+    ####################################################################################################
+    ####################################################################################################
     @staticmethod
     def default() -> dict:
         experimental_setup = dict()
@@ -81,13 +181,6 @@ class Input:
                         exit(1)
                     experimental_setup['opt'] = str(value)
 
-                # Reading the work 'Dataset' (--dataset) from the terminal entrance
-                elif param == '--dataset':
-                    if value not in RegisteredDataset.DATASET_LIST:
-                        print('Dataset not registered!')
-                        exit(1)
-                    experimental_setup['dataset'] = str(value)
-
                 # Reading the work 'Number of Folds' (--n_folds) from the terminal entrance
                 elif param == '--n_folds':
                     if int(value) < 3:
@@ -102,31 +195,30 @@ class Input:
                         exit(1)
                     experimental_setup['n_trials'] = int(value)
 
-                # Reading the work 'Distribution' (--distribution) from the terminal entrance
-                elif param == '--distribution':
-                    if value not in Label.ACCESSIBLE_DISTRIBUTION_LIST:
-                        print('Distribution not found!')
-                        exit(1)
-                    experimental_setup['distribution'] = value
+                # Reading the work 'Dataset' (--dataset) from the terminal entrance
+                elif param == '--dataset':
+                    Input.__verify_dataset__(value)
+                    experimental_setup['dataset'] = [value]
 
                 # Reading the work 'Fold Number' (--fold) from the terminal entrance
                 elif param == '--fold':
-                    if int(value) <= 0 or int(value) > Constants.K_FOLDS_VALUE:
-                        print('Fold out of range!')
-                        exit(1)
+                    Input.__verify_fold__(value=value)
                     experimental_setup['fold'] = value
 
                 # Reading the work 'Trial Number' (--trial) from the terminal entrance
                 elif param == '--trial':
-                    if int(value) <= 0 or int(value) > Constants.N_TRIAL_VALUE:
-                        print('Trial out of range!')
-                        exit(1)
+                    Input.__verify_trial__(value=value)
                     experimental_setup['trial'] = value
+
+                # Reading the work 'Distribution' (--distribution) from the terminal entrance
+                elif param == '--distribution':
+                    Input.__verify_distribution__(value=value)
+                    experimental_setup['distribution'] = value
 
                 else:
                     print(f"The parameter {param} is not configured in this feature.")
                     exit(1)
-        elif sys.argv[1].split('=')[1] == "YES":
+        elif sys.argv[1].split('=')[0] == "file" and sys.argv[1].split('=')[1] == "YES":
             experimental_setup = SaveAndLoad.load_step_file(step_file="step1")
         else:
             print("More information are needed!")
@@ -175,47 +267,37 @@ class Input:
 
                 # Reading the work 'Recommender Algorithm' (--recommender) from the terminal entrance
                 elif param == '--recommender':
-                    if value not in Label.REGISTERED_RECOMMENDERS:
-                        print('Recommender not found!')
-                        exit(1)
+                    Input.__verify_recommender__(value=value)
                     experimental_setup['recommender'] = value
 
                 # Reading the work 'Dataset' (--dataset) from the terminal entrance
                 elif param == '--dataset':
-                    if value not in RegisteredDataset.DATASET_LIST:
-                        print('Dataset not registered!')
-                        exit(1)
-                    experimental_setup['dataset'] = value
+                    Input.__verify_dataset__(value)
+                    experimental_setup['dataset'] = [value]
 
                 # Reading the work 'Cluster Algorithm' (--cluster) from the terminal entrance
                 elif param == '--cluster':
-                    if value not in Label.REGISTERED_UNSUPERVISED:
-                        print('Cluster algorithm not registered!')
-                        exit(1)
+                    Input.__verify_cluster__(value=value)
                     experimental_setup['cluster'] = [value]
 
                 # Reading the work 'Distribution' (--distribution) from the terminal entrance
                 elif param == '--distribution':
-                    if value not in Label.ACCESSIBLE_DISTRIBUTION_LIST:
-                        print('Distribution not found!')
-                        exit(1)
+                    Input.__verify_distribution__(value=value)
                     experimental_setup['distribution'] = value
 
                 # Reading the work 'Fold Number' (--fold) from the terminal entrance
                 elif param == '--fold':
-                    if int(value) <= 0 or int(value) > Constants.K_FOLDS_VALUE:
-                        print('Fold out of range!')
-                        exit(1)
+                    Input.__verify_fold__(value=value)
                     experimental_setup['fold'] = value
 
                 # Reading the work 'Trial Number' (--trial) from the terminal entrance
                 elif param == '--trial':
-                    if int(value) <= 0 or int(value) > Constants.N_TRIAL_VALUE:
-                        print('Trial out of range!')
-                        exit(1)
+                    Input.__verify_trial__(value=value)
                     experimental_setup['trial'] = value
                 else:
                     print(f"The parameter {param} is not configured in this feature.")
+        elif sys.argv[1].split('=')[0] == "file" and sys.argv[1].split('=')[1] == "YES":
+            experimental_setup = SaveAndLoad.load_step_file(step_file="step2")
         else:
             print("More information are needed!")
             print("All params possibilities are: -opt, --dataset, --recommender, --cluster, --distribution.")
@@ -264,35 +346,25 @@ class Input:
 
                 # Reading the work 'Recommender Algorithm' (--recommender) from the terminal entrance
                 elif param == '--recommender':
-                    if value not in Label.REGISTERED_RECOMMENDERS:
-                        print('Recommender not found! All possibilities are:')
-                        print(Label.REGISTERED_RECOMMENDERS)
-                        exit(1)
+                    Input.__verify_recommender__(value=value)
                     experimental_setup['recommender'] = value
 
                 # Reading the work 'Dataset' (--dataset) from the terminal entrance
                 elif param == '--dataset':
-                    if value not in RegisteredDataset.DATASET_LIST:
-                        print('Dataset not registered! All possibilities are:')
-                        print(RegisteredDataset.DATASET_LIST)
-                        exit(1)
-                    experimental_setup['dataset'] = value
+                    Input.__verify_dataset__(value)
+                    experimental_setup['dataset'] = [value]
 
                 # Reading the work 'Fold Number' (--fold) from the terminal entrance
                 elif param == '--fold':
-                    if int(value) <= 0 or int(value) > Constants.K_FOLDS_VALUE:
-                        print('Fold out of range!')
-                        exit(1)
+                    Input.__verify_fold__(value=value)
                     experimental_setup['fold'] = [value]
 
                 # Reading the work 'Trial Number' (--trial) from the terminal entrance
                 elif param == '--trial':
-                    if int(value) <= 0 or int(value) > Constants.N_TRIAL_VALUE:
-                        print('Fold out of range!')
-                        exit(1)
+                    Input.__verify_trial__(value=value)
                     experimental_setup['trial'] = [value]
 
-                # Reading the work 'Metric' (--metric) from the terminal entrance
+                # Reading the work 'Search Optimization Metric' (--metric) from the terminal entrance
                 elif param == '--metric':
                     if value not in Label.SEARCH_METRICS:
                         print(f'This Metric does not exists! {value}! All possibilities are:')
@@ -301,6 +373,8 @@ class Input:
                     experimental_setup['metric'] = str(value)
                 else:
                     print(f"The parameter {param} is not configured in this feature.")
+        elif sys.argv[1].split('=')[0] == "file" and sys.argv[1].split('=')[1] == "YES":
+            experimental_setup = SaveAndLoad.load_step_file(step_file="step3")
         else:
             print("More information are needed!")
             print("All params possibilities are: --dataset, --recommender, --trial and --fold.")
@@ -364,91 +438,62 @@ class Input:
 
                 # Reading the work 'Checkpoint' (-checkpoint) from the terminal entrance
                 if param == '-checkpoint':
-                    if value not in ["YES", "NO"]:
-                        print('Checkpoint option not found! Options is:')
-                        print(["YES", "NO"])
-                        exit(1)
+                    Input.__verify_checkpoint__(value=value)
                     experimental_setup["checkpoint"] = value
 
                 # Reading the work 'Recommender Algorithm' (--recommender) from the terminal entrance
                 elif param == '--recommender':
-                    if value not in Label.REGISTERED_RECOMMENDERS:
-                        print('Recommender not found! All possibilities are:')
-                        print(Label.REGISTERED_RECOMMENDERS)
-                        exit(1)
+                    Input.__verify_recommender__(value=value)
                     experimental_setup['recommender'] = [value]
 
                 # Reading the work 'Dataset' (--dataset) from the terminal entrance
                 elif param == '--dataset':
-                    if value not in RegisteredDataset.DATASET_LIST:
-                        print('Dataset not registered! All possibilities are:')
-                        print(RegisteredDataset.DATASET_LIST)
-                        exit(1)
+                    Input.__verify_dataset__(value)
                     experimental_setup['dataset'] = [value]
 
                 # Reading the work 'Fold Number' (--fold) from the terminal entrance
                 elif param == '--fold':
-                    if int(value) <= 0 or int(value) > Constants.K_FOLDS_VALUE:
-                        print('Fold out of range!')
-                        exit(1)
+                    Input.__verify_fold__(value=value)
                     experimental_setup['fold'] = [value]
 
                 # Reading the work 'Trial Number' (--trial) from the terminal entrance
                 elif param == '--trial':
-                    if int(value) <= 0 or int(value) > Constants.N_TRIAL_VALUE:
-                        print('Fold out of range!')
-                        exit(1)
+                    Input.__verify_trial__(value=value)
                     experimental_setup['trial'] = [value]
 
                 # Reading the work 'Tradeoff Balance' (--tradeoff) from the terminal entrance
                 elif param == '--tradeoff':
-                    if value not in Label.ACCESSIBLE_TRADEOFF_LIST:
-                        print('Tradeoff not registered! Options is:')
-                        print(Label.ACCESSIBLE_TRADEOFF_LIST)
-                        exit(1)
+                    Input.__verify_tradeoff__(value=value)
                     experimental_setup['tradeoff'] = [value]
 
-                # Reading the work 'Relevance' (--relevance) from the terminal entrance
+                # Reading the work 'Relevance Measure' (--relevance) from the terminal entrance
                 elif param == '--relevance':
-                    if value not in Label.ACCESSIBLE_RELEVANCE_LIST:
-                        print('Relevance not registered! Options is:')
-                        print(Label.ACCESSIBLE_RELEVANCE_LIST)
-                        exit(1)
+                    Input.__verify_relevance__(value=value)
                     experimental_setup['relevance'] = [value]
 
                 # Reading the work 'Calibration Measure' (--calibration) from the terminal entrance
                 elif param == '--calibration':
-                    if value not in Label.ACCESSIBLE_CALIBRATION_LIST:
-                        print('Calibration measure not registered! Options is:')
-                        print(Label.ACCESSIBLE_CALIBRATION_LIST)
-                        exit(1)
+                    Input.__verify_calibration__(value=value)
                     experimental_setup['fairness'] = [value]
 
                 # Reading the work 'Distribution Equation' (--distribution) from the terminal entrance
                 elif param == '--distribution':
-                    if value not in Label.ACCESSIBLE_DISTRIBUTION_LIST:
-                        print('Distribution not registered! Options is:')
-                        print(Label.ACCESSIBLE_DISTRIBUTION_LIST)
-                        exit(1)
+                    Input.__verify_distribution__(value=value)
                     experimental_setup['distribution'] = [value]
 
                 # Reading the work 'Selector Algorithm' (--selector) from the terminal entrance
                 elif param == '--selector':
-                    if value not in Label.ACCESSIBLE_SELECTOR_LIST:
-                        print('Selector not registered! Options is:')
-                        print(Label.ACCESSIBLE_SELECTOR_LIST)
-                        exit(1)
+                    Input.__verify_selector__(value=value)
                     experimental_setup['selector'] = [value]
 
                 # Reading the work 'Tradeoff Weight' (--weight) from the terminal entrance
                 elif param == '--weight':
-                    if value not in Label.ACCESSIBLE_WEIGHT_LIST:
-                        print('Tradeoff Weight not registered! Options is:')
-                        print(Label.ACCESSIBLE_WEIGHT_LIST)
-                        exit(1)
+                    Input.__verify_weight__(value=value)
                     experimental_setup['weight'] = [value]
                 else:
                     print("The parameter {} is not configured in this feature.".format(param))
+        elif sys.argv[1].split('=')[0] == "file" and sys.argv[1].split('=')[1] == "YES":
+            experimental_setup = SaveAndLoad.load_step_file(step_file="step4")
         else:
             print("More information are needed!")
             exit(1)
@@ -520,108 +565,71 @@ class Input:
 
                 # Reading the work 'Checkpoint' (-checkpoint) from the terminal entrance
                 elif param == '-checkpoint':
-                    if value not in ["YES", "NO"]:
-                        print('Checkpoint option not found! Options is:')
-                        print(["YES", "NO"])
-                        exit(1)
+                    Input.__verify_checkpoint__(value=value)
                     experimental_setup["checkpoint"] = value
 
-                # Reading the work 'Metric' (--metric) from the terminal entrance
-                elif param == '-metric':
-                    if value not in Label.REGISTERED_METRICS:
-                        print('Metric not found! Options is:')
-                        print(Label.REGISTERED_METRICS)
-                        exit(1)
-                    experimental_setup['metrics'] = [value]
+                # Reading the work 'Evaluation Metric' (--metric) from the terminal entrance
+                elif param == '--metric':
+                    Input.__verify_metric__(value=value)
+                    experimental_setup['metric'] = [value]
 
-                # Reading the work 'Cluster Algorithm' (-cluster) from the terminal entrance
-                elif param == '-cluster':
-                    if value not in Label.REGISTERED_UNSUPERVISED:
-                        print('Cluster algorithm not registered! All possibilities are:')
-                        print(Label.REGISTERED_UNSUPERVISED)
-                        exit(1)
+                # Reading the work 'Cluster Algorithm' (--cluster) from the terminal entrance
+                elif param == '--cluster':
+                    Input.__verify_cluster__(value=value)
                     experimental_setup['cluster'] = [value]
 
                 # Reading the work 'Recommender Algorithm' (--recommender) from the terminal entrance
                 elif param == '--recommender':
-                    if value not in Label.REGISTERED_RECOMMENDERS:
-                        print('Recommender not found! All possibilities are:')
-                        print(Label.REGISTERED_RECOMMENDERS)
-                        exit(1)
+                    Input.__verify_recommender__(value=value)
                     experimental_setup['recommender'] = [value]
 
                 # Reading the work 'Dataset' (--dataset) from the terminal entrance
                 elif param == '--dataset':
-                    if value not in RegisteredDataset.DATASET_LIST:
-                        print('Dataset not registered! All possibilities are:')
-                        print(RegisteredDataset.DATASET_LIST)
-                        exit(1)
+                    Input.__verify_dataset__(value)
                     experimental_setup['dataset'] = [value]
 
                 # Reading the work 'Fold Number' (--fold) from the terminal entrance
                 elif param == '--fold':
-                    if int(value) <= 0 or int(value) > Constants.K_FOLDS_VALUE:
-                        print('Fold out of range!')
-                        exit(1)
+                    Input.__verify_fold__(value=value)
                     experimental_setup['fold'] = [value]
 
                 # Reading the work 'Trial Number' (--trial) from the terminal entrance
                 elif param == '--trial':
-                    if int(value) <= 0 or int(value) > Constants.N_TRIAL_VALUE:
-                        print('Fold out of range!')
-                        exit(1)
+                    Input.__verify_trial__(value=value)
                     experimental_setup['trial'] = [value]
 
                 # Reading the work 'Tradeoff Balance' (--tradeoff) from the terminal entrance
                 elif param == '--tradeoff':
-                    if value not in Label.ACCESSIBLE_TRADEOFF_LIST:
-                        print('Tradeoff not registered! Options is:')
-                        print(Label.ACCESSIBLE_TRADEOFF_LIST)
-                        exit(1)
+                    Input.__verify_tradeoff__(value=value)
                     experimental_setup['tradeoff'] = [value]
 
-                # Reading the work 'Relevance' (--relevance) from the terminal entrance
+                # Reading the work 'Relevance Measure' (--relevance) from the terminal entrance
                 elif param == '--relevance':
-                    if value not in Label.ACCESSIBLE_RELEVANCE_LIST:
-                        print('Relevance not registered! Options is:')
-                        print(Label.ACCESSIBLE_RELEVANCE_LIST)
-                        exit(1)
+                    Input.__verify_relevance__(value=value)
                     experimental_setup['relevance'] = [value]
 
                 # Reading the work 'Calibration Measure' (--calibration) from the terminal entrance
                 elif param == '--calibration':
-                    if value not in Label.ACCESSIBLE_CALIBRATION_LIST:
-                        print('Calibration measure not registered! Options is:')
-                        print(Label.ACCESSIBLE_CALIBRATION_LIST)
-                        exit(1)
+                    Input.__verify_calibration__(value=value)
                     experimental_setup['fairness'] = [value]
 
                 # Reading the work 'Distribution Equation' (--distribution) from the terminal entrance
                 elif param == '--distribution':
-                    if value not in Label.ACCESSIBLE_DISTRIBUTION_LIST:
-                        print('Distribution not registered! Options is:')
-                        print(Label.ACCESSIBLE_DISTRIBUTION_LIST)
-                        exit(1)
+                    Input.__verify_distribution__(value=value)
                     experimental_setup['distribution'] = [value]
 
                 # Reading the work 'Selector Algorithm' (--selector) from the terminal entrance
                 elif param == '--selector':
-                    if value not in Label.ACCESSIBLE_SELECTOR_LIST:
-                        print('Selector not registered! Options is:')
-                        print(Label.ACCESSIBLE_SELECTOR_LIST)
-                        exit(1)
+                    Input.__verify_selector__(value=value)
                     experimental_setup['selector'] = [value]
 
                 # Reading the work 'Tradeoff Weight' (--weight) from the terminal entrance
                 elif param == '--weight':
-                    if value not in Label.ACCESSIBLE_WEIGHT_LIST:
-                        print('Tradeoff Weight not registered! Options is:')
-                        print(Label.ACCESSIBLE_WEIGHT_LIST)
-                        exit(1)
+                    Input.__verify_weight__(value=value)
                     experimental_setup['weight'] = [value]
                 else:
                     print("The parameter {} is not configured in this feature.".format(param))
-        elif sys.argv[1].split('=')[1] == "YES":
+        elif sys.argv[1].split('=')[0] == "file" and sys.argv[1].split('=')[1] == "YES":
             experimental_setup = SaveAndLoad.load_step_file(step_file="step5")
         else:
             print("More information are needed!")
@@ -660,8 +668,8 @@ class Input:
         experimental_setup = dict()
         experimental_setup['file'] = "NO"
         experimental_setup['opt'] = Label.EVALUATION_METRICS
-        experimental_setup['metric'] = Label.REGISTERED_METRICS
 
+        experimental_setup['metric'] = Label.REGISTERED_METRICS
         experimental_setup['recommender'] = Label.REGISTERED_RECOMMENDERS
         experimental_setup['conformity'] = Label.REGISTERED_UNSUPERVISED
 
@@ -686,88 +694,58 @@ class Input:
                         exit(1)
                     experimental_setup['opt'] = str(value)
 
-                # Reading the work 'Metric' (--metric) from the terminal entrance
-                elif param == '-metric':
-                    if value not in Label.REGISTERED_METRICS:
-                        print('Metric not found! Options is:')
-                        print(Label.REGISTERED_METRICS)
-                        exit(1)
+                # Reading the work 'Evaluation Metric' (--metric) from the terminal entrance
+                elif param == '--metric':
+                    Input.__verify_metric__(value=value)
                     experimental_setup['metric'] = [value]
 
-                # Reading the work 'Conformity metric' (-conformity) from the terminal entrance
-                elif param == '-conformity':
-                    if value not in Label.REGISTERED_UNSUPERVISED:
-                        print('Cluster algorithm not registered! All possibilities are:')
-                        print(Label.REGISTERED_UNSUPERVISED)
-                        exit(1)
+                # Reading the work 'Conformity Metric' (--conformity) from the terminal entrance
+                elif param == '--conformity':
+                    Input.__verify_conformity__(value)
                     experimental_setup['conformity'] = [value]
 
                 # Reading the work 'Recommender Algorithm' (--recommender) from the terminal entrance
                 elif param == '--recommender':
-                    if value not in Label.REGISTERED_RECOMMENDERS:
-                        print('Recommender not found! All possibilities are:')
-                        print(Label.REGISTERED_RECOMMENDERS)
-                        exit(1)
+                    Input.__verify_recommender__(value=value)
                     experimental_setup['recommender'] = [value]
 
                 # Reading the work 'Dataset' (--dataset) from the terminal entrance
                 elif param == '--dataset':
-                    if value not in RegisteredDataset.DATASET_LIST:
-                        print('Dataset not registered! All possibilities are:')
-                        print(RegisteredDataset.DATASET_LIST)
-                        exit(1)
+                    Input.__verify_dataset__(value)
                     experimental_setup['dataset'] = [value]
 
                 # Reading the work 'Tradeoff Balance' (--tradeoff) from the terminal entrance
                 elif param == '--tradeoff':
-                    if value not in Label.ACCESSIBLE_TRADEOFF_LIST:
-                        print('Tradeoff not registered! Options is:')
-                        print(Label.ACCESSIBLE_TRADEOFF_LIST)
-                        exit(1)
+                    Input.__verify_tradeoff__(value=value)
                     experimental_setup['tradeoff'] = [value]
 
-                # Reading the work 'Relevance' (--relevance) from the terminal entrance
+                # Reading the work 'Relevance Measure' (--relevance) from the terminal entrance
                 elif param == '--relevance':
-                    if value not in Label.ACCESSIBLE_RELEVANCE_LIST:
-                        print('Relevance not registered! Options is:')
-                        print(Label.ACCESSIBLE_RELEVANCE_LIST)
-                        exit(1)
+                    Input.__verify_relevance__(value=value)
                     experimental_setup['relevance'] = [value]
 
                 # Reading the work 'Calibration Measure' (--calibration) from the terminal entrance
                 elif param == '--calibration':
-                    if value not in Label.ACCESSIBLE_CALIBRATION_LIST:
-                        print('Calibration measure not registered! Options is:')
-                        print(Label.ACCESSIBLE_CALIBRATION_LIST)
-                        exit(1)
+                    Input.__verify_calibration__(value=value)
                     experimental_setup['fairness'] = [value]
 
                 # Reading the work 'Distribution Equation' (--distribution) from the terminal entrance
                 elif param == '--distribution':
-                    if value not in Label.ACCESSIBLE_DISTRIBUTION_LIST:
-                        print('Distribution not registered! Options is:')
-                        print(Label.ACCESSIBLE_DISTRIBUTION_LIST)
-                        exit(1)
+                    Input.__verify_distribution__(value=value)
                     experimental_setup['distribution'] = [value]
 
                 # Reading the work 'Selector Algorithm' (--selector) from the terminal entrance
                 elif param == '--selector':
-                    if value not in Label.ACCESSIBLE_SELECTOR_LIST:
-                        print('Selector not registered! Options is:')
-                        print(Label.ACCESSIBLE_SELECTOR_LIST)
-                        exit(1)
+                    Input.__verify_selector__(value=value)
                     experimental_setup['selector'] = [value]
 
                 # Reading the work 'Tradeoff Weight' (--weight) from the terminal entrance
                 elif param == '--weight':
-                    if value not in Label.ACCESSIBLE_WEIGHT_LIST:
-                        print('Tradeoff Weight not registered! Options is:')
-                        print(Label.ACCESSIBLE_WEIGHT_LIST)
-                        exit(1)
+                    Input.__verify_weight__(value=value)
                     experimental_setup['weight'] = [value]
                 else:
                     print("The parameter {} is not configured in this feature.".format(param))
-        elif sys.argv[1].split('=')[1] == "YES":
+        elif sys.argv[1].split('=')[0] == "file" and sys.argv[1].split('=')[1] == "YES":
             experimental_setup = SaveAndLoad.load_step_file(step_file="step6")
         else:
             print("More information are needed!")
@@ -786,41 +764,106 @@ class Input:
         :return: A dict with the input settings.
         """
         experimental_setup = dict()
+
         experimental_setup['opt'] = Label.EVALUATION_METRICS
-        # experimental_setup['metrics'] = Label.REGISTERED_METRICS
+        experimental_setup['view'] = Label.DATASET_CHART
+        experimental_setup['dataset'] = RegisteredDataset.DATASET_LIST
 
         experimental_setup['conformity'] = Label.REGISTERED_UNSUPERVISED
-        experimental_setup['view'] = Label.EVALUATION_VIEWS
-
-        experimental_setup['dataset'] = RegisteredDataset.DATASET_LIST
-        if len(sys.argv) > 1:
+        experimental_setup['type'] = Label.EVALUATION_VIEWS
+        experimental_setup['goal'] = Label.EVALUATION_VIEWS
+        
+        experimental_setup['metric'] = Label.REGISTERED_METRICS
+        
+        if len(sys.argv) > 2:
             for arg in sys.argv[1:]:
                 param, value = arg.split('=')
+
+                # Reading the work 'Option' (-opt) from the terminal entrance
                 if param == '-opt':
                     if value not in Label.METRIC_OPT:
                         print(f'This option does not exists! {value}... All possibilities are:')
                         print(Label.METRIC_OPT)
                         exit(1)
                     experimental_setup['opt'] = str(value)
-                elif param == '-metric':
-                    if value not in Label.REGISTERED_METRICS:
-                        print(f'Metric {value} not found! Options is:')
-                        print(Label.REGISTERED_METRICS)
-                        exit(1)
-                    experimental_setup['metrics'] = [value]
+
+                # Reading the work 'View' (-view) from the terminal entrance
                 elif param == '-view':
                     if value not in Label.EVALUATION_VIEWS:
-                        print(f'View {value} not found!')
+                        print(f'This View does not exists! {value}... All possibilities are:')
+                        print(Label.EVALUATION_VIEWS)
                         exit(1)
-                    experimental_setup['view'] = value
-                # read the dataset to be used
+                    experimental_setup['view'] = str(value)
+
+                # Reading the work 'Dataset' (--dataset) from the terminal entrance
                 elif param == '--dataset':
-                    if value not in RegisteredDataset.DATASET_LIST:
-                        print('Dataset not registered!')
-                        exit(1)
+                    Input.__verify_dataset__(value)
                     experimental_setup['dataset'] = [value]
+
+                # Reading the work 'Graphic Type' (--type) from the terminal entrance
+                elif param == '--type':
+                    if value not in Label.REGISTERED_GRAPHICS_TYPE:
+                        print(f'This Graphic Type does not exists! {value}... All possibilities are:')
+                        print(Label.REGISTERED_GRAPHICS_TYPE)
+                        exit(1)
+                    experimental_setup['type'] = str(value)
+
+                # Reading the work 'Graphic Goal' (--goal) from the terminal entrance
+                elif param == '--goal':
+                    if value not in Label.REGISTERED_GRAPHICS_GOALS:
+                        print(f'This Graphic Goal does not exists! {value}... All possibilities are:')
+                        print(Label.REGISTERED_GRAPHICS_GOALS)
+                        exit(1)
+                    experimental_setup['goal'] = str(value)
+
+                # Reading the work 'Evaluation Metric' (-metric) from the terminal entrance
+                elif param == '--metric':
+                    Input.__verify_metric__(value=value)
+                    experimental_setup['metric'] = [value]
+
+                # Reading the work 'Conformity Metric' (--conformity) from the terminal entrance
+                elif param == '--conformity':
+                    Input.__verify_conformity__(value)
+                    experimental_setup['conformity'] = [value]
+
+                # Reading the work 'Recommender Algorithm' (--recommender) from the terminal entrance
+                elif param == '--recommender':
+                    Input.__verify_recommender__(value=value)
+                    experimental_setup['recommender'] = [value]
+
+                # Reading the work 'Tradeoff Balance' (--tradeoff) from the terminal entrance
+                elif param == '--tradeoff':
+                    Input.__verify_tradeoff__(value=value)
+                    experimental_setup['tradeoff'] = [value]
+
+                # Reading the work 'Relevance Measure' (--relevance) from the terminal entrance
+                elif param == '--relevance':
+                    Input.__verify_relevance__(value=value)
+                    experimental_setup['relevance'] = [value]
+
+                # Reading the work 'Calibration Measure' (--calibration) from the terminal entrance
+                elif param == '--calibration':
+                    Input.__verify_calibration__(value=value)
+                    experimental_setup['fairness'] = [value]
+
+                # Reading the work 'Distribution Equation' (--distribution) from the terminal entrance
+                elif param == '--distribution':
+                    Input.__verify_distribution__(value=value)
+                    experimental_setup['distribution'] = [value]
+
+                # Reading the work 'Selector Algorithm' (--selector) from the terminal entrance
+                elif param == '--selector':
+                    Input.__verify_selector__(value=value)
+                    experimental_setup['selector'] = [value]
+
+                # Reading the work 'Tradeoff Weight' (--weight) from the terminal entrance
+                elif param == '--weight':
+                    Input.__verify_weight__(value=value)
+                    experimental_setup['weight'] = [value]
                 else:
                     print("The parameter {} is not configured in this feature.".format(param))
+        elif sys.argv[1].split('=')[0] == "file" and sys.argv[1].split('=')[1] == "YES":
+            experimental_setup = SaveAndLoad.load_step_file(step_file="step7")
         else:
             print("More information are needed!")
             print("All params possibilities are: -opt and --dataset.")

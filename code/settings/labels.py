@@ -139,6 +139,13 @@ class Label:
 
     EVALUATION_VIEWS = [DATASET_CHART, DATASET_ANALYZE]
 
+    GRAPHIC_LINE_TYPE = "LINE"
+    GRAPHIC_BOX_TYPE = "BOX"
+    GRAPHIC_HEAT_WELCH_TYPE = "HEAT_WELCH"
+    REGISTERED_GRAPHICS_TYPE = [GRAPHIC_LINE_TYPE, GRAPHIC_BOX_TYPE]
+
+    REGISTERED_GRAPHICS_GOALS = [DATASET_DISTRIBUTION]
+
     ########################################################
     # Post-processing labels #
 
@@ -165,22 +172,40 @@ class Label:
     # # Distributions
     DISTRIBUTION_LABEL = 'DISTRIBUTION_LABEL'
     # # # Genre Distributions
-    CLASS_WEIGHTED_STRATEGY = "CWS"
-    WEIGHTED_PROBABILITY_STRATEGY = "WPS"
-    TIME_WEIGHT_BASED = "TWB"
-    TEMPORAL_SLIDE_WINDOW = "TSW"
-    GLOBAL_LOCAL_ENTROPY_BASED = "GLEB"  # Global and Local Entropy Based
-    GLOBAL_LOCAL_ENTROPY_BASED_AND_TIME_WEIGHT_BASED = "GLEB_TWB"  # Global and Local Entropy Based
+    CWS = "CWS"
+    WPS = "WPS"
+    TWB = "TWB"
+    TWB_P = "TWB_P"
+    TSW = "TSW"
+    TSW_P = "TSW_P"
+    GLEB = "GLEB"  # Global and Local Entropy Based
+    GLEB_P = "GLEB_P"
+    GLEB_TWB = "GLEB_TWB"  # Global and Local Entropy Based
+    GLEB_TWB_P = "GLEB_TWB_P"
+    PGD = "PGD"
+    PGD_P = "PGD_P"
+    TGD = "TGD"
+    TGD_P = "TGD_P"
+    TSW_GLEB = "TSW_GLEB"
+    TSW_GLEB_P = "TSW_GLEB_P"
+    TSW_TWB = "TSW_TWB"
+    TSW_TWB_P = "TSW_TWB_P"
+    TSW_TWB_GLEB = "TSW_TWB_GLEB"
+    TSW_TWB_GLEB_P = "TSW_TWB_GLEB_P"
     ACCESSIBLE_DISTRIBUTION_LIST = [
         # Genre Distributions
-        CLASS_WEIGHTED_STRATEGY,
-        WEIGHTED_PROBABILITY_STRATEGY,
-        TIME_WEIGHT_BASED,
-        TEMPORAL_SLIDE_WINDOW,
-        GLOBAL_LOCAL_ENTROPY_BASED,
-        GLOBAL_LOCAL_ENTROPY_BASED_AND_TIME_WEIGHT_BASED
+        CWS, WPS,
+        PGD, PGD_P,
+        TWB, TWB_P,
+        TSW, TSW_P,
+        GLEB, GLEB_P,
+        GLEB_TWB, GLEB_TWB_P,
+        TGD, TGD_P,
+        TSW_GLEB, TSW_GLEB_P,
+        TSW_TWB, TSW_TWB_P,
+        TSW_TWB_GLEB, TSW_TWB_GLEB_P
     ]
-    DEFAULT_DISTRIBUTION = CLASS_WEIGHTED_STRATEGY
+    DEFAULT_DISTRIBUTION = CWS
 
     # # Selector Algorithms
     SELECTOR_LABEL = 'SELECTOR_LABEL'

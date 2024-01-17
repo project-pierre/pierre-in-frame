@@ -1,7 +1,8 @@
 import logging
 
+from evaluations.hypothesis import welch
 from graphics.conformity import ConformityGraphics
-from graphics.recommender import SingleRecommenderGraphics
+from graphics.recommender import SingleRecommenderGraphics, WelchHypothesisTestGraphics
 # from evaluations.best_worst import best_and_worst_systems, best_and_worst_fairness_measure
 # from evaluations.hypothesis import welch
 # from graphics.research_questions.perspectives import components_box_graphic, fairness_box_graphic
@@ -47,38 +48,21 @@ class PierreStep7(Step):
         # )
         pass
 
-    def __init__(self):
-        """
-        TODO: Docstring
-        """
-
-        super().__init__()
-        logger.info("$" * 50)
-        logger.info("$" * 50)
-        # Logging the experiment setup
-        logger.info("[CHARTS | TABLES | TESTS]")
-        logger.info("$" * 50)
-        logger.info("$" * 50)
-
     def main(self):
         """
         TODO: Docstring
         """
 
-        if self.experimental_settings['opt'] == Label.CONFORMITY:
-            self.conformity()
-        elif self.experimental_settings['opt'] == Label.EVALUATION_METRICS:
+        if self.experimental_settings['opt'] == Label.CONFORMITY and self.experimental_settings['view'] == Label.DATASET_CHART:
+            self.conformity_charts()
+        elif self.experimental_settings['opt'] == Label.CONFORMITY and self.experimental_settings['view'] == Label.DATASET_ANALYZE:
+            self.conformity_analyses()
+        elif self.experimental_settings['opt'] == Label.EVALUATION_METRICS and self.experimental_settings['view'] == Label.DATASET_CHART:
+            self.recommender_charts()
+        elif self.experimental_settings['opt'] == Label.EVALUATION_METRICS and self.experimental_settings['view'] == Label.DATASET_ANALYZE:
             self.recommender()
         else:
-            pass
-
-    def conformity(self):
-        if self.experimental_settings['view'] == Label.DATASET_CHART:
-            self.conformity_charts()
-        elif self.experimental_settings['view'] == Label.DATASET_ANALYZE:
-            self.conformity_analyses()
-        else:
-            pass
+            print(f"Option or View is not allowed to use yet! ... {self.experimental_settings['opt']} ... {self.experimental_settings['view']}")
 
     def conformity_charts(self):
         for dataset_name in self.experimental_settings['dataset']:
@@ -144,7 +128,55 @@ class PierreStep7(Step):
             )
             print(silhlouete_results)
 
-    def recommender(self):
+    def distribution_as_goal(self, data, dataset, metric, graphic_name):
+        for recommender in self.experimental_settings['recommender']:
+            for tradeoff in self.experimental_settings['tradeoff']:
+                for fairness in self.experimental_settings['fairness']:
+                    for relevance in self.experimental_settings['relevance']:
+                        for selector in self.experimental_settings['selector']:
+                            for graphic in self.experimental_settings['type']:
+                                temp_graphic_name = "_".join([graphic, graphic_name, recommender, tradeoff, fairness, relevance, selector])
+                                filtered_data = data[
+                                    (data[Label.RECOMMENDER] == recommender) &
+                                    (data[Label.TRADEOFF] == tradeoff) &
+                                    (data[Label.CALIBRATION_MEASURE_LABEL] == fairness) &
+                                    (data[Label.RELEVANCE] == relevance) &
+                                    (data[Label.SELECTOR_LABEL] == selector)
+                                ].copy()
+                                if len(filtered_data) > 0:
+                                    if graphic == Label.GRAPHIC_LINE_TYPE:
+                                        SingleRecommenderGraphics.line_generic_weight_by_metric(
+                                            data=filtered_data, y_label=metric + " Values", metric=metric, dataset=dataset,
+                                            goal_label=Label.DISTRIBUTION_LABEL,
+                                            goal_list=self.experimental_settings['distribution'],
+                                            graphic_name=temp_graphic_name
+                                        )
+                                    elif graphic == Label.GRAPHIC_HEAT_WELCH_TYPE:
+                                        WelchHypothesisTestGraphics.heatmap(
+                                            data=filtered_data, metric=metric, dataset=dataset,
+                                            goal_label=Label.DISTRIBUTION_LABEL,
+                                            goal_list=self.experimental_settings['distribution'],
+                                            graphic_name=temp_graphic_name
+                                        )
+                                    else:
+                                        pass
+
+    def recommender_charts(self):
+        for dataset in self.experimental_settings['dataset']:
+            for metric in self.experimental_settings['metric']:
+                for goal in self.experimental_settings['goal']:
+                    graphic_name = "_".join([dataset, metric, goal])
+                    data = SaveAndLoad.load_compiled_metric(
+                        dataset=dataset, metric=metric
+                    )
+                    if goal == Label.DISTRIBUTION_LABEL:
+                        self.distribution_as_goal(
+                            data=data, dataset=dataset, metric=metric, graphic_name=graphic_name
+                        )
+                    else:
+                        pass
+
+    def old_recommender_charts(self):
         for metric in [Label.MAP, Label.MRR, Label.MACE]:
             all_results = {}
             for dataset_name in self.experimental_settings['dataset']:
@@ -201,7 +233,7 @@ class PierreStep7(Step):
     #         # Coefficients
     #         components_box_graphic(data=data, dataset_name=dataset_name, order_by_metric="PERFORMANCE")
     #         fairness_box_graphic(data=data, dataset_name=dataset_name, order_by_metric="PERFORMANCE")
-    #
+
     # def analyses(self):
     #     for dataset_name in setup_config['dataset']:
     #         print("|" * 100)
@@ -221,18 +253,18 @@ class PierreStep7(Step):
     #         best_and_worst_fairness_measure(data=results, order_by_metric='MRR', ascending=False)
     #         best_and_worst_fairness_measure(data=results, order_by_metric='MACE', ascending=True)
     #         best_and_worst_fairness_measure(data=results, order_by_metric='CCE', ascending=True)
-    #
-    #         welch(data=results, order_by_metric='MAP', ascending=False)
-    #         welch(data=results, order_by_metric='MRR', ascending=False)
-    #         welch(data=results, order_by_metric='MACE', ascending=True)
-    #         welch(data=results, order_by_metric='CCE', ascending=True)
-    #
-    #         print("|" * 100)
+
+            welch(data=results, order_by_metric='MAP', ascending=False)
+            welch(data=results, order_by_metric='MRR', ascending=False)
+            welch(data=results, order_by_metric='MACE', ascending=True)
+            welch(data=results, order_by_metric='CCE', ascending=True)
+
+            print("|" * 100)
 
 
 if __name__ == '__main__':
     """
-    Starting the decision protocol
+    Starting the Charts, Tables and H-Test production
     """
     logger.info(" ".join(['+' * 10, 'System Starting', '+' * 10]))
     step = PierreStep7()
