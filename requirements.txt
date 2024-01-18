@@ -29,6 +29,7 @@ fqdn==1.5.1
 funcsigs==1.0.2
 fuzzy-c-means==1.6.3
 idna==3.6
+implicit==0.7.2
 importlib-metadata==7.0.1
 importlib-resources @ file:///croot/importlib_resources-suite_1702931911817/work
 iniconfig==2.0.0
@@ -121,7 +122,7 @@ rfc3986-validator==0.1.1
 rich==13.7.0
 rpds-py==0.16.2
 scikit-learn @ file:///croot/scikit-learn_1690978916802/work
-scikit-pierre @ file:///home/diego/Code/pierre-in-frame/scikit_pierre-0.0.1-py3-none-any.whl#sha256=09e1267615b4365be90f41c8a77be32d36d8cf3c423c7ba05456a23383abd47c
+scikit-pierre @ file:///home/diego/Code/pierre-in-frame/scikit_pierre-0.0.1-py3-none-any.whl#sha256=c8acc6d32c6c76bc7b7dfeebc74992ef4723d227ed963ef4cacdf8e46b673c3c
 scikit-surprise==1.1.3
 scipy==1.9.0
 seaborn==0.11.2
@@ -138,6 +139,7 @@ tinycss2==1.2.1
 toml==0.10.2
 tomli @ file:///opt/conda/conda-bld/tomli_1657175507142/work
 tornado @ file:///croot/tornado_1696936946304/work
+tqdm==4.66.1
 traitlets==5.14.1
 twine==4.0.2
 typer==0.3.2

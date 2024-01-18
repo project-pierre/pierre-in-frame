@@ -1,0 +1,9 @@
+{
+  "opt": "SPLIT",
+  "dataset": "ml-1m",
+  "n_folds": 3,
+  "n_trials": 1,
+  "distribution": ["None"],
+  "fold": ["None"],
+  "trial": ["None"]
+}

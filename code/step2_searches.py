@@ -1,3 +1,4 @@
+import itertools
 import logging
 
 from searches.conformity_search import ManualConformityAlgorithmSearch
@@ -17,13 +18,13 @@ class PierreStep2(Step):
     This class is administrating the Step 2 of the framework (Hyperparameters search)
     """
 
-    def read_the_entries(self):
+    def read_the_entries(self) -> None:
         """
         This method reads the terminal entries.
         """
         self.experimental_settings = Input.step2()
 
-    def set_the_logfile(self):
+    def set_the_logfile_step2(self, recommender: str, dataset: str) -> None:
         """
         This method is to config the log file.
         """
@@ -31,12 +32,12 @@ class PierreStep2(Step):
         setup_logging(
             log_error="error.log", log_info="info.log",
             save_path=PathDirFile.set_log_search_path(
-                algorithm=self.experimental_settings['recommender'],
-                dataset=self.experimental_settings['dataset']
+                algorithm=recommender,
+                dataset=dataset
             )
         )
 
-    def print_basic_info(self):
+    def print_basic_info(self) -> None:
         """
         This method is to print basic information about the step and machine.
         """
@@ -51,27 +52,26 @@ class PierreStep2(Step):
         if self.experimental_settings['opt'] == Label.CONFORMITY:
             logger.info(" ".join(['>>', 'Cluster:', self.experimental_settings['cluster']]))
         elif self.experimental_settings['opt'] == Label.RECOMMENDER:
-            logger.info(" ".join(['>>', 'Recommender:', self.experimental_settings['recommender']]))
+            logger.info(" ".join(['>>', 'Recommender:', str(self.experimental_settings['recommender'])]))
 
-        logger.info(" ".join(['>>', 'Dataset:', self.experimental_settings['dataset']]))
-        if self.experimental_settings['trial'] is not None:
-            logger.info(" ".join(['>>', 'Fold to use:', str(self.experimental_settings['fold'])]))
-            logger.info(" ".join(['>>', 'Trial to use:', str(self.experimental_settings['trial'])]))
+        logger.info(" ".join(['>>', 'Dataset:', str(self.experimental_settings['dataset'])]))
+        logger.info(" ".join(['>>', 'Fold to use:', str(self.experimental_settings['fold'])]))
+        logger.info(" ".join(['>>', 'Trial to use:', str(self.experimental_settings['trial'])]))
 
         logger.info("$" * 50)
 
-    def main(self):
+    def main(self) -> None:
         """
         Main method used to choice the run option.
         """
         if self.experimental_settings['opt'] == Label.CONFORMITY:
             self.starting_cluster()
         elif self.experimental_settings['opt'] == Label.RECOMMENDER:
-            self.starting_recommender()
+            self.preparing_to_start()
         else:
             print("Option not found!")
 
-    def starting_cluster(self):
+    def starting_cluster(self) -> None:
         """
         TODO: Docstring
         """
@@ -98,7 +98,20 @@ class PierreStep2(Step):
         #     distribution=self.experimental_settings['distribution']
         # )
 
-    def starting_recommender(self):
+    def preparing_to_start(self) -> None:
+        """
+        TODO: Docstring
+        """
+
+        combination = [
+            self.experimental_settings['recommender'], self.experimental_settings['dataset'],
+            self.experimental_settings['trial'], self.experimental_settings['fold']
+        ]
+
+        for recommender, dataset, trial, fold in list(itertools.product(*combination)):
+            self.starting_recommender(recommender=recommender, dataset=dataset, trial=trial, fold=fold)
+
+    def starting_recommender(self, recommender: str, dataset: str, trial: int, fold: int) -> None:
         """
         TODO: Docstring
         """
@@ -106,18 +119,13 @@ class PierreStep2(Step):
         # Starting the counter
         self.start_count()
 
+        self.set_the_logfile_step2(dataset=dataset, recommender=recommender)
+
         # Executing the Random Search
         search_instance = RecommenderSearch(
-            recommender=self.experimental_settings['recommender'],
-            dataset=self.experimental_settings['dataset'],
-            trial=self.experimental_settings['trial'],
-            fold=self.experimental_settings['fold']
+            recommender=recommender, dataset=dataset, trial=trial, fold=fold
         )
-        if self.experimental_settings['trial'] is None:
-            search_instance.fit_all()
-
-        else:
-            search_instance.fit()
+        search_instance.fit()
 
         # Finishing the counter
         self.finish_count()
@@ -125,8 +133,7 @@ class PierreStep2(Step):
         # Saving execution time
         SaveAndLoad.save_search_time(
             data=self.clock_data(),
-            dataset=self.experimental_settings['dataset'], algorithm=self.experimental_settings['recommender']
-
+            dataset=dataset, algorithm=dataset
         )
 
 
@@ -137,7 +144,6 @@ if __name__ == '__main__':
     logger.info(" ".join(['+' * 10, 'System Starting', '+' * 10]))
     step = PierreStep2()
     step.read_the_entries()
-    step.set_the_logfile()
     step.print_basic_info()
     step.main()
     logger.info(" ".join(['+' * 10, 'System shutdown', '+' * 10]))

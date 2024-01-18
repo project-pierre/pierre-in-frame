@@ -22,7 +22,7 @@ class PierreStep4(Step):
     This class is administrating the Step 4 of the framework (Post-Processing)
     """
 
-    def read_the_entries(self):
+    def read_the_entries(self) -> None:
         """
         This method reads the terminal entries.
         """
@@ -33,7 +33,7 @@ class PierreStep4(Step):
         dataset: str, algorithm: str, trial: int, fold: int,
         tradeoff: str, distribution: str, calibration: str, relevance: str,
         weight: str, selector: str
-    ):
+    ) -> None:
         """
         This method is to config the log file.
         """
@@ -47,7 +47,7 @@ class PierreStep4(Step):
             )
         )
 
-    def print_basic_info_by_instance(self, dataset: str, algorithm: str, trial: int, fold: int):
+    def print_basic_info_by_instance(self, dataset: str, algorithm: str, trial: int, fold: int) -> None:
         """
         This method is to print basic information about the step and machine.
         """
@@ -70,7 +70,7 @@ class PierreStep4(Step):
     def checkpoint_verification(
         self, recommender, fold, trial, dataset,
         tradeoff, distribution, calibration, relevance, weight, selector
-    ):
+    ) -> bool:
 
         path = PathDirFile.get_recommendation_list_file(
             dataset=dataset, recommender=recommender, trial=trial, fold=fold,
@@ -82,17 +82,15 @@ class PierreStep4(Step):
         if os.path.exists(path):
             try:
                 users_recommendation_lists = pd.read_csv(path)
-                if dataset == "ml-1m" and len(users_recommendation_lists) == 60400:
-                    return "AlreadyDone"
-                elif dataset == "yahoo-movies" and len(users_recommendation_lists) == 29160:
-                    return "AlreadyDone"
+                if len(users_recommendation_lists) > 100:
+                    return True
                 else:
-                    raise "Wrong Length"
+                    return False
             except Exception as e:
                 logger.error(" - ".join([str(e), path]))
 
     def starting_postprocessing(self, recommender, fold, trial, dataset, tradeoff, distribution, calibration, relevance,
-                                weight, selector, list_size, alpha, d):
+                                weight, selector, list_size, alpha, d) -> str:
         """
         TODO: Docstring
         """
@@ -104,6 +102,19 @@ class PierreStep4(Step):
         # self.print_basic_info_by_instance(
         #     dataset=dataset, trial=trial, fold=fold, algorithm=recommender
         # )
+
+        if self.experimental_settings["checkpoint"] == "YES" and self.checkpoint_verification(
+            dataset=dataset, trial=trial, fold=fold, recommender=recommender,
+            tradeoff=tradeoff, distribution=distribution, calibration=calibration,
+            relevance=relevance, weight=weight, selector=selector
+        ):
+            logger.info(">> Already Done... " + "-".join(
+                [dataset,
+                 'trial-' + str(trial), 'fold-' + str(fold), recommender,
+                 tradeoff, distribution, relevance, selector,
+                 calibration, tradeoff])
+            )
+            return "Already Done"
 
         # Starting the counter
         self.start_count()
@@ -133,7 +144,7 @@ class PierreStep4(Step):
         logger.info(" ".join(['->>', 'Time Execution:', str(self.get_total_time_formatted())]))
         return "Finished"
 
-    def main(self):
+    def main(self) -> None:
         combination = [
             self.experimental_settings['recommender'], self.experimental_settings['dataset'],
             self.experimental_settings['fold'], self.experimental_settings['trial'],

@@ -169,7 +169,7 @@ class Input:
         experimental_setup['fold'] = 1
         experimental_setup['trial'] = 1
 
-        if len(sys.argv) > 2:
+        if sys.argv[1].split('=')[0] != "from_file" and len(sys.argv) > 2:
             for arg in sys.argv[1:]:
                 param, value = arg.split('=')
 
@@ -218,8 +218,8 @@ class Input:
                 else:
                     print(f"The parameter {param} is not configured in this feature.")
                     exit(1)
-        elif sys.argv[1].split('=')[0] == "file" and sys.argv[1].split('=')[1] == "YES":
-            experimental_setup = SaveAndLoad.load_step_file(step_file="step1")
+        elif sys.argv[1].split('=')[0] == "from_file" and sys.argv[1].split('=')[1] == "YES" and sys.argv[2].split('=')[0] == "file_name":
+            experimental_setup = SaveAndLoad.load_step_file(step="step1", file_name=sys.argv[2].split('=')[1])
         else:
             print("More information are needed!")
             print("All params possibilities are: \n"
@@ -254,7 +254,7 @@ class Input:
         experimental_setup['fold'] = None
         experimental_setup['trial'] = None
 
-        if len(sys.argv) > 1:
+        if sys.argv[1].split('=')[0] != "from_file" and len(sys.argv) > 1:
             for arg in sys.argv[1:]:
                 param, value = arg.split('=')
 
@@ -296,8 +296,8 @@ class Input:
                     experimental_setup['trial'] = value
                 else:
                     print(f"The parameter {param} is not configured in this feature.")
-        elif sys.argv[1].split('=')[0] == "file" and sys.argv[1].split('=')[1] == "YES":
-            experimental_setup = SaveAndLoad.load_step_file(step_file="step2")
+        elif sys.argv[1].split('=')[0] == "from_file" and sys.argv[1].split('=')[1] == "YES" and sys.argv[2].split('=')[0] == "file_name":
+            experimental_setup = SaveAndLoad.load_step_file(step="step2", file_name=sys.argv[2].split('=')[1])
         else:
             print("More information are needed!")
             print("All params possibilities are: -opt, --dataset, --recommender, --cluster, --distribution.")
@@ -332,7 +332,7 @@ class Input:
         experimental_setup['trial'] = [trial for trial in range(1, Constants.N_TRIAL_VALUE + 1)]
         experimental_setup['metric'] = 'rmse'
 
-        if len(sys.argv) > 2:
+        if sys.argv[1].split('=')[0] != "from_file" and len(sys.argv) > 2:
             for arg in sys.argv[1:]:
                 param, value = arg.split('=')
 
@@ -373,8 +373,8 @@ class Input:
                     experimental_setup['metric'] = str(value)
                 else:
                     print(f"The parameter {param} is not configured in this feature.")
-        elif sys.argv[1].split('=')[0] == "file" and sys.argv[1].split('=')[1] == "YES":
-            experimental_setup = SaveAndLoad.load_step_file(step_file="step3")
+        elif sys.argv[1].split('=')[0] == "from_file" and sys.argv[1].split('=')[1] == "YES" and sys.argv[2].split('=')[0] == "file_name":
+            experimental_setup = SaveAndLoad.load_step_file(step="step3", file_name=sys.argv[2].split('=')[1])
         else:
             print("More information are needed!")
             print("All params possibilities are: --dataset, --recommender, --trial and --fold.")
@@ -432,7 +432,7 @@ class Input:
 
         experimental_setup['d'] = [Constants.DIMENSION_VALUE]
 
-        if len(sys.argv) > 2:
+        if sys.argv[1].split('=')[0] != "from_file" and len(sys.argv) > 2:
             for arg in sys.argv[1:]:
                 param, value = arg.split('=')
 
@@ -492,8 +492,8 @@ class Input:
                     experimental_setup['weight'] = [value]
                 else:
                     print("The parameter {} is not configured in this feature.".format(param))
-        elif sys.argv[1].split('=')[0] == "file" and sys.argv[1].split('=')[1] == "YES":
-            experimental_setup = SaveAndLoad.load_step_file(step_file="step4")
+        elif sys.argv[1].split('=')[0] == "from_file" and sys.argv[1].split('=')[1] == "YES" and sys.argv[2].split('=')[0] == "file_name":
+            experimental_setup = SaveAndLoad.load_step_file(step="step4", file_name=sys.argv[2].split('=')[1])
         else:
             print("More information are needed!")
             exit(1)
@@ -551,7 +551,7 @@ class Input:
         experimental_setup['distribution'] = Label.ACCESSIBLE_DISTRIBUTION_LIST
         experimental_setup['selector'] = Label.ACCESSIBLE_SELECTOR_LIST
 
-        if len(sys.argv) > 2:
+        if sys.argv[1].split('=')[0] != "from_file" and len(sys.argv) > 2:
             for arg in sys.argv[1:]:
                 param, value = arg.split('=')
 
@@ -629,8 +629,8 @@ class Input:
                     experimental_setup['weight'] = [value]
                 else:
                     print("The parameter {} is not configured in this feature.".format(param))
-        elif sys.argv[1].split('=')[0] == "file" and sys.argv[1].split('=')[1] == "YES":
-            experimental_setup = SaveAndLoad.load_step_file(step_file="step5")
+        elif sys.argv[1].split('=')[0] == "from_file" and sys.argv[1].split('=')[1] == "YES" and sys.argv[2].split('=')[0] == "file_name":
+            experimental_setup = SaveAndLoad.load_step_file(step="step5", file_name=sys.argv[2].split('=')[1])
         else:
             print("More information are needed!")
             exit(1)
@@ -682,7 +682,7 @@ class Input:
         experimental_setup['distribution'] = Label.ACCESSIBLE_DISTRIBUTION_LIST
         experimental_setup['selector'] = Label.ACCESSIBLE_SELECTOR_LIST
 
-        if len(sys.argv) > 2:
+        if sys.argv[1].split('=')[0] != "from_file" and len(sys.argv) > 2:
             for arg in sys.argv[1:]:
                 param, value = arg.split('=')
 
@@ -745,8 +745,8 @@ class Input:
                     experimental_setup['weight'] = [value]
                 else:
                     print("The parameter {} is not configured in this feature.".format(param))
-        elif sys.argv[1].split('=')[0] == "file" and sys.argv[1].split('=')[1] == "YES":
-            experimental_setup = SaveAndLoad.load_step_file(step_file="step6")
+        elif sys.argv[1].split('=')[0] == "from_file" and sys.argv[1].split('=')[1] == "YES" and sys.argv[2].split('=')[0] == "file_name":
+            experimental_setup = SaveAndLoad.load_step_file(step="step6", file_name=sys.argv[2].split('=')[1])
         else:
             print("More information are needed!")
             exit(1)
@@ -775,7 +775,7 @@ class Input:
         
         experimental_setup['metric'] = Label.REGISTERED_METRICS
         
-        if len(sys.argv) > 2:
+        if sys.argv[1].split('=')[0] != "from_file" and len(sys.argv) > 2:
             for arg in sys.argv[1:]:
                 param, value = arg.split('=')
 
@@ -862,8 +862,8 @@ class Input:
                     experimental_setup['weight'] = [value]
                 else:
                     print("The parameter {} is not configured in this feature.".format(param))
-        elif sys.argv[1].split('=')[0] == "file" and sys.argv[1].split('=')[1] == "YES":
-            experimental_setup = SaveAndLoad.load_step_file(step_file="step7")
+        elif sys.argv[1].split('=')[0] == "from_file" and sys.argv[1].split('=')[1] == "YES" and sys.argv[2].split('=')[0] == "file_name":
+            experimental_setup = SaveAndLoad.load_step_file(step="step7", file_name=sys.argv[2].split('=')[1])
         else:
             print("More information are needed!")
             print("All params possibilities are: -opt and --dataset.")

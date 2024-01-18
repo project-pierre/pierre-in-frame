@@ -49,7 +49,15 @@ class Label:
         USER_KNN_BASIC,
         ITEM_KNN_BASIC
     ]
-    REGISTERED_RECOMMENDERS = SURPRISE_RECOMMENDERS
+
+    ALS = "ALS"
+    BPR = "BPR"
+    LMF = "LMF"
+
+    IMPLICIT_RECOMMENDERS = [
+        ALS, BPR, LMF
+    ]
+    REGISTERED_RECOMMENDERS = SURPRISE_RECOMMENDERS + IMPLICIT_RECOMMENDERS
 
     ########################################################
     # Hyperparameter Search Metrics

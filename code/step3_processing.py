@@ -1,9 +1,13 @@
+import itertools
+
 import logging
 
 from joblib import Parallel, delayed
 
+from processing.implicit_recommender_algorithms import ImplicitRecommenderAlgorithm
 from processing.surprise_recommender_algorithms import SurpriseRecommenderAlgorithm
 from settings.constants import Constants
+from settings.labels import Label
 from utils.logging_settings import setup_logging
 from settings.path_dir_file import PathDirFile
 from settings.save_and_load import SaveAndLoad
@@ -18,14 +22,14 @@ class PierreStep3(Step):
     This class is administrating the Step 3 of the framework (Processing)
     """
 
-    def read_the_entries(self):
+    def read_the_entries(self) -> None:
         """
         This method reads the terminal entries.
         """
         self.experimental_settings = Input.step3()
 
     @staticmethod
-    def set_the_logfile_by_instance(dataset: str, algorithm: str, trial: int, fold: int):
+    def set_the_logfile_by_instance(dataset: str, algorithm: str, trial: int, fold: int) -> None:
         """
         This method is to config the log file.
         """
@@ -40,7 +44,7 @@ class PierreStep3(Step):
             )
         )
 
-    def print_basic_info_by_instance(self, dataset: str, algorithm: str, trial: int, fold: int):
+    def print_basic_info_by_instance(self, dataset: str, algorithm: str, trial: int, fold: int) -> None:
         """
         This method is to print basic information about the step and machine.
         """
@@ -60,27 +64,35 @@ class PierreStep3(Step):
         logger.info("$" * 50)
         logger.info("$" * 50)
 
-    def main(self):
+    def main(self) -> None:
         """
         Main method used to choice the run option.
         """
         self.recommender_parallelization()
 
-    def recommender_parallelization(self):
+    def recommender_parallelization(self) -> None:
         """
         Main method to start the processing step in parallel.
         """
+        combination = [
+            self.experimental_settings['recommender'], self.experimental_settings['dataset'],
+            self.experimental_settings['fold'], self.experimental_settings['trial']
+        ]
+
         # Starting the recommender algorithm
-        Parallel(n_jobs=Constants.N_CORES)(delayed(self.starting_recommender)(
-            recommender=self.experimental_settings['recommender'],
-            dataset=self.experimental_settings['dataset'],
-            trial=trial, fold=fold
-        ) for fold in self.experimental_settings['fold'] for trial in self.experimental_settings['trial'])
+        Parallel(n_jobs=Constants.N_CORES)(
+            delayed(self.starting_recommender)(
+                recommender=recommender, dataset=dataset, trial=trial, fold=fold
+            ) for recommender, dataset, fold, trial in list(itertools.product(*combination))
+        )
+
+        # for recommender, dataset, fold, trial in list(itertools.product(*combination)):
+        #     self.starting_recommender(recommender=recommender, dataset=dataset, trial=trial, fold=fold)
 
         # Finishing the Step
         logger.info(" ".join(['+' * 10, 'System shutdown', '+' * 10]))
 
-    def starting_recommender(self, dataset: str, recommender: str, trial: int, fold: int):
+    def starting_recommender(self, dataset: str, recommender: str, trial: int, fold: int) -> None:
         """
         Function to starting the recommender algorithm.
 
@@ -99,12 +111,21 @@ class PierreStep3(Step):
         # Starting the counter
         self.start_count()
 
-        # Executing the processing step
-        recommender_algorithm = SurpriseRecommenderAlgorithm(
-            dataset_name=dataset, trial=trial, fold=fold, recommender_name=recommender,
-            metric=self.experimental_settings['metric']
-        )
-        recommender_algorithm.run()
+        if recommender in Label.SURPRISE_RECOMMENDERS:
+            # Executing the processing step
+            recommender_algorithm = SurpriseRecommenderAlgorithm(
+                dataset_name=dataset, trial=trial, fold=fold, recommender_name=recommender,
+                metric=self.experimental_settings['metric']
+            )
+            recommender_algorithm.run()
+        elif recommender in Label.IMPLICIT_RECOMMENDERS:
+            recommender_algorithm = ImplicitRecommenderAlgorithm(
+                dataset_name=dataset, trial=trial, fold=fold, recommender_name=recommender,
+                list_size=self.experimental_settings['list_size']
+            )
+            recommender_algorithm.run()
+        else:
+            pass
 
         # Finishing the counter
         self.finish_count()

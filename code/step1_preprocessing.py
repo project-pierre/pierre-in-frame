@@ -126,7 +126,7 @@ class PierreStep1(Step):
         # It creates the combination of process entries
         combination = [
             [self.experimental_settings['dataset']], self.experimental_settings['trial'],
-            self.experimental_settings['fold'], [self.experimental_settings['distribution']]
+            self.experimental_settings['fold'], self.experimental_settings['distribution']
         ]
 
         # Start the processes in parallel using joblib

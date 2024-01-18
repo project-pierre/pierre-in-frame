@@ -1,16 +1,15 @@
 import logging
-
 from surprise import SVD, KNNBasic
 from surprise.model_selection import RandomizedSearchCV
 from surprise.prediction_algorithms.co_clustering import CoClustering
 from surprise.prediction_algorithms.matrix_factorization import SVDpp, NMF
 
-from processing.conversions.pandas_surprise import PandasSurprise
 from datasets.registred_datasets import RegisteredDataset
-from settings.constants import Constants
-from settings.save_and_load import SaveAndLoad
+from processing.conversions.pandas_surprise import PandasSurprise
 from searches.parameters import SurpriseParams
+from settings.constants import Constants
 from settings.labels import Label
+from settings.save_and_load import SaveAndLoad
 
 logger = logging.getLogger(__name__)
 
@@ -47,14 +46,16 @@ class RecommenderSearch:
             self.recommender = SVDpp
             self.params = SurpriseParams.SVDpp_SEARCH_PARAMS
 
-    def __search(self):
+    def __search(self) -> None:
         """
         Randomized Search Cross Validation to get the best params in the recommender algorithm
         :return: A Random Search instance
         """
-        gs = RandomizedSearchCV(algo_class=self.recommender, param_distributions=self.params, measures=self.measures,
-                                n_iter=Constants.N_INTER, cv=Constants.K_FOLDS_VALUE,
-                                n_jobs=Constants.N_CORES, joblib_verbose=100, random_state=42)
+        gs = RandomizedSearchCV(
+            algo_class=self.recommender, param_distributions=self.params, measures=self.measures,
+            n_iter=Constants.N_INTER, cv=Constants.K_FOLDS_VALUE,
+            n_jobs=Constants.N_CORES, joblib_verbose=100, random_state=42
+        )
         gs.fit(
             PandasSurprise.pandas_transform_all_dataset_to_surprise(
                 self.dataset.get_train_transactions(trial=self.trial, fold=self.fold)
@@ -62,7 +63,7 @@ class RecommenderSearch:
         )
         return gs
 
-    def fit(self):
+    def fit(self) -> None:
         """
         Search and save the best param values
         """
@@ -72,10 +73,3 @@ class RecommenderSearch:
             best_params=gs.best_params, dataset=self.dataset.system_name, algorithm=self.recommender_name,
             trial=self.trial, fold=self.fold
         )
-
-    def fit_all(self):
-        for trial in range(1, Constants.N_TRIAL_VALUE + 1):
-            for fold in range(1, Constants.K_FOLDS_VALUE + 1):
-                self.trial = trial
-                self.fold = fold
-                self.fit()

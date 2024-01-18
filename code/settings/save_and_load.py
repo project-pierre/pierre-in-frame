@@ -13,11 +13,11 @@ class SaveAndLoad:
     """
 
     @staticmethod
-    def load_step_file(step_file: str):
+    def load_step_file(step: str, file_name: str):
         """
         TODO: Docstring
         """
-        path_to_open = PathDirFile.get_step_file(step_file=step_file)
+        path_to_open = PathDirFile.get_step_file(step=step, file_name=file_name)
         with open(path_to_open) as json_file:
             params = json.load(json_file)
 

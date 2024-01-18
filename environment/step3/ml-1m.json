@@ -1,0 +1,9 @@
+{
+  "opt": "RECOMMENDER",
+  "dataset": ["ml-1m"],
+  "recommender": ["SVD", "ALS", "BPR"],
+  "fold": [1, 2, 3],
+  "trial": [1],
+  "list_size": 100,
+  "metric": "rmse"
+}
