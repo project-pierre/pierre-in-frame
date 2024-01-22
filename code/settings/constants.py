@@ -13,6 +13,7 @@ class Constants:
     # Machine config
     MEM_RAM = get_size()
     N_CORES = multiprocessing.cpu_count()
+    # N_CORES = 1
     os.environ['NUMEXPR_MAX_THREADS'] = str(N_CORES)
 
     # SEARCH

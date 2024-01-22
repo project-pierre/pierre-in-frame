@@ -33,19 +33,28 @@ class PostProcessingStep:
         # Load dataset
         self.dataset = RegisteredDataset.load_dataset(dataset_name)
         # Load candidate items set
+        self.users_distribution = None
         self.candidate_items = CandidateItems(recommender=recommender, dataset=dataset_name, trial=trial, fold=fold)
+        # try:
+        #     self.users_distribution = SaveAndLoad.load_user_preference_distribution(
+        #         dataset=dataset_name, fold=fold, trial=trial, distribution=distribution_component
+        #     )
+        # except Exception as e:
+        #     self.users_distribution = None
         # Choice the tradeoff
         if self.tradeoff_component == 'LIN':
             self.tradeoff_instance = LinearCalibration(
                 users_preferences=self.dataset.get_train_transactions(fold=fold, trial=trial),
                 candidate_items=self.candidate_items.get_candidate_items(),
-                item_set=self.dataset.get_items()
+                item_set=self.dataset.get_items(),
+                users_distribution=self.users_distribution
             )
         elif self.tradeoff_component == 'LOG':
             self.tradeoff_instance = LogarithmBias(
                 users_preferences=self.dataset.get_train_transactions(fold=fold, trial=trial),
                 candidate_items=self.candidate_items.get_candidate_items(),
-                item_set=self.dataset.get_items()
+                item_set=self.dataset.get_items(),
+                users_distribution=self.users_distribution
             )
 
         # Configuring the experimentation

@@ -11,12 +11,7 @@ from datasets.registred_datasets import RegisteredDataset
 from scikit_pierre.classes.genre import genre_probability_approach
 from scikit_pierre.distributions.accessible import distributions_funcs_pandas
 from scikit_pierre.measures.accessible import calibration_measures_funcs
-from scikit_pierre.metrics.mace import mace
-from scikit_pierre.metrics.map import mean_average_precision_map
-from scikit_pierre.metrics.mrmc import mrmc
-from scikit_pierre.metrics.mrr import mean_reciprocal_rank_map
-from scikit_pierre.metrics.serendipity import serendipity
-from scikit_pierre.metrics.unexpectedness import unexpectedness
+from scikit_pierre.metrics.evaluation import mace, mean_average_precision, mrmc, mean_reciprocal_rank, serendipity, unexpectedness
 from settings.constants import Constants
 from settings.labels import Label
 from settings.path_dir_file import PathDirFile
@@ -53,7 +48,7 @@ def applying_mrr(recommender, dataset, trial, fold, distribution, fairness, rele
 
     # Executing
     users_test_items = dataset_instance.get_test_transactions(trial=trial, fold=fold)
-    mrr_value = mean_reciprocal_rank_map(users_recommendation_lists, users_test_items)
+    mrr_value = mean_reciprocal_rank(users_recommendation_lists, users_test_items)
 
     results = pd.DataFrame([[
         mrr_value
@@ -96,7 +91,7 @@ def applying_map(recommender, dataset, trial, fold, distribution, fairness, rele
 
     # Executing
     users_test_items = dataset_instance.get_test_transactions(trial=trial, fold=fold)
-    map_value = mean_average_precision_map(users_recommendation_lists, users_test_items)
+    map_value = mean_average_precision(users_recommendation_lists, users_test_items)
 
     results = pd.DataFrame([[
         map_value
@@ -115,18 +110,18 @@ def applying_mace(recommender, dataset, trial, fold, distribution, fairness, rel
     """
     Function that apply the evaluation metrics.
     """
-    try:
-        metric_file = SaveAndLoad.load_recommender_metric(
-            metric="MACE",
-            recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-            distribution=distribution, fairness=fairness, relevance=relevance,
-            weight=weight, tradeoff=tradeoff, selector=selector
-        )
-        # Check integrity
-        if len(metric_file) == 1:
-            return "AlreadyDone"
-    except Exception as e:
-        logger.error(" - ".join([str(e)]))
+    # try:
+    #     metric_file = SaveAndLoad.load_recommender_metric(
+    #         metric="MACE",
+    #         recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+    #         distribution=distribution, fairness=fairness, relevance=relevance,
+    #         weight=weight, tradeoff=tradeoff, selector=selector
+    #     )
+    #     # Check integrity
+    #     if len(metric_file) == 1:
+    #         return "AlreadyDone"
+    # except Exception as e:
+    #     logger.error(" - ".join([str(e)]))
 
     dataset_instance = RegisteredDataset.load_dataset(dataset)
 
@@ -136,22 +131,20 @@ def applying_mace(recommender, dataset, trial, fold, distribution, fairness, rel
         relevance=relevance, tradeoff_weight=weight, select_item=selector
     )
     users_recommendation_lists = pd.read_csv(path)
+    users_recommendation_lists[Label.USER_ID] = users_recommendation_lists[Label.USER_ID].astype(str)
 
     # Executing
     items_set = dataset_instance.get_items()
-    items_classes_set = genre_probability_approach(item_set=items_set)
 
-    dist_func = distributions_funcs_pandas(distribution)
-    users_pref_dist_df = SaveAndLoad.load_user_preference_distribution(
-        dataset=dataset_instance.system_name, trial=trial, fold=fold,
-        distribution=distribution
+    # Get the users' preferences set
+    users_preference_set = dataset_instance.get_train_transactions(
+        trial=trial, fold=fold
     )
 
-    users_recommendation_lists[Label.USER_ID] = users_recommendation_lists[Label.USER_ID].astype(str)
     mace_value = mace(
-        users_pref_dist_df, users_recommendation_lists, items_classes_set, dist_func
+        users_preference_set=users_preference_set, users_recommendation_lists=users_recommendation_lists,
+        items_set_df=items_set, distribution=distribution
     )
-
     results = pd.DataFrame([[
         mace_value
     ]], columns=['MACE'])

@@ -6,8 +6,7 @@ from joblib import Parallel, delayed
 
 from datasets.registred_datasets import RegisteredDataset
 from graphics.dataset_chart import DatasetChart
-from scikit_pierre.classes.genre import genre_probability_approach
-from scikit_pierre.distributions.accessible import distributions_funcs_pandas
+from scikit_pierre.distributions.compute_distribution import computer_users_distribution
 from settings.constants import Constants
 from settings.labels import Label
 from settings.path_dir_file import PathDirFile
@@ -137,7 +136,7 @@ class PierreStep1(Step):
             in list(itertools.product(*combination)))
 
     @staticmethod
-    def compute_distribution(dataset, trial, fold, distribution):
+    def compute_distribution(dataset: str, trial: int, fold: int, distribution: str) -> None:
         """
         This method is to compute the preference distribution.
         """
@@ -145,32 +144,18 @@ class PierreStep1(Step):
         # Load the dataset
         dataset_instance = RegisteredDataset.load_dataset(dataset)
 
-        # Get the items classes
-        items_classes_set = genre_probability_approach(item_set=dataset_instance.get_items())
-
         # Get the users' preferences set
         users_preference_set = dataset_instance.get_train_transactions(
             trial=trial, fold=fold
         )
 
-        # Set the used distribution
-        dist_func = distributions_funcs_pandas(distribution=distribution)
-
-        # Group the preferences by user
-        grouped_users_preference_set = users_preference_set.groupby(by=[Label.USER_ID])
-
-        # Compute the distribution to all users
-        users_pref_dist_df = pd.concat([
-            dist_func(
-                user_id=user_id,
-                user_pref_set=user_pref_set,
-                item_classes_set=items_classes_set
-            ) for user_id, user_pref_set in grouped_users_preference_set
-        ])
+        data = computer_users_distribution(
+            users_preference_set=users_preference_set, items_df=dataset_instance.get_items(), distribution=distribution
+        )
 
         # Save the distributions
         SaveAndLoad.save_user_preference_distribution(
-            data=users_pref_dist_df, dataset=dataset, fold=fold, trial=trial, distribution=distribution
+            data=data, dataset=dataset, fold=fold, trial=trial, distribution=distribution
         )
 
         logger.info(" ... ".join([

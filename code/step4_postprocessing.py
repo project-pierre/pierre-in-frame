@@ -155,16 +155,24 @@ class PierreStep4(Step):
             self.experimental_settings['d']
         ]
 
-        load = Parallel(n_jobs=Constants.N_CORES)(
-            delayed(self.starting_postprocessing)(
+        # load = Parallel(n_jobs=Constants.N_CORES)(
+        #     delayed(self.starting_postprocessing)(
+        #         recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+        #         tradeoff=tradeoff, relevance=relevance, distribution=distribution,
+        #         selector=selector, weight=weight, calibration=calibration,
+        #         list_size=list_size, alpha=alpha, d=d
+        #     ) for
+        #     recommender, dataset, fold, trial, tradeoff, relevance, distribution, selector, weight, calibration, list_size, alpha, d
+        #     in list(itertools.product(*combination))
+        # )
+
+        for recommender, dataset, fold, trial, tradeoff, relevance, distribution, selector, weight, calibration, list_size, alpha, d in list(itertools.product(*combination)):
+            load = self.starting_postprocessing(
                 recommender=recommender, dataset=dataset, trial=trial, fold=fold,
                 tradeoff=tradeoff, relevance=relevance, distribution=distribution,
                 selector=selector, weight=weight, calibration=calibration,
                 list_size=list_size, alpha=alpha, d=d
-            ) for
-            recommender, dataset, fold, trial, tradeoff, relevance, distribution, selector, weight, calibration, list_size, alpha, d
-            in list(itertools.product(*combination))
-        )
+            )
 
         jobs = dict(Counter(load))
         logger.info(jobs)

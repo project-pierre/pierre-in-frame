@@ -198,7 +198,7 @@ class Input:
                 # Reading the work 'Dataset' (--dataset) from the terminal entrance
                 elif param == '--dataset':
                     Input.__verify_dataset__(value)
-                    experimental_setup['dataset'] = [value]
+                    experimental_setup['dataset'] = value
 
                 # Reading the work 'Fold Number' (--fold) from the terminal entrance
                 elif param == '--fold':
@@ -213,7 +213,7 @@ class Input:
                 # Reading the work 'Distribution' (--distribution) from the terminal entrance
                 elif param == '--distribution':
                     Input.__verify_distribution__(value=value)
-                    experimental_setup['distribution'] = value
+                    experimental_setup['distribution'] = [value]
 
                 else:
                     print(f"The parameter {param} is not configured in this feature.")

@@ -101,7 +101,9 @@ class PathDirFile:
 
         :return: A string like data/datasets/clean/{dataset}/trial-{trial}/fold-{fold}/{filename}
         """
-        save_in_dir = "/".join([PathDirFile.CLEAN_DATASETS_DIR, dataset, 'trial-' + str(trial), 'fold-' + str(fold)])
+        save_in_dir = "/".join([
+            PathDirFile.CLEAN_DATASETS_DIR, dataset, 'trial-' + str(trial), 'fold-' + str(fold), "distributions"
+        ])
         if not os.path.exists(save_in_dir):
             os.makedirs(save_in_dir)
         return "/".join([save_in_dir, filename])
