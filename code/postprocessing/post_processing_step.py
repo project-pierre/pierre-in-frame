@@ -15,9 +15,12 @@ class PostProcessingStep:
     Class to lead with post-processing step
     """
 
-    def __init__(self, recommender, dataset_name, fold, trial, tradeoff_component, distribution_component,
-                 fairness_component, relevance_component, tradeoff_weight_component, selector_component,
-                 list_size, alpha, d):
+    def __init__(
+            self, recommender: str, dataset_name: str, fold: int, trial: int,
+            tradeoff_component: str, distribution_component: str, fairness_component: str,
+            relevance_component: str, tradeoff_weight_component: str, selector_component: str,
+            list_size: int, alpha: int, d: int
+    ):
         self.recommender = recommender
         self.fold = fold
         self.trial = trial
@@ -73,12 +76,6 @@ class PostProcessingStep:
         """
 
         # Execute the instance and get the recommendation list to all users.
-        logger.info(">> Running... " + "-".join(
-            [self.dataset.system_name,
-             'trial-' + str(self.trial), 'fold-' + str(self.fold), self.recommender,
-             self.tradeoff_component, self.distribution_component, self.relevance_component, self.selector_component,
-             self.fairness_component, self.tradeoff_weight_component])
-        )
         recommendation_lists = self.tradeoff_instance.fit()
         merged_results_df = pd.concat(recommendation_lists)
 

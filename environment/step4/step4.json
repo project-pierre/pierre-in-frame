@@ -1,4 +1,6 @@
 {
+  "multiprocessing": "joblib",
+  "n_jobs": 7,
   "checkpoint": "YES",
   "recommender": ["SVD", "ALS", "BPR"],
   "cluster": [],

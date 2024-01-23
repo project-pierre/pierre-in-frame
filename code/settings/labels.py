@@ -29,6 +29,13 @@ class Label:
     PREPROCESSING_OPTS = [DATASET_SPLIT, DATASET_CHART, DATASET_ANALYZE, DATASET_DISTRIBUTION]
 
     ########################################################
+
+    JOBLIB = "joblib"
+    STARMAP = "starmap"
+    DEFAULT_MULTIPROCESSING_LIB = STARMAP
+    REGISTERED_MULTIPROCESSING_LIBS = [JOBLIB, STARMAP]
+
+    ########################################################
     # Recommenders labels
     USER_KNN_BASIC = 'USER_KNN_BASIC'
     ITEM_KNN_BASIC = 'ITEM_KNN_BASIC'

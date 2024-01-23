@@ -19,6 +19,19 @@ class Input:
             exit(1)
 
     @staticmethod
+    def __verify_multiprocessing__(value):
+        if value not in Label.REGISTERED_MULTIPROCESSING_LIBS:
+            print(f"The multiprocessing option {value} does not exist! Please check for a possible option.")
+            print(["joblib", "starmap"])
+            exit(1)
+
+    @staticmethod
+    def __verify_n_jobs__(value):
+        if int(value) < -2 or int(value) > Constants.N_CORES:
+            print('Number of Core out of range!')
+            exit(1)
+
+    @staticmethod
     def __verify_trial__(value):
         if int(value) <= 0 or int(value) > Constants.N_TRIAL_VALUE:
             print('Trial out of range!')
@@ -412,6 +425,8 @@ class Input:
         :return: A dict with the input settings.
         """
         experimental_setup = dict()
+        experimental_setup['n_jobs'] = Constants.N_CORES
+        experimental_setup['multiprocessing'] = Label.DEFAULT_MULTIPROCESSING_LIB
         experimental_setup['checkpoint'] = "NO"
 
         experimental_setup['recommender'] = Label.REGISTERED_RECOMMENDERS
@@ -440,6 +455,16 @@ class Input:
                 if param == '-checkpoint':
                     Input.__verify_checkpoint__(value=value)
                     experimental_setup["checkpoint"] = value
+
+                # Reading the work 'Number of Jobs' (-n_jobs) from the terminal entrance
+                elif param == '-n_jobs':
+                    Input.__verify_n_jobs__(value=value)
+                    experimental_setup['n_jobs'] = value
+
+                # Reading the work 'Multiprocessing Library' (-multiprocessing) from the terminal entrance
+                elif param == '-multiprocessing':
+                    Input.__verify_multiprocessing__(value=value)
+                    experimental_setup['multiprocessing'] = value
 
                 # Reading the work 'Recommender Algorithm' (--recommender) from the terminal entrance
                 elif param == '--recommender':
