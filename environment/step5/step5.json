@@ -1,5 +1,7 @@
 {
-  "checkpoint": "NO",
+  "multiprocessing": "joblib",
+  "n_jobs": 7,
+  "checkpoint": "YES",
   "opt": "EVALUATION_METRICS",
   "metric": ["MAP", "MRR", "COVERAGE", "NOVELTY", "UNEXPECTEDNESS", "SERENDIPITY", "PERSONALIZATION"],
   "recommender": ["SVD", "ALS", "BPR"],
@@ -17,7 +19,7 @@
   "distribution": [
     "CWS", "WPS",
     "PGD", "PGD_P",
-    "TWB", "TWB_p",
+    "TWB", "TWB_P",
     "TGD", "TGD_P",
     "GLEB", "GLEB_P",
     "GLEB_TWB", "GLEB_TWB_P",

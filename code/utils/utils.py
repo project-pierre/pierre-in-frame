@@ -1,4 +1,3 @@
-
 from psutil import virtual_memory
 import json
 import numpy as np

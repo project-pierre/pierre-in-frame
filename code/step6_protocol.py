@@ -27,7 +27,6 @@ class PierreStep6(Step):
         TODO: Docstring
         """
         self.experimental_settings = Input.step6()
-        print(self.experimental_settings)
 
     @staticmethod
     def set_the_logfile_by_instance(
@@ -475,13 +474,19 @@ class PierreStep6(Step):
                     self.experimental_settings['relevance'], self.experimental_settings['weight'],
                     self.experimental_settings['tradeoff'], self.experimental_settings['selector']
                 ]
-                output = Parallel(n_jobs=Constants.N_CORES)(
+                process_combination = list(itertools.product(*combination))
+                print(f"Dataset {dataset} with metric {metric} starts {len(process_combination)} processes.")
+                output = Parallel(
+                    n_jobs=self.experimental_settings['n_jobs'], verbose=10, batch_size=1,
+                    backend="multiprocessing", prefer="processes"
+                )(
                     delayed(MetricComprises.it_comprises_recommender_metric)(
                         recommender=recommender, dataset=dataset, metric=metric,
+                        trial=self.experimental_settings['trial'], fold=self.experimental_settings['fold'],
                         distribution=distribution, fairness=fairness, relevance=relevance,
                         weight=weight, tradeoff=tradeoff, selector=selector
                     ) for recommender, distribution, fairness, relevance, weight, tradeoff, selector
-                    in list(itertools.product(*combination))
+                    in process_combination
                 )
 
                 results = pd.concat(output)

@@ -1,9 +1,12 @@
 {
+  "multiprocessing": "joblib",
+  "n_jobs": 7,
   "opt": "EVALUATION_METRICS",
   "metric": ["MAP", "MRR", "COVERAGE", "NOVELTY", "UNEXPECTEDNESS", "SERENDIPITY", "PERSONALIZATION"],
   "recommender": ["SVD", "ALS", "BPR"],
-  "conformity": [],
   "dataset": ["ml-1m"],
+  "fold": [1, 2, 3],
+  "trial": [1],
   "tradeoff": ["LIN"],
   "fairness": ["VICIS_EMANON2"],
   "relevance": ["NDCG"],
@@ -14,7 +17,7 @@
   "distribution": [
     "CWS", "WPS",
     "PGD", "PGD_P",
-    "TWB", "TWB_p",
+    "TWB", "TWB_P",
     "TGD", "TGD_P",
     "GLEB", "GLEB_P",
     "GLEB_TWB", "GLEB_TWB_P",

@@ -2,8 +2,6 @@
   "opt": "EVALUATION_METRICS",
   "view": "CHART",
   "dataset": ["ml-1m"],
-  "conformity": [],
-  "cluster": [],
   "type": ["LINE", "HEAT_WELCH"],
   "goal": ["DISTRIBUTION_LABEL"],
   "metric": ["MAP", "MRR", "COVERAGE", "NOVELTY", "UNEXPECTEDNESS", "SERENDIPITY", "PERSONALIZATION"],
@@ -18,7 +16,7 @@
   "distribution": [
     "CWS", "WPS",
     "PGD", "PGD_P",
-    "TWB", "TWB_p",
+    "TWB", "TWB_P",
     "TGD", "TGD_P",
     "GLEB", "GLEB_P",
     "GLEB_TWB", "GLEB_TWB_P",

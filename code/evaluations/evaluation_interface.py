@@ -1,17 +1,16 @@
 from collections import Counter
 
-import os
-
 import logging
-
 import pandas as pd
 import recmetrics
 
+from checkpoint_verification import CheckpointVerification
 from datasets.registred_datasets import RegisteredDataset
 from scikit_pierre.classes.genre import genre_probability_approach
 from scikit_pierre.distributions.accessible import distributions_funcs_pandas
 from scikit_pierre.measures.accessible import calibration_measures_funcs
-from scikit_pierre.metrics.evaluation import mace, mean_average_precision, mrmc, mean_reciprocal_rank, serendipity, unexpectedness
+from scikit_pierre.metrics.evaluation import mace, mean_average_precision, mrmc, mean_reciprocal_rank, serendipity, \
+    unexpectedness
 from settings.constants import Constants
 from settings.labels import Label
 from settings.path_dir_file import PathDirFile
@@ -20,22 +19,28 @@ from settings.save_and_load import SaveAndLoad
 logger = logging.getLogger(__name__)
 
 
-def applying_mrr(recommender, dataset, trial, fold, distribution, fairness, relevance, weight, tradeoff, selector):
+def applying_mrr(
+    recommender: str, dataset: str, trial: int, fold: int,
+    distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str,
+    checkpoint: str
+):
     """
     Function that apply the evaluation metrics.
     """
-    try:
-        metric_file = SaveAndLoad.load_recommender_metric(
-            metric='MRR',
-            recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+
+    system_name = "-".join([
+        dataset, 'trial-' + str(trial), 'fold-' + str(fold), recommender,
+        tradeoff, distribution, relevance, selector, fairness, tradeoff, "-->", Label.MRR
+    ])
+
+    if checkpoint == "YES" and CheckpointVerification.unit_step5_recommendation_verification(
+            dataset=dataset, trial=trial, fold=fold,
+            metric=Label.MRR, recommender=recommender,
             distribution=distribution, fairness=fairness, relevance=relevance,
             weight=weight, tradeoff=tradeoff, selector=selector
-        )
-        # Check integrity
-        if len(metric_file) == 1:
-            return "AlreadyDone"
-    except Exception as e:
-        logger.error(" - ".join([str(e)]))
+    ):
+        logger.info(">> Already Done... " + system_name)
+        return "Already Done"
 
     dataset_instance = RegisteredDataset.load_dataset(dataset)
 
@@ -52,10 +57,10 @@ def applying_mrr(recommender, dataset, trial, fold, distribution, fairness, rele
 
     results = pd.DataFrame([[
         mrr_value
-    ]], columns=['MRR'])
+    ]], columns=[Label.MRR])
 
     SaveAndLoad.save_recommender_metric(
-        data=results, metric='MRR',
+        data=results, metric=Label.MRR,
         recommender=recommender, dataset=dataset, trial=trial, fold=fold,
         distribution=distribution, fairness=fairness, relevance=relevance,
         weight=weight, tradeoff=tradeoff, selector=selector
@@ -63,22 +68,28 @@ def applying_mrr(recommender, dataset, trial, fold, distribution, fairness, rele
     return "Finished"
 
 
-def applying_map(recommender, dataset, trial, fold, distribution, fairness, relevance, weight, tradeoff, selector):
+def applying_map(
+    recommender: str, dataset: str, trial: int, fold: int,
+    distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str,
+    checkpoint: str
+):
     """
     Function that apply the evaluation metrics.
     """
-    try:
-        metric_file = SaveAndLoad.load_recommender_metric(
-            metric='MAP',
-            recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+
+    system_name = "-".join([
+        dataset, 'trial-' + str(trial), 'fold-' + str(fold), recommender,
+        tradeoff, distribution, relevance, selector, fairness, tradeoff, "-->", Label.MAP
+    ])
+
+    if checkpoint == "YES" and CheckpointVerification.unit_step5_recommendation_verification(
+            dataset=dataset, trial=trial, fold=fold,
+            metric=Label.MAP, recommender=recommender,
             distribution=distribution, fairness=fairness, relevance=relevance,
             weight=weight, tradeoff=tradeoff, selector=selector
-        )
-        # Check integrity
-        if len(metric_file) == 1:
-            return "AlreadyDone"
-    except Exception as e:
-        logger.error(" - ".join([str(e)]))
+    ):
+        logger.info(">> Already Done... " + system_name)
+        return "Already Done"
 
     dataset_instance = RegisteredDataset.load_dataset(dataset)
 
@@ -95,10 +106,10 @@ def applying_map(recommender, dataset, trial, fold, distribution, fairness, rele
 
     results = pd.DataFrame([[
         map_value
-    ]], columns=['MAP'])
+    ]], columns=[Label.MAP])
 
     SaveAndLoad.save_recommender_metric(
-        data=results, metric="MAP",
+        data=results, metric=Label.MAP,
         recommender=recommender, dataset=dataset, trial=trial, fold=fold,
         distribution=distribution, fairness=fairness, relevance=relevance,
         weight=weight, tradeoff=tradeoff, selector=selector
@@ -106,22 +117,28 @@ def applying_map(recommender, dataset, trial, fold, distribution, fairness, rele
     return "Finished"
 
 
-def applying_mace(recommender, dataset, trial, fold, distribution, fairness, relevance, weight, tradeoff, selector):
+def applying_mace(
+    recommender: str, dataset: str, trial: int, fold: int,
+    distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str,
+    checkpoint: str
+):
     """
     Function that apply the evaluation metrics.
     """
-    # try:
-    #     metric_file = SaveAndLoad.load_recommender_metric(
-    #         metric="MACE",
-    #         recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-    #         distribution=distribution, fairness=fairness, relevance=relevance,
-    #         weight=weight, tradeoff=tradeoff, selector=selector
-    #     )
-    #     # Check integrity
-    #     if len(metric_file) == 1:
-    #         return "AlreadyDone"
-    # except Exception as e:
-    #     logger.error(" - ".join([str(e)]))
+
+    system_name = "-".join([
+        dataset, 'trial-' + str(trial), 'fold-' + str(fold), recommender,
+        tradeoff, distribution, relevance, selector, fairness, tradeoff, "-->", Label.MACE
+    ])
+
+    if checkpoint == "YES" and CheckpointVerification.unit_step5_recommendation_verification(
+            dataset=dataset, trial=trial, fold=fold,
+            metric=Label.MACE, recommender=recommender,
+            distribution=distribution, fairness=fairness, relevance=relevance,
+            weight=weight, tradeoff=tradeoff, selector=selector
+    ):
+        logger.info(">> Already Done... " + system_name)
+        return "Already Done"
 
     dataset_instance = RegisteredDataset.load_dataset(dataset)
 
@@ -147,10 +164,10 @@ def applying_mace(recommender, dataset, trial, fold, distribution, fairness, rel
     )
     results = pd.DataFrame([[
         mace_value
-    ]], columns=['MACE'])
+    ]], columns=[Label.MACE])
 
     SaveAndLoad.save_recommender_metric(
-        data=results, metric="MACE",
+        data=results, metric=Label.MACE,
         recommender=recommender, dataset=dataset, trial=trial, fold=fold,
         distribution=distribution, fairness=fairness, relevance=relevance,
         weight=weight, tradeoff=tradeoff, selector=selector
@@ -158,22 +175,28 @@ def applying_mace(recommender, dataset, trial, fold, distribution, fairness, rel
     return "Finished"
 
 
-def applying_mrmc(recommender, dataset, trial, fold, distribution, fairness, relevance, weight, tradeoff, selector):
+def applying_mrmc(
+    recommender: str, dataset: str, trial: int, fold: int,
+    distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str,
+    checkpoint: str
+):
     """
     Function that apply the evaluation metrics.
     """
-    try:
-        metric_file = SaveAndLoad.load_recommender_metric(
-            metric="MRMC",
-            recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+
+    system_name = "-".join([
+        dataset, 'trial-' + str(trial), 'fold-' + str(fold), recommender,
+        tradeoff, distribution, relevance, selector, fairness, tradeoff, "-->", Label.MRMC
+    ])
+
+    if checkpoint == "YES" and CheckpointVerification.unit_step5_recommendation_verification(
+            dataset=dataset, trial=trial, fold=fold,
+            metric=Label.MRMC, recommender=recommender,
             distribution=distribution, fairness=fairness, relevance=relevance,
             weight=weight, tradeoff=tradeoff, selector=selector
-        )
-        # Check integrity
-        if len(metric_file) == 1:
-            return "AlreadyDone"
-    except Exception as e:
-        logger.error(" - ".join([str(e)]))
+    ):
+        logger.info(">> Already Done... " + system_name)
+        return "Already Done"
 
     # Load dataset
     dataset_instance = RegisteredDataset.load_dataset(dataset)
@@ -201,10 +224,10 @@ def applying_mrmc(recommender, dataset, trial, fold, distribution, fairness, rel
 
     results = pd.DataFrame([[
         mrmc_value
-    ]], columns=['MRMC'])
+    ]], columns=[Label.MRMC])
 
     SaveAndLoad.save_recommender_metric(
-        data=results, metric="MRMC",
+        data=results, metric=Label.MRMC,
         recommender=recommender, dataset=dataset, trial=trial, fold=fold,
         distribution=distribution, fairness=fairness, relevance=relevance,
         weight=weight, tradeoff=tradeoff, selector=selector
@@ -212,47 +235,28 @@ def applying_mrmc(recommender, dataset, trial, fold, distribution, fairness, rel
     return "Finished"
 
 
-def execution_time_fold(recommender, dataset, trial, fold,
-                        distribution, fairness, relevance, weight, tradeoff, selector):
-    path = PathDirFile.get_postprocessing_time_file(
-        dataset=dataset, recommender=recommender, trial=trial, fold=fold,
-        tradeoff=tradeoff, distribution=distribution, fairness=fairness,
-        relevance=relevance, tradeoff_weight=weight, select_item=selector)
-    execution_time_df = pd.read_csv(path)
-    time_values = execution_time_df['finished_at'] - execution_time_df['stated_at']
-
-    results = pd.DataFrame([[
-        time_values
-    ]], columns=['TIME'])
-
-    SaveAndLoad.save_recommender_metric(
-        data=results, metric="TIME",
-        recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-        distribution=distribution, fairness=fairness, relevance=relevance,
-        weight=weight, tradeoff=tradeoff, selector=selector
-    )
-    return "Finished"
-
-
-def applying_unexpectedness(recommender, dataset, trial, fold, distribution, fairness, relevance, weight, tradeoff, selector):
+def applying_unexpectedness(
+    recommender: str, dataset: str, trial: int, fold: int,
+    distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str,
+    checkpoint: str
+):
     """
     Function that apply the evaluation metrics.
     """
-    exists_file = PathDirFile.get_recommender_metric_fold_file(
-        recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-        distribution=distribution, fairness=fairness, relevance=relevance,
-        tradeoff_weight=weight, tradeoff=tradeoff, select_item=selector,
-        filename='UNEXPECTEDNESS.csv'
-    )
 
-    try:
-        # Check integrity
-        if os.path.exists(exists_file):
-            metric_file = pd.read_csv(exists_file)
-            if len(metric_file) == 1:
-                return "AlreadyDone"
-    except Exception as e:
-        logger.error(" - ".join([str(e), exists_file]))
+    system_name = "-".join([
+        dataset, 'trial-' + str(trial), 'fold-' + str(fold), recommender,
+        tradeoff, distribution, relevance, selector, fairness, tradeoff, "-->", Label.UNEXPECTEDNESS
+    ])
+
+    if checkpoint == "YES" and CheckpointVerification.unit_step5_recommendation_verification(
+            dataset=dataset, trial=trial, fold=fold,
+            metric=Label.UNEXPECTEDNESS, recommender=recommender,
+            distribution=distribution, fairness=fairness, relevance=relevance,
+            weight=weight, tradeoff=tradeoff, selector=selector
+    ):
+        logger.info(">> Already Done... " + system_name)
+        return "Already Done"
 
     dataset_instance = RegisteredDataset.load_dataset(dataset)
 
@@ -269,36 +273,40 @@ def applying_unexpectedness(recommender, dataset, trial, fold, distribution, fai
 
     results = pd.DataFrame([[
         metric_value
-    ]], columns=['UNEXPECTEDNESS'])
+    ]], columns=[Label.UNEXPECTEDNESS])
 
     SaveAndLoad.save_recommender_metric(
         data=results,
         recommender=recommender, dataset=dataset, trial=trial, fold=fold,
         distribution=distribution, fairness=fairness, relevance=relevance,
         weight=weight, tradeoff=tradeoff, selector=selector,
-        metric='UNEXPECTEDNESS'
+        metric=Label.UNEXPECTEDNESS
     )
     return "Finished"
 
 
-def applying_serendipity(recommender, dataset, trial, fold, distribution, fairness, relevance, weight, tradeoff, selector):
+def applying_serendipity(
+    recommender: str, dataset: str, trial: int, fold: int,
+    distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str,
+    checkpoint: str
+):
     """
     Function that apply the evaluation metrics.
     """
-    exists_file = PathDirFile.get_recommender_metric_fold_file(
-        recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-        distribution=distribution, fairness=fairness, relevance=relevance,
-        tradeoff_weight=weight, tradeoff=tradeoff, select_item=selector,
-        filename='SERENDIPITY.csv'
-    )
-    try:
-        # Check integrity
-        if os.path.exists(exists_file):
-            metric_file = pd.read_csv(exists_file)
-            if len(metric_file) == 1:
-                return "AlreadyDone"
-    except Exception as e:
-        logger.error(" - ".join([str(e), exists_file]))
+
+    system_name = "-".join([
+        dataset, 'trial-' + str(trial), 'fold-' + str(fold), recommender,
+        tradeoff, distribution, relevance, selector, fairness, tradeoff, "-->", Label.SERENDIPITY
+    ])
+
+    if checkpoint == "YES" and CheckpointVerification.unit_step5_recommendation_verification(
+            dataset=dataset, trial=trial, fold=fold,
+            metric=Label.SERENDIPITY, recommender=recommender,
+            distribution=distribution, fairness=fairness, relevance=relevance,
+            weight=weight, tradeoff=tradeoff, selector=selector
+    ):
+        logger.info(">> Already Done... " + system_name)
+        return "Already Done"
 
     dataset_instance = RegisteredDataset.load_dataset(dataset)
 
@@ -322,37 +330,41 @@ def applying_serendipity(recommender, dataset, trial, fold, distribution, fairne
 
     results = pd.DataFrame([[
         metric_value
-    ]], columns=['SERENDIPITY'])
+    ]], columns=[Label.SERENDIPITY])
 
     SaveAndLoad.save_recommender_metric(
         data=results,
         recommender=recommender, dataset=dataset, trial=trial, fold=fold,
         distribution=distribution, fairness=fairness, relevance=relevance,
         weight=weight, tradeoff=tradeoff, selector=selector,
-        metric='SERENDIPITY'
+        metric=Label.SERENDIPITY
     )
 
     return "Finished"
 
 
-def applying_novelty(recommender, dataset, trial, fold, distribution, fairness, relevance, weight, tradeoff, selector):
+def applying_novelty(
+    recommender: str, dataset: str, trial: int, fold: int,
+    distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str,
+    checkpoint: str
+):
     """
     Function that apply the evaluation metrics.
     """
-    exists_file = PathDirFile.get_recommender_metric_fold_file(
-        recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-        distribution=distribution, fairness=fairness, relevance=relevance,
-        tradeoff_weight=weight, tradeoff=tradeoff, select_item=selector,
-        filename='NOVELTY.csv'
-    )
-    try:
-        # Check integrity
-        if os.path.exists(exists_file):
-            metric_file = pd.read_csv(exists_file)
-            if len(metric_file) == 1:
-                return "AlreadyDone"
-    except Exception as e:
-        logger.error(" - ".join([str(e), exists_file]))
+
+    system_name = "-".join([
+        dataset, 'trial-' + str(trial), 'fold-' + str(fold), recommender,
+        tradeoff, distribution, relevance, selector, fairness, tradeoff, "-->", Label.NOVELTY
+    ])
+
+    if checkpoint == "YES" and CheckpointVerification.unit_step5_recommendation_verification(
+            dataset=dataset, trial=trial, fold=fold,
+            metric=Label.NOVELTY, recommender=recommender,
+            distribution=distribution, fairness=fairness, relevance=relevance,
+            weight=weight, tradeoff=tradeoff, selector=selector
+    ):
+        logger.info(">> Already Done... " + system_name)
+        return "Already Done"
 
     dataset_instance = RegisteredDataset.load_dataset(dataset)
     train_df = dataset_instance.get_transactions()
@@ -366,7 +378,7 @@ def applying_novelty(recommender, dataset, trial, fold, distribution, fairness, 
 
     # Executing
 
-    rec_set = [row['ITEM_ID'].tolist() for ix, row in users_recommendation_lists.groupby(by=['USER_ID'])]
+    rec_set = [row[Label.ITEM_ID].tolist() for ix, row in users_recommendation_lists.groupby(by=[Label.USER_ID])]
     pop = Counter(train_df[Label.ITEM_ID].tolist())
     u = train_df[Label.USER_ID].nunique()
     metric_value, _ = recmetrics.novelty(
@@ -375,37 +387,41 @@ def applying_novelty(recommender, dataset, trial, fold, distribution, fairness, 
 
     results = pd.DataFrame([[
         metric_value
-    ]], columns=['NOVELTY'])
+    ]], columns=[Label.NOVELTY])
 
     SaveAndLoad.save_recommender_metric(
         data=results,
         recommender=recommender, dataset=dataset, trial=trial, fold=fold,
         distribution=distribution, fairness=fairness, relevance=relevance,
         weight=weight, tradeoff=tradeoff, selector=selector,
-        metric='NOVELTY'
+        metric=Label.NOVELTY
     )
 
     return "Finished"
 
 
-def applying_coverage(recommender, dataset, trial, fold, distribution, fairness, relevance, weight, tradeoff, selector):
+def applying_coverage(
+    recommender: str, dataset: str, trial: int, fold: int,
+    distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str,
+    checkpoint: str
+):
     """
     Function that apply the evaluation metrics.
     """
-    exists_file = PathDirFile.get_recommender_metric_fold_file(
-        recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-        distribution=distribution, fairness=fairness, relevance=relevance,
-        tradeoff_weight=weight, tradeoff=tradeoff, select_item=selector,
-        filename='COVERAGE.csv'
-    )
-    try:
-        # Check integrity
-        if os.path.exists(exists_file):
-            metric_file = pd.read_csv(exists_file)
-            if len(metric_file) == 1:
-                return "AlreadyDone"
-    except Exception as e:
-        logger.error(" - ".join([str(e), exists_file]))
+
+    system_name = "-".join([
+        dataset, 'trial-' + str(trial), 'fold-' + str(fold), recommender,
+        tradeoff, distribution, relevance, selector, fairness, tradeoff, "-->", Label.COVERAGE
+    ])
+
+    if checkpoint == "YES" and CheckpointVerification.unit_step5_recommendation_verification(
+            dataset=dataset, trial=trial, fold=fold,
+            metric=Label.COVERAGE, recommender=recommender,
+            distribution=distribution, fairness=fairness, relevance=relevance,
+            weight=weight, tradeoff=tradeoff, selector=selector
+    ):
+        logger.info(">> Already Done... " + system_name)
+        return "Already Done"
 
     dataset_instance = RegisteredDataset.load_dataset(dataset)
     items_df = dataset_instance.get_items()
@@ -416,7 +432,7 @@ def applying_coverage(recommender, dataset, trial, fold, distribution, fairness,
         relevance=relevance, tradeoff_weight=weight, select_item=selector
     )
     users_recommendation_lists = pd.read_csv(path)
-    rec_set = [row['ITEM_ID'].tolist() for ix, row in users_recommendation_lists.groupby(by=['USER_ID'])]
+    rec_set = [row[Label.ITEM_ID].tolist() for ix, row in users_recommendation_lists.groupby(by=[Label.USER_ID])]
 
     # Executing
     metric_value = recmetrics.prediction_coverage(
@@ -425,37 +441,41 @@ def applying_coverage(recommender, dataset, trial, fold, distribution, fairness,
 
     results = pd.DataFrame([[
         metric_value
-    ]], columns=['COVERAGE'])
+    ]], columns=[Label.COVERAGE])
 
     SaveAndLoad.save_recommender_metric(
         data=results,
         recommender=recommender, dataset=dataset, trial=trial, fold=fold,
         distribution=distribution, fairness=fairness, relevance=relevance,
         weight=weight, tradeoff=tradeoff, selector=selector,
-        metric='COVERAGE'
+        metric=Label.COVERAGE
     )
 
     return "Finished"
 
 
-def applying_personalization(recommender, dataset, trial, fold, distribution, fairness, relevance, weight, tradeoff, selector):
+def applying_personalization(
+    recommender: str, dataset: str, trial: int, fold: int,
+    distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str,
+    checkpoint: str
+):
     """
     Function that apply the evaluation metrics.
     """
-    exists_file = PathDirFile.get_recommender_metric_fold_file(
-        recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-        distribution=distribution, fairness=fairness, relevance=relevance,
-        tradeoff_weight=weight, tradeoff=tradeoff, select_item=selector,
-        filename='PERSONALIZATION.csv'
-    )
-    try:
-        # Check integrity
-        if os.path.exists(exists_file):
-            metric_file = pd.read_csv(exists_file)
-            if len(metric_file) == 1:
-                return "AlreadyDone"
-    except Exception as e:
-        logger.error(" - ".join([str(e), exists_file]))
+
+    system_name = "-".join([
+        dataset, 'trial-' + str(trial), 'fold-' + str(fold), recommender,
+        tradeoff, distribution, relevance, selector, fairness, tradeoff, "-->", Label.PERSONALIZATION
+    ])
+
+    if checkpoint == "YES" and CheckpointVerification.unit_step5_recommendation_verification(
+            dataset=dataset, trial=trial, fold=fold,
+            metric=Label.PERSONALIZATION, recommender=recommender,
+            distribution=distribution, fairness=fairness, relevance=relevance,
+            weight=weight, tradeoff=tradeoff, selector=selector
+    ):
+        logger.info(">> Already Done... " + system_name)
+        return "Already Done"
 
     path = PathDirFile.get_recommendation_list_file(
         dataset=dataset, recommender=recommender, trial=trial, fold=fold,
@@ -463,7 +483,7 @@ def applying_personalization(recommender, dataset, trial, fold, distribution, fa
         relevance=relevance, tradeoff_weight=weight, select_item=selector
     )
     users_recommendation_lists = pd.read_csv(path)
-    rec_set = [row['ITEM_ID'].tolist() for ix, row in users_recommendation_lists.groupby(by=['USER_ID'])]
+    rec_set = [row[Label.ITEM_ID].tolist() for ix, row in users_recommendation_lists.groupby(by=[Label.USER_ID])]
 
     # Executing
     metric_value = recmetrics.personalization(
@@ -472,14 +492,39 @@ def applying_personalization(recommender, dataset, trial, fold, distribution, fa
 
     results = pd.DataFrame([[
         metric_value
-    ]], columns=['PERSONALIZATION'])
+    ]], columns=[Label.PERSONALIZATION])
 
     SaveAndLoad.save_recommender_metric(
         data=results,
         recommender=recommender, dataset=dataset, trial=trial, fold=fold,
         distribution=distribution, fairness=fairness, relevance=relevance,
         weight=weight, tradeoff=tradeoff, selector=selector,
-        metric='PERSONALIZATION'
+        metric=Label.PERSONALIZATION
     )
 
+    return "Finished"
+
+
+def execution_time_fold(
+    recommender: str, dataset: str, trial: int, fold: int,
+    distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str,
+    checkpoint: str
+):
+    path = PathDirFile.get_postprocessing_time_file(
+        dataset=dataset, recommender=recommender, trial=trial, fold=fold,
+        tradeoff=tradeoff, distribution=distribution, fairness=fairness,
+        relevance=relevance, tradeoff_weight=weight, select_item=selector)
+    execution_time_df = pd.read_csv(path)
+    time_values = execution_time_df['finished_at'] - execution_time_df['stated_at']
+
+    results = pd.DataFrame([[
+        time_values
+    ]], columns=['TIME'])
+
+    SaveAndLoad.save_recommender_metric(
+        data=results, metric="TIME",
+        recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+        distribution=distribution, fairness=fairness, relevance=relevance,
+        weight=weight, tradeoff=tradeoff, selector=selector
+    )
     return "Finished"

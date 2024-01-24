@@ -10,7 +10,7 @@ class Input:
     """
     This class is responsible for reading the terminal/keyboard entries.
     """
-    
+
     @staticmethod
     def __verify_checkpoint__(value):
         if value not in ["YES", "NO"]:
@@ -112,14 +112,14 @@ class Input:
             print('Cluster algorithm not registered! All possibilities are:')
             print(Label.REGISTERED_UNSUPERVISED)
             exit(1)
-    
+
     @staticmethod
     def __verify_metric__(value):
         if value not in Label.REGISTERED_METRICS:
             print(f'Metric {value} not found! Options is:')
             print(Label.REGISTERED_METRICS)
             exit(1)
-    
+
     ####################################################################################################
     ####################################################################################################
     ####################################################################################################
@@ -231,7 +231,8 @@ class Input:
                 else:
                     print(f"The parameter {param} is not configured in this feature.")
                     exit(1)
-        elif sys.argv[1].split('=')[0] == "from_file" and sys.argv[1].split('=')[1] == "YES" and sys.argv[2].split('=')[0] == "file_name":
+        elif sys.argv[1].split('=')[0] == "from_file" and sys.argv[1].split('=')[1] == "YES" and sys.argv[2].split('=')[
+            0] == "file_name":
             experimental_setup = SaveAndLoad.load_step_file(step="step1", file_name=sys.argv[2].split('=')[1])
         else:
             print("More information are needed!")
@@ -309,7 +310,8 @@ class Input:
                     experimental_setup['trial'] = value
                 else:
                     print(f"The parameter {param} is not configured in this feature.")
-        elif sys.argv[1].split('=')[0] == "from_file" and sys.argv[1].split('=')[1] == "YES" and sys.argv[2].split('=')[0] == "file_name":
+        elif sys.argv[1].split('=')[0] == "from_file" and sys.argv[1].split('=')[1] == "YES" and sys.argv[2].split('=')[
+            0] == "file_name":
             experimental_setup = SaveAndLoad.load_step_file(step="step2", file_name=sys.argv[2].split('=')[1])
         else:
             print("More information are needed!")
@@ -386,7 +388,8 @@ class Input:
                     experimental_setup['metric'] = str(value)
                 else:
                     print(f"The parameter {param} is not configured in this feature.")
-        elif sys.argv[1].split('=')[0] == "from_file" and sys.argv[1].split('=')[1] == "YES" and sys.argv[2].split('=')[0] == "file_name":
+        elif sys.argv[1].split('=')[0] == "from_file" and sys.argv[1].split('=')[1] == "YES" and sys.argv[2].split('=')[
+            0] == "file_name":
             experimental_setup = SaveAndLoad.load_step_file(step="step3", file_name=sys.argv[2].split('=')[1])
         else:
             print("More information are needed!")
@@ -517,7 +520,8 @@ class Input:
                     experimental_setup['weight'] = [value]
                 else:
                     print("The parameter {} is not configured in this feature.".format(param))
-        elif sys.argv[1].split('=')[0] == "from_file" and sys.argv[1].split('=')[1] == "YES" and sys.argv[2].split('=')[0] == "file_name":
+        elif sys.argv[1].split('=')[0] == "from_file" and sys.argv[1].split('=')[1] == "YES" and sys.argv[2].split('=')[
+            0] == "file_name":
             experimental_setup = SaveAndLoad.load_step_file(step="step4", file_name=sys.argv[2].split('=')[1])
         else:
             print("More information are needed!")
@@ -558,6 +562,8 @@ class Input:
         :return: A dict with the input settings.
         """
         experimental_setup = dict()
+        experimental_setup['n_jobs'] = Constants.N_CORES
+        experimental_setup['multiprocessing'] = Label.DEFAULT_MULTIPROCESSING_LIB
         experimental_setup['checkpoint'] = "NO"
         experimental_setup['opt'] = Label.EVALUATION_METRICS
         experimental_setup['metric'] = Label.REGISTERED_METRICS
@@ -592,6 +598,16 @@ class Input:
                 elif param == '-checkpoint':
                     Input.__verify_checkpoint__(value=value)
                     experimental_setup["checkpoint"] = value
+
+                # Reading the work 'Number of Jobs' (-n_jobs) from the terminal entrance
+                elif param == '-n_jobs':
+                    Input.__verify_n_jobs__(value=value)
+                    experimental_setup['n_jobs'] = value
+
+                # Reading the work 'Multiprocessing Library' (-multiprocessing) from the terminal entrance
+                elif param == '-multiprocessing':
+                    Input.__verify_multiprocessing__(value=value)
+                    experimental_setup['multiprocessing'] = value
 
                 # Reading the work 'Evaluation Metric' (--metric) from the terminal entrance
                 elif param == '--metric':
@@ -654,7 +670,8 @@ class Input:
                     experimental_setup['weight'] = [value]
                 else:
                     print("The parameter {} is not configured in this feature.".format(param))
-        elif sys.argv[1].split('=')[0] == "from_file" and sys.argv[1].split('=')[1] == "YES" and sys.argv[2].split('=')[0] == "file_name":
+        elif sys.argv[1].split('=')[0] == "from_file" and sys.argv[1].split('=')[1] == "YES" and sys.argv[2].split('=')[
+            0] == "file_name":
             experimental_setup = SaveAndLoad.load_step_file(step="step5", file_name=sys.argv[2].split('=')[1])
         else:
             print("More information are needed!")
@@ -770,7 +787,8 @@ class Input:
                     experimental_setup['weight'] = [value]
                 else:
                     print("The parameter {} is not configured in this feature.".format(param))
-        elif sys.argv[1].split('=')[0] == "from_file" and sys.argv[1].split('=')[1] == "YES" and sys.argv[2].split('=')[0] == "file_name":
+        elif sys.argv[1].split('=')[0] == "from_file" and sys.argv[1].split('=')[1] == "YES" and sys.argv[2].split('=')[
+            0] == "file_name":
             experimental_setup = SaveAndLoad.load_step_file(step="step6", file_name=sys.argv[2].split('=')[1])
         else:
             print("More information are needed!")
@@ -797,9 +815,9 @@ class Input:
         experimental_setup['conformity'] = Label.REGISTERED_UNSUPERVISED
         experimental_setup['type'] = Label.EVALUATION_VIEWS
         experimental_setup['goal'] = Label.EVALUATION_VIEWS
-        
+
         experimental_setup['metric'] = Label.REGISTERED_METRICS
-        
+
         if sys.argv[1].split('=')[0] != "from_file" and len(sys.argv) > 2:
             for arg in sys.argv[1:]:
                 param, value = arg.split('=')
@@ -887,7 +905,8 @@ class Input:
                     experimental_setup['weight'] = [value]
                 else:
                     print("The parameter {} is not configured in this feature.".format(param))
-        elif sys.argv[1].split('=')[0] == "from_file" and sys.argv[1].split('=')[1] == "YES" and sys.argv[2].split('=')[0] == "file_name":
+        elif sys.argv[1].split('=')[0] == "from_file" and sys.argv[1].split('=')[1] == "YES" and sys.argv[2].split('=')[
+            0] == "file_name":
             experimental_setup = SaveAndLoad.load_step_file(step="step7", file_name=sys.argv[2].split('=')[1])
         else:
             print("More information are needed!")

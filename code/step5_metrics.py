@@ -1,21 +1,173 @@
+from collections import Counter
+
 import itertools
 import logging
-
+import multiprocessing
 from joblib import Parallel, delayed
 
-from evaluations.evaluation_interface import execution_time_fold, applying_map, \
-    applying_mrr, applying_mace, applying_mrmc, applying_unexpectedness, applying_serendipity, applying_novelty, \
-    applying_coverage, applying_personalization
+from checkpoint_verification import CheckpointVerification
+from evaluations import evaluation_interface
 from evaluations.conformity_algorithms import ConformityAlgorithms
-from settings.constants import Constants
 from settings.labels import Label
 from settings.path_dir_file import PathDirFile
 from settings.save_and_load import SaveAndLoad
+from utils.clocker import Clocker
 from utils.input import Input
 from utils.logging_settings import setup_logging
 from utils.step import Step
 
 logger = logging.getLogger(__name__)
+
+
+def applying_evaluation_metrics(
+        metrics: list, recommender: str, dataset: str, trial: int, fold: int,
+        distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str,
+        checkpoint: str
+):
+    """
+    Function to apply the evaluation metrics.
+    """
+    load_monitoring = []
+    for m in metrics:
+        if m == Label.MAP:
+            load_monitoring.append(
+                evaluation_interface.applying_map(
+                    recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+                    distribution=distribution, fairness=fairness, relevance=relevance,
+                    weight=weight, tradeoff=tradeoff, selector=selector, checkpoint=checkpoint
+                )
+            )
+        elif m == Label.MRR:
+            load_monitoring.append(
+                evaluation_interface.applying_mrr(
+                    recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+                    distribution=distribution, fairness=fairness, relevance=relevance,
+                    weight=weight, tradeoff=tradeoff, selector=selector, checkpoint=checkpoint
+                )
+            )
+        elif m == Label.MACE:
+            load_monitoring.append(
+                evaluation_interface.applying_mace(
+                    recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+                    distribution=distribution, fairness=fairness, relevance=relevance,
+                    weight=weight, tradeoff=tradeoff, selector=selector, checkpoint=checkpoint
+                )
+            )
+        elif m == Label.MRMC:
+            load_monitoring.append(
+                evaluation_interface.applying_mrmc(
+                    recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+                    distribution=distribution, fairness=fairness, relevance=relevance,
+                    weight=weight, tradeoff=tradeoff, selector=selector, checkpoint=checkpoint
+                )
+            )
+        elif m == Label.UNEXPECTEDNESS:
+            load_monitoring.append(
+                evaluation_interface.applying_unexpectedness(
+                    recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+                    distribution=distribution, fairness=fairness, relevance=relevance,
+                    weight=weight, tradeoff=tradeoff, selector=selector, checkpoint=checkpoint
+                )
+            )
+        elif m == Label.SERENDIPITY:
+            load_monitoring.append(
+                evaluation_interface.applying_serendipity(
+                    recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+                    distribution=distribution, fairness=fairness, relevance=relevance,
+                    weight=weight, tradeoff=tradeoff, selector=selector, checkpoint=checkpoint
+                )
+            )
+        elif m == Label.NOVELTY:
+            load_monitoring.append(
+                evaluation_interface.applying_novelty(
+                    recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+                    distribution=distribution, fairness=fairness, relevance=relevance,
+                    weight=weight, tradeoff=tradeoff, selector=selector, checkpoint=checkpoint
+                )
+            )
+        elif m == Label.COVERAGE:
+            load_monitoring.append(
+                evaluation_interface.applying_coverage(
+                    recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+                    distribution=distribution, fairness=fairness, relevance=relevance,
+                    weight=weight, tradeoff=tradeoff, selector=selector, checkpoint=checkpoint
+                )
+            )
+        elif m == Label.PERSONALIZATION:
+            load_monitoring.append(
+                evaluation_interface.applying_personalization(
+                    recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+                    distribution=distribution, fairness=fairness, relevance=relevance,
+                    weight=weight, tradeoff=tradeoff, selector=selector, checkpoint=checkpoint
+                )
+            )
+        elif m == "TIME":
+            load_monitoring.append(
+                evaluation_interface.execution_time_fold(
+                    recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+                    distribution=distribution, fairness=fairness, relevance=relevance,
+                    weight=weight, tradeoff=tradeoff, selector=selector, checkpoint=checkpoint
+                )
+            )
+        else:
+            continue
+    return load_monitoring
+
+
+def starting_cluster(
+        cluster: str, recommender: str, dataset: str, trial: int, fold: int,
+        distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str,
+        checkpoint: str
+):
+    """
+    TODO
+    """
+    # self.set_the_logfile_by_instance(
+    #         recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+    #         distribution=distribution, fairness=fairness, relevance=relevance,
+    #         tradeoff_weight=weight, tradeoff=tradeoff, select_item=selector
+    # )
+
+    system_name = "-".join([
+        dataset, 'trial-' + str(trial), 'fold-' + str(fold), recommender,
+        tradeoff, distribution, relevance, selector, fairness, tradeoff
+    ])
+
+    if checkpoint == "YES" and CheckpointVerification.unit_step5_conformity_verification(
+            dataset=dataset, trial=trial, fold=fold,
+            cluster=cluster, metric=Label.JACCARD_SCORE, recommender=recommender,
+            distribution=distribution, fairness=fairness, relevance=relevance,
+            weight=weight, tradeoff=tradeoff, selector=selector
+    ):
+        logger.info(">> Already Done... " + system_name)
+        return "Already Done"
+
+    clock = Clocker()
+    # Starting the counter
+    clock.start_count()
+
+    # Executing the Random Search
+    cluster_instance = ConformityAlgorithms(
+        cluster=cluster,
+        recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+        distribution=distribution, fairness=fairness, relevance=relevance,
+        weight=weight, tradeoff=tradeoff, selector=selector
+    )
+    cluster_instance.prepare_experiment()
+    cluster_instance.fit()
+
+    cluster_instance.evaluation()
+
+    # Finishing the counter
+    clock.finish_count()
+
+    # Saving execution time
+    SaveAndLoad.save_conformity_metric_time(
+        data=clock.clock_data(), cluster=cluster,
+        recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+        distribution=distribution, fairness=fairness, relevance=relevance,
+        weight=weight, tradeoff=tradeoff, selector=selector
+    )
 
 
 class PierreStep5(Step):
@@ -28,7 +180,6 @@ class PierreStep5(Step):
         TODO: Docstring
         """
         self.experimental_settings = Input.step5()
-        print(self.experimental_settings)
 
     @staticmethod
     def set_the_logfile_by_instance(
@@ -76,180 +227,49 @@ class PierreStep5(Step):
         else:
             print(f"Option {self.experimental_settings['opt']} is not registered!")
 
-    @staticmethod
-    def applying_evaluation_metrics(
-            metrics: list, recommender: str, dataset: str, trial: int, fold: int,
-            distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str
-    ):
-        """
-        Function to apply the evaluation metrics.
-        """
-        load_monitoring = []
-        for m in metrics:
-            if m == 'MAP':
-                load_monitoring.append(
-                    applying_map(recommender, dataset, trial, fold, distribution, fairness, relevance, weight, tradeoff,
-                                 selector)
-                )
-            elif m == "MRR":
-                load_monitoring.append(
-                    applying_mrr(recommender, dataset, trial, fold, distribution, fairness, relevance, weight, tradeoff,
-                                 selector)
-                )
-            elif m == "MACE":
-                load_monitoring.append(
-                    applying_mace(recommender, dataset, trial, fold, distribution, fairness, relevance, weight, tradeoff,
-                                  selector)
-                )
-            elif m == "MRMC":
-                load_monitoring.append(
-                    applying_mrmc(recommender, dataset, trial, fold, distribution, fairness, relevance, weight, tradeoff,
-                                  selector)
-                )
-            elif m == "UNEXPECTEDNESS":
-                load_monitoring.append(
-                    applying_unexpectedness(recommender, dataset, trial, fold, distribution, fairness, relevance, weight,
-                                            tradeoff, selector)
-                )
-            elif m == "SERENDIPITY":
-                load_monitoring.append(
-                    applying_serendipity(recommender, dataset, trial, fold, distribution, fairness, relevance, weight,
-                                         tradeoff, selector)
-                )
-            elif m == "NOVELTY":
-                load_monitoring.append(
-                    applying_novelty(recommender, dataset, trial, fold, distribution, fairness, relevance, weight,
-                                     tradeoff, selector)
-                )
-            elif m == "COVERAGE":
-                load_monitoring.append(
-                    applying_coverage(recommender, dataset, trial, fold, distribution, fairness, relevance, weight,
-                                      tradeoff, selector)
-                )
-            elif m == "PERSONALIZATION":
-                load_monitoring.append(
-                    applying_personalization(recommender, dataset, trial, fold, distribution, fairness, relevance, weight,
-                                             tradeoff, selector)
-                )
-            elif m == "TIME":
-                execution_time_fold(recommender, dataset, trial, fold,
-                                    distribution, fairness, relevance, weight, tradeoff, selector)
-            elif m == "RANK":
-                load_monitoring.append(
-                    applying_mrr(recommender, dataset, trial, fold, distribution, fairness, relevance, weight, tradeoff,
-                                 selector)
-                )
-                load_monitoring.append(
-                    applying_map(recommender, dataset, trial, fold, distribution, fairness, relevance, weight, tradeoff,
-                                 selector)
-                )
-            elif m == "CALIBRATION":
-                load_monitoring.append(
-                    applying_mrmc(recommender, dataset, trial, fold, distribution, fairness, relevance, weight, tradeoff,
-                                  selector)
-                )
-                load_monitoring.append(
-                    applying_mace(recommender, dataset, trial, fold, distribution, fairness, relevance, weight, tradeoff,
-                                  selector)
-                )
-            else:
-                execution_time_fold(recommender, dataset, trial, fold,
-                                    distribution, fairness, relevance, weight, tradeoff, selector)
-                load_monitoring.append(
-                    applying_mrr(recommender, dataset, trial, fold, distribution, fairness, relevance, weight, tradeoff,
-                                 selector)
-                )
-                load_monitoring.append(
-                    applying_map(recommender, dataset, trial, fold, distribution, fairness, relevance, weight, tradeoff,
-                                 selector)
-                )
-                load_monitoring.append(
-                    applying_mrmc(recommender, dataset, trial, fold, distribution, fairness, relevance, weight, tradeoff,
-                                  selector)
-                )
-                load_monitoring.append(
-                    applying_mace(recommender, dataset, trial, fold, distribution, fairness, relevance, weight, tradeoff,
-                                  selector)
-                )
-                break
-        return load_monitoring
-
     def metrics_parallelization(self):
         combination = [
             self.experimental_settings['recommender'], self.experimental_settings['dataset'],
             self.experimental_settings['trial'], self.experimental_settings['fold'],
             self.experimental_settings['distribution'], self.experimental_settings['fairness'],
             self.experimental_settings['relevance'], self.experimental_settings['weight'],
-            self.experimental_settings['tradeoff'], self.experimental_settings['selector']
+            self.experimental_settings['tradeoff'], self.experimental_settings['selector'],
+            [self.experimental_settings["checkpoint"]]
         ]
-
-        load = Parallel(n_jobs=Constants.N_CORES)(
-            delayed(self.applying_evaluation_metrics)(
-                metrics=self.experimental_settings['metric'],
-                recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-                distribution=distribution, fairness=fairness, relevance=relevance,
-                weight=weight, tradeoff=tradeoff, selector=selector
-            ) for recommender, dataset, trial, fold, distribution, fairness, relevance, weight, tradeoff, selector
-            in list(itertools.product(*combination)))
-
-        # jobs = dict(Counter(load))
-        print(load)
-
-    def starting_cluster(
-            self, cluster: str, recommender: str, dataset: str, trial: int, fold: int,
-            distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str):
-        """
-        TODO
-        """
-        if self.experimental_settings["checkpoint"] == "YES":
-            try:
-                metric_df = SaveAndLoad.load_conformity_metric(
-                    dataset=dataset, trial=trial, fold=fold,
-                    cluster=cluster, metric=Label.JACCARD_SCORE, recommender=recommender,
+        process_combination = list(itertools.product(*combination))
+        print(f"The total of process that will be run are: {len(process_combination)}")
+        if self.experimental_settings['multiprocessing'] == "joblib":
+            load = Parallel(
+                n_jobs=self.experimental_settings['n_jobs'], verbose=10, batch_size=1,
+                backend="multiprocessing", prefer="processes"
+            )(
+                delayed(applying_evaluation_metrics)(
+                    metrics=self.experimental_settings['metric'],
+                    recommender=recommender, dataset=dataset, trial=trial, fold=fold,
                     distribution=distribution, fairness=fairness, relevance=relevance,
-                    weight=weight, tradeoff=tradeoff, selector=selector
-                )
-                if len(metric_df[Label.JACCARD_SCORE]) > 0:
-                    return ""
-            except Exception:
-                logger.info("Reloading...")
-        self.set_the_logfile_by_instance(
-                recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-                distribution=distribution, fairness=fairness, relevance=relevance,
-                tradeoff_weight=weight, tradeoff=tradeoff, select_item=selector
-        )
-        self.print_basic_info_by_instance(
-                cluster=cluster,
-                recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-                distribution=distribution, fairness=fairness, relevance=relevance,
-                tradeoff_weight=weight, tradeoff=tradeoff, selector=selector
-        )
+                    weight=weight, tradeoff=tradeoff, selector=selector, checkpoint=checkpoint
+                ) for
+                recommender, dataset, trial, fold, distribution, fairness, relevance, weight, tradeoff, selector, checkpoint
+                in process_combination
+            )
+        elif self.experimental_settings['multiprocessing'] == "starmap":
+            process_args = []
+            for recommender, tradeoff, relevance, distribution, selector, weight, calibration, list_size, alpha, d, checkpoint, dataset, fold, trial in process_combination:
+                process_args.append((
+                    recommender, fold, trial, dataset, tradeoff, distribution, calibration, relevance, weight, selector,
+                    list_size, alpha, d, checkpoint
+                ))
+            pool = multiprocessing.Pool(processes=self.experimental_settings["n_jobs"])
+            load = pool.starmap(applying_evaluation_metrics, process_args)
+            pool.close()
+            pool.join()
+        else:
+            logger.warning(
+                f"The multiprocessing option {self.experimental_settings['multiprocessing']} does not exist! Please check for a possible option.")
+            exit(1)
 
-        # Starting the counter
-        self.start_count()
-
-        # Executing the Random Search
-        cluster_instance = ConformityAlgorithms(
-            cluster=cluster,
-            recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-            distribution=distribution, fairness=fairness, relevance=relevance,
-            weight=weight, tradeoff=tradeoff, selector=selector
-        )
-        cluster_instance.prepare_experiment()
-        cluster_instance.fit()
-
-        cluster_instance.evaluation()
-
-        # Finishing the counter
-        self.finish_count()
-
-        # Saving execution time
-        SaveAndLoad.save_conformity_metric_time(
-            data=self.clock_data(), cluster=cluster,
-            recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-            distribution=distribution, fairness=fairness, relevance=relevance,
-            weight=weight, tradeoff=tradeoff, selector=selector
-        )
+        jobs = dict(Counter(list(load)))
+        print(jobs)
 
     def cluster_parallelization(self):
         """
@@ -261,21 +281,24 @@ class PierreStep5(Step):
             self.experimental_settings['trial'], self.experimental_settings['fold'],
             self.experimental_settings['distribution'], self.experimental_settings['fairness'],
             self.experimental_settings['relevance'], self.experimental_settings['weight'],
-            self.experimental_settings['tradeoff'], self.experimental_settings['selector']
+            self.experimental_settings['tradeoff'], self.experimental_settings['selector'],
+            [self.experimental_settings["checkpoint"]]
         ]
-        logger.info(f"Total of combinations: {len(combination)}")
+        print(f"The total of process that will be run are: {len(combination)}")
 
-        load = Parallel(n_jobs=Constants.N_CORES)(
-            delayed(self.starting_cluster)(
+        load = Parallel(n_jobs=self.experimental_settings['n_jobs'])(
+            delayed(starting_cluster)(
                 cluster=cluster,
                 recommender=recommender, dataset=dataset, trial=trial, fold=fold,
                 distribution=distribution, fairness=fairness, relevance=relevance,
-                weight=weight, tradeoff=tradeoff, selector=selector
-            ) for cluster, recommender, dataset, trial, fold, distribution, fairness, relevance, weight, tradeoff, selector
-            in list(itertools.product(*combination)))
+                weight=weight, tradeoff=tradeoff, selector=selector, checkpoint=checkpoint
+            ) for
+            cluster, recommender, dataset, trial, fold, distribution, fairness, relevance, weight, tradeoff, selector, checkpoint
+            in list(itertools.product(*combination))
+        )
 
-        # jobs = dict(Counter(load))
-        # print(load)
+        jobs = dict(Counter(load))
+        print(jobs)
 
 
 if __name__ == '__main__':

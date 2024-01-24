@@ -1,8 +1,8 @@
-import multiprocessing
 from collections import Counter
 
 import itertools
 import logging
+import multiprocessing
 from joblib import Parallel, delayed
 
 from checkpoint_verification import CheckpointVerification
@@ -137,8 +137,10 @@ class PierreStep4(Step):
         ]
 
         if self.experimental_settings['multiprocessing'] == "joblib":
-            load = Parallel(n_jobs=self.experimental_settings["n_jobs"], backend="multiprocessing", prefer="processes",
-                            verbose=10, batch_size=1)(
+            load = Parallel(
+                n_jobs=self.experimental_settings['n_jobs'], verbose=10, batch_size=1,
+                backend="multiprocessing", prefer="processes"
+            )(
                 delayed(starting_postprocessing)(
                     recommender=recommender, dataset=dataset, trial=trial, fold=fold,
                     tradeoff=tradeoff, relevance=relevance, distribution=distribution,

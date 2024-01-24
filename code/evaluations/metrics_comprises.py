@@ -1,8 +1,6 @@
+from pandas import DataFrame
 from statistics import mean
 
-from pandas import DataFrame
-
-from settings.constants import Constants
 from settings.labels import Label
 from settings.save_and_load import SaveAndLoad
 
@@ -10,7 +8,7 @@ from settings.save_and_load import SaveAndLoad
 class MetricComprises:
     @staticmethod
     def it_comprises_recommender_metric(
-            dataset: str, recommender: str, metric: str,
+            dataset: str, recommender: str, metric: str, trial: list, fold: list,
             distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str
     ) -> DataFrame:
         """
@@ -19,10 +17,10 @@ class MetricComprises:
 
         users_pref_list = []
 
-        for trial in range(1, Constants.N_TRIAL_VALUE + 1):
-            for fold in range(1, Constants.K_FOLDS_VALUE + 1):
+        for t in trial:
+            for f in fold:
                 metric_df = SaveAndLoad.load_recommender_metric(
-                    dataset=dataset, trial=trial, fold=fold,
+                    dataset=dataset, trial=t, fold=f,
                     metric=metric, recommender=recommender,
                     distribution=distribution, fairness=fairness, relevance=relevance,
                     weight=weight, tradeoff=tradeoff, selector=selector
@@ -30,9 +28,11 @@ class MetricComprises:
 
                 users_pref_list.append(mean(metric_df[metric].tolist()))
 
-        merged_metrics_df = DataFrame([
-            [mean(users_pref_list), metric,
-             recommender, tradeoff, distribution, fairness, relevance, selector, weight]],
+        merged_metrics_df = DataFrame(
+            data=[[
+                mean(users_pref_list), metric,
+                recommender, tradeoff, distribution, fairness, relevance, selector, weight
+            ]],
             columns=[
                 Label.EVALUATION_VALUE, Label.RECOMMENDER_METRIC,
                 Label.RECOMMENDER, Label.TRADEOFF, Label.DISTRIBUTION_LABEL,
@@ -41,3 +41,5 @@ class MetricComprises:
         )
 
         return merged_metrics_df
+
+
