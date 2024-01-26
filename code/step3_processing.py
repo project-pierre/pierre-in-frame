@@ -80,7 +80,7 @@ class PierreStep3(Step):
         ]
 
         # Starting the recommender algorithm
-        Parallel(n_jobs=Constants.N_CORES)(
+        Parallel(n_jobs=self.experimental_settings['n_jobs'])(
             delayed(self.starting_recommender)(
                 recommender=recommender, dataset=dataset, trial=trial, fold=fold
             ) for recommender, dataset, fold, trial in list(itertools.product(*combination))
@@ -115,7 +115,8 @@ class PierreStep3(Step):
             # Executing the processing step
             recommender_algorithm = SurpriseRecommenderAlgorithm(
                 dataset_name=dataset, trial=trial, fold=fold, recommender_name=recommender,
-                metric=self.experimental_settings['metric']
+                metric=self.experimental_settings['metric'],
+                list_size=self.experimental_settings['list_size']
             )
             recommender_algorithm.run()
         elif recommender in Label.IMPLICIT_RECOMMENDERS:

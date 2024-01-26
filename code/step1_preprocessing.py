@@ -1,13 +1,11 @@
 import itertools
 import logging
-
 import pandas as pd
 from joblib import Parallel, delayed
 
 from datasets.registred_datasets import RegisteredDataset
 from graphics.dataset_chart import DatasetChart
 from scikit_pierre.distributions.compute_distribution import computer_users_distribution
-from settings.constants import Constants
 from settings.labels import Label
 from settings.path_dir_file import PathDirFile
 from settings.save_and_load import SaveAndLoad
@@ -129,7 +127,7 @@ class PierreStep1(Step):
         ]
 
         # Start the processes in parallel using joblib
-        load = Parallel(n_jobs=Constants.N_CORES)(
+        load = Parallel(n_jobs=self.experimental_settings['n_jobs'])(
             delayed(self.compute_distribution)(
                 dataset=dataset, trial=trial, fold=fold, distribution=distribution
             ) for dataset, trial, fold, distribution

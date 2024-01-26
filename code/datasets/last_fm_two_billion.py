@@ -1,8 +1,15 @@
+import ast
+
+import pickle
+
+import json
+
 import itertools
 import os
 
 import pandas as pd
 import numpy as np
+from Cython import typeof
 
 from datasets.utils.base import Dataset
 from settings.constants import Constants
@@ -16,14 +23,13 @@ class LastFMTwoBillion(Dataset):
     This class organizes the work with the dataset.
     """
     # Class information.
-    dir_name = "lfm-2b"
-    verbose_name = "Last FM Two Billion"
-    system_name = "lfm-2b"
+    dir_name = "lfm-2b-subset"
+    verbose_name = "Last FM Two Billion Subset"
+    system_name = "lfm-2b-subset"
 
     # Raw paths.
     dataset_raw_path = "/".join([PathDirFile.RAW_DATASETS_DIR, dir_name])
-    raw_transaction_file = "listening-counts.tsv"
-    raw_transaction_events_file = "listening_events.tsv"
+    raw_transaction_file = "listening_events.tsv"
     raw_items_file = "tags-micro-genres.json"
 
     # Clean paths.
@@ -53,19 +59,32 @@ class LastFMTwoBillion(Dataset):
         """
         self.raw_transactions = pd.read_csv(
             os.path.join(self.dataset_raw_path, self.raw_transaction_file),
-            names=['user_id', 'track_id', 'count'],
             engine='python', sep='\t'
         )
-        self.raw_transactions_events = pd.read_csv(
-            os.path.join(self.dataset_raw_path, self.raw_transaction_events_file),
-            names=['user_id', 'track_id', 'album_id', 'timestamp'],
-            engine='python', sep='\t'
+        self.raw_transactions.rename(
+            columns={
+                'user_id': Label.USER_ID,
+                'track_id': Label.ITEM_ID,
+                'album_id': Label.ALBUM,
+                'timestamp': Label.TIME,
+            }, inplace=True
         )
+        print(self.raw_transactions.head(5))
 
-    def get_raw_transactions_events(self):
-        if self.raw_transactions_events is None:
-            self.load_raw_transactions()
-        return self.raw_transactions_events
+    def filtering_transations(self, raw_transactions):
+        combined_raw_transactions = raw_transactions.groupby(
+            [Label.USER_ID, Label.ITEM_ID]
+        ).size().reset_index().rename(
+            columns={0: Label.TRANSACTION_VALUE}
+        ).sort_values(
+            by=[Label.USER_ID, Label.ITEM_ID], ascending=False
+        )
+        # combined_raw_transactions.sort_values(by=[Label.USER_ID, Label.ITEM_ID], ascending=False, inplace=True)
+        df_f = raw_transactions.drop_duplicates(subset=[Label.USER_ID, Label.ITEM_ID], keep='last').copy()
+        # df_f.sort_values(by=[Label.USER_ID, Label.ITEM_ID], ascending=False, inplace=True)
+        df_ordered = df_f.sort_values(by=[Label.USER_ID, Label.ITEM_ID], ascending=False).copy()
+        combined_raw_transactions[Label.TIME] = df_ordered[Label.TIME].to_list()
+        return combined_raw_transactions
 
     def clean_transactions(self):
         """
@@ -74,22 +93,25 @@ class LastFMTwoBillion(Dataset):
         super().clean_transactions()
 
         # Load the raw transactions.
-        raw_transactions = self.get_raw_transactions().sort_values(by=['user_id', 'track_id'], ascending=False)
-        raw_transactions_events = self.get_raw_transactions_events().drop_duplicates(subset=['user_id', 'track_id'], keep='last')
-        raw_transactions_events.sort_values(by=['user_id', 'track_id'], ascending=False, inplace=True)
-        raw_transactions['timestamp'] = raw_transactions_events['timestamp'].to_list()
-        self.transactions = raw_transactions
+        raw_transactions = self.get_raw_transactions()
+        combined_raw_transactions = self.filtering_transations(raw_transactions)
+
+        combined_raw_transactions = combined_raw_transactions.astype({
+            Label.USER_ID: 'int32',
+            Label.ITEM_ID: 'int32'
+        })
 
         # Filter transactions based on the items id list.
-        # filtered_raw_transactions = raw_transactions[
-        #     raw_transactions[Label.ITEM_ID].isin(self.items[Label.ITEM_ID].tolist())]
+        filtered_raw_transactions = combined_raw_transactions[
+            combined_raw_transactions[Label.ITEM_ID].isin(self.items[Label.ITEM_ID].tolist())]
 
         # Cut users and set the new data into the instance.
-        # self.set_transactions(
-        #     new_transactions=LastFMTwoBillion.cut_users(raw_transactions, self.cut_value))
-        #
-        # if Constants.NORMALIZED_SCORE:
-        #     self.transactions[Label.TRANSACTION_VALUE] = np.where(self.transactions[Label.TRANSACTION_VALUE] >= self.cut_value, 1, 0)
+        self.set_transactions(
+            new_transactions=LastFMTwoBillion.cut_users(filtered_raw_transactions, self.cut_value)
+        )
+
+        if Constants.NORMALIZED_SCORE:
+            self.transactions[Label.TRANSACTION_VALUE] = np.where(self.transactions[Label.TRANSACTION_VALUE] >= self.cut_value, 1, 0)
 
         # Save the clean transactions as CSV.
         self.transactions.to_csv(
@@ -105,10 +127,23 @@ class LastFMTwoBillion(Dataset):
         """
         Load Raw Items into the instance variable.
         """
-        self.raw_items = pd.read_csv(
-            os.path.join(self.dataset_raw_path, self.raw_items_file), engine='python',
-            sep='::', names=[Label.ITEM_ID, Label.TITLE, Label.GENRES], encoding='ISO-8859-1'
-        )
+        def make_dict(line_str: str):
+            line = json.loads(line_str)
+            result = {
+                Label.ITEM_ID: int(line["i"]),
+                Label.ARTIST: line["_id"]["artist"],
+                Label.TRACK_ID: line["_id"]["track"],
+                Label.GENRES: "|".join(list(line["tags"].keys())),
+            }
+            return result
+
+        path_to_open = "/".join([LastFMTwoBillion.dataset_raw_path, LastFMTwoBillion.raw_items_file])
+
+        f = open(path_to_open, 'rt', encoding='utf-8')
+        items_list = list(map(make_dict, f))
+        f.close()
+
+        self.raw_items = pd.DataFrame.from_dict(items_list)
 
     def clean_items(self):
         """
@@ -119,11 +154,15 @@ class LastFMTwoBillion(Dataset):
 
         # Clean the items without information and with the label indicating no genre in the item.
         raw_items_df.dropna(inplace=True)
-        genre_clean_items = raw_items_df[raw_items_df[Label.GENRES] != '(no genres listed)']
+        genre_clean_items = raw_items_df[raw_items_df[Label.GENRES] != '']
 
         # Set the new data into the instance.
         self.set_items(new_items=genre_clean_items)
         self.items.drop_duplicates(subset=[Label.ITEM_ID], inplace=True)
+
+        self.items = self.items.astype({
+            Label.ITEM_ID: 'int32'
+        })
 
         # Save the clean transactions as CSV.
         self.items.to_csv(os.path.join(self.dataset_clean_path, PathDirFile.ITEMS_FILE), index=False)

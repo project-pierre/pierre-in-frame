@@ -1,0 +1,10 @@
+{
+  "opt": "RECOMMENDER",
+  "n_inter": 50,
+  "n_jobs": 2,
+  "n_cv": 3,
+  "dataset": ["lfm-2b-subset"],
+  "recommender": ["SVD"],
+  "fold": [1, 2, 3],
+  "trial": [1]
+}

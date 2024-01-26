@@ -8,7 +8,6 @@ from surprise.prediction_algorithms.slope_one import SlopeOne
 
 from datasets.registred_datasets import RegisteredDataset
 from processing.conversions.pandas_surprise import PandasSurprise
-from settings.constants import Constants
 from settings.labels import Label
 from settings.save_and_load import SaveAndLoad
 
@@ -20,7 +19,7 @@ class SurpriseRecommenderAlgorithm:
     Class to lead with the surprise recommender algorithms, generating the recommendation and saving in the results path
     """
 
-    def __init__(self, recommender_name: str, dataset_name: str, fold: int, trial: int, metric: str):
+    def __init__(self, recommender_name: str, dataset_name: str, fold: int, trial: int, metric: str, list_size: int):
         """
         Class constructor.
 
@@ -36,6 +35,7 @@ class SurpriseRecommenderAlgorithm:
         self.fold = fold
         self.trial = trial
         self.recommender = None
+        self.list_size = list_size
 
         # Load the surprise recommender algorithm
         if self.recommender_name == Label.SLOPE:
@@ -101,7 +101,7 @@ class SurpriseRecommenderAlgorithm:
         # Predict and transform surprise dataset structure in a pandas dataframe
         return PandasSurprise.surprise_to_pandas_get_candidates_items(
             predictions=self.recommender.test(testset=testset),
-            n=Constants.CANDIDATES_LIST_SIZE
+            n=self.list_size
         )
 
     def run(self):

@@ -164,7 +164,9 @@ class SaveAndLoad:
         TODO: Docstring
         """
         data.to_csv(
-            PathDirFile.set_search_conformity_time_file(dataset=dataset, algorithm=algorithm, distribution=distribution),
+            PathDirFile.set_search_conformity_time_file(
+                dataset=dataset, algorithm=algorithm, distribution=distribution
+            ),
             index=False
         )
 

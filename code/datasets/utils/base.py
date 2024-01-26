@@ -95,7 +95,9 @@ class Dataset:
         Load clean transactions into the instance.
         """
         # TODO: colocar o caminho dentro da classe gerenciadora de caminhos
-        self.transactions = pd.read_csv(os.path.join(self.dataset_clean_path, PathDirFile.TRANSACTIONS_FILE))
+        self.transactions = pd.read_csv(
+            os.path.join(self.dataset_clean_path, PathDirFile.TRANSACTIONS_FILE)
+        )
 
     def get_transactions(self) -> pd.DataFrame():
         """
@@ -194,7 +196,9 @@ class Dataset:
         Load clean items into the instance.
         """
         # TODO: colocar o caminho dentro da classe gerenciadora de caminhos
-        self.items = pd.read_csv(os.path.join(self.dataset_clean_path, PathDirFile.ITEMS_FILE))
+        self.items = pd.read_csv(
+            os.path.join(self.dataset_clean_path, PathDirFile.ITEMS_FILE)
+        )
 
     def load_clean_dataset(self):
         """
@@ -247,13 +251,14 @@ class Dataset:
         # Extract the transactions
         self.clean_transactions()
 
-    def mining_data_and_create_fold(self, n_trials: int = Constants.N_TRIAL_VALUE,
-                                    n_folds: int = Constants.K_FOLDS_VALUE):
+    def mining_data_and_create_fold(
+            self, n_trials: int = Constants.N_TRIAL_VALUE, n_folds: int = Constants.K_FOLDS_VALUE
+    ):
         """
         The raw dataset is preprocessed and the clean dataset produce n_trials with n_folds.
 
-        :param n_trials: A int that represents a number of experimental trials to create.
-        :param n_folds: A int that represents a number of the k folds.
+        :param n_trials: An int that represents a number of experimental trials to create.
+        :param n_folds: An int that represents a number of the k folds.
         """
         # Clean and filter the data
         self.clean_data()
@@ -265,13 +270,13 @@ class Dataset:
         Create all folds to be used by the system.
         The clean dataset produce n_trials with n_folds.
 
-        :param n_trials: A int that represents a number of experimental trials to create.
-        :param n_folds: A int that represents a number of the k folds.
+        :param n_trials: An int that represents a number of experimental trials to create.
+        :param n_folds: An int that represents a number of the k folds.
         """
         for trial in range(1, n_trials + 1):
             logger.info("+ Preparing trial: " + str(trial))
             results = split.split_with_joblib(transactions_df=self.transactions, trial=trial, n_folds=n_folds)
-            for k in range(Constants.K_FOLDS_VALUE):
+            for k in range(n_folds):
                 train_df, test_df = results[k]
 
                 logger.info("+ + Preparing fold: " + str(k + 1))
@@ -290,7 +295,10 @@ class Dataset:
                 test_df.to_csv(test_path, index=False)
 
     @staticmethod
-    def cut_users(transactions: pd.DataFrame, item_cut_value: float = 4) -> pd.DataFrame:
+    def cut_users(
+            transactions: pd.DataFrame,
+            item_cut_value: float = 4, profile_len_cut_value: int = Constants.PROFILE_LEN_CUT_VALUE
+    ) -> pd.DataFrame:
         """
         Cleaning the raw transactions and save as clean transactions.
         The specific implementation is created by the children.
@@ -301,7 +309,7 @@ class Dataset:
         higher_transactions = transactions[transactions[Label.TRANSACTION_VALUE] >= item_cut_value]
 
         user_counts = higher_transactions[Label.USER_ID].value_counts()
-        selected_users = [k for k, v in user_counts.items() if v > Constants.PROFILE_LEN_CUT_VALUE]
+        selected_users = [k for k, v in user_counts.items() if v > profile_len_cut_value]
         return pd.concat(
             [higher_transactions[higher_transactions[Label.USER_ID].isin(selected_users)].copy(),
              lower_transactions[lower_transactions[Label.USER_ID].isin(selected_users)].copy()])
@@ -329,13 +337,6 @@ class Dataset:
         total_of_transactions = len(self.raw_transactions)
         total_of_classes = len(
             set(list(itertools.chain.from_iterable(list(map(Dataset.classes, self.raw_items[Label.GENRES].tolist()))))))
-        # print("*" * 50)
-        # print("RAW DATASET INFORMATION")
-        # print("Total of Users: ", total_of_users)
-        # print("Total of Items: ", total_of_items)
-        # print("Total of Transactions: ", total_of_transactions)
-        # print("Total of Classes: ", total_of_classes)
-        # print("*" * 50)
         return pd.DataFrame(
             [['Raw', total_of_users, total_of_items, total_of_transactions, total_of_classes]],
             columns=['Dataset', 'Users', 'Items', 'Transactions', 'Classes']
@@ -352,13 +353,6 @@ class Dataset:
         total_of_transactions = len(self.transactions)
         total_of_classes = len(
             set(list(itertools.chain.from_iterable(list(map(Dataset.classes, self.items[Label.GENRES].tolist()))))))
-        # print("*" * 50)
-        # print("CLEAN DATASET INFORMATION")
-        # print("Total of Users: ", total_of_users)
-        # print("Total of Items: ", total_of_items)
-        # print("Total of Transactions: ", total_of_transactions)
-        # print("Total of Classes: ", total_of_classes)
-        # print("*" * 50)
         return pd.DataFrame(
             [['Clean', total_of_users, total_of_items, total_of_transactions, total_of_classes]],
             columns=['Dataset', 'Users', 'Items', 'Transactions', 'Classes']

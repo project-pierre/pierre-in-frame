@@ -6,6 +6,7 @@ from searches.recommender_search import RecommenderSearch
 from settings.labels import Label
 from settings.path_dir_file import PathDirFile
 from settings.save_and_load import SaveAndLoad
+from utils.clocker import Clocker
 from utils.input import Input
 from utils.logging_settings import setup_logging
 from utils.step import Step
@@ -24,7 +25,8 @@ class PierreStep2(Step):
         """
         self.experimental_settings = Input.step2()
 
-    def set_the_logfile_step2(self, recommender: str, dataset: str) -> None:
+    @staticmethod
+    def set_the_logfile_step2(recommender: str, dataset: str) -> None:
         """
         This method is to config the log file.
         """
@@ -60,16 +62,9 @@ class PierreStep2(Step):
 
         logger.info("$" * 50)
 
-    def main(self) -> None:
-        """
-        Main method used to choice the run option.
-        """
-        if self.experimental_settings['opt'] == Label.CONFORMITY:
-            self.starting_cluster()
-        elif self.experimental_settings['opt'] == Label.RECOMMENDER:
-            self.preparing_to_start()
-        else:
-            print("Option not found!")
+    # ############################################################################################# #
+    # ############################## Clustering Algorithm Optimization ############################ #
+    # ############################################################################################# #
 
     def starting_cluster(self) -> None:
         """
@@ -77,28 +72,33 @@ class PierreStep2(Step):
         """
 
         # Starting the counter
-        self.start_count()
+        clock = Clocker()
+        clock.start_count()
 
         # # Executing the Random Search
         search_instance = ManualConformityAlgorithmSearch(
             experimental_settings=self.experimental_settings
         )
         for algorithm in self.experimental_settings['cluster']:
-            print(f"Starting Algorithm: {algorithm}")
+            logger.info(f"Starting Algorithm: {algorithm}")
             search_instance.run(conformity_str=algorithm, recommender=self.experimental_settings['recommender'])
         #
         # Finishing the counter
-        self.finish_count()
+        clock.finish_count()
         #
         # Saving execution time
-        # SaveAndLoad.save_search_conformity_time(
-        #     data=self.clock_data(),
-        #     dataset=self.experimental_settings['dataset'],
-        #     algorithm=self.experimental_settings['cluster'],
-        #     distribution=self.experimental_settings['distribution']
-        # )
+        SaveAndLoad.save_search_conformity_time(
+            data=clock.clock_data(),
+            dataset=self.experimental_settings['dataset'],
+            algorithm=self.experimental_settings['cluster'],
+            distribution=self.experimental_settings['distribution']
+        )
 
-    def preparing_to_start(self) -> None:
+    # ############################################################################################# #
+    # ############################# Recommender Algorithm Optimization ############################ #
+    # ############################################################################################# #
+
+    def preparing_to_batch_recommender_search(self) -> None:
         """
         TODO: Docstring
         """
@@ -108,33 +108,72 @@ class PierreStep2(Step):
             self.experimental_settings['trial'], self.experimental_settings['fold']
         ]
 
-        for recommender, dataset, trial, fold in list(itertools.product(*combination)):
-            self.starting_recommender(recommender=recommender, dataset=dataset, trial=trial, fold=fold)
+        starmap_params = [
+            (
+                recommender, dataset, trial, fold,
+                self.experimental_settings['n_inter'],
+                self.experimental_settings['n_jobs'],
+                self.experimental_settings['n_cv']
+            )
+            for recommender, dataset, trial, fold in list(itertools.product(*combination))
+        ]
 
-    def starting_recommender(self, recommender: str, dataset: str, trial: int, fold: int) -> None:
+        output = list(itertools.starmap(
+            PierreStep2.starting_recommender_search,
+            starmap_params
+        ))
+
+        # for recommender, dataset, trial, fold in list(itertools.product(*combination)):
+        #     self.starting_recommender_search(
+        #         recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+        #         n_inter=self.experimental_settings['n_inter'], n_jobs=self.experimental_settings['n_jobs'],
+        #         n_cv=self.experimental_settings['n_cv']
+        #     )
+
+    @staticmethod
+    def starting_recommender_search(
+            recommender: str, dataset: str, trial: int, fold: int, n_inter: int, n_jobs: int, n_cv: int
+    ) -> None:
         """
-        TODO: Docstring
+        Method to start the recommender algorithm hyperparameter search optimization.
         """
 
         # Starting the counter
-        self.start_count()
+        clock = Clocker()
+        clock.start_count()
 
-        self.set_the_logfile_step2(dataset=dataset, recommender=recommender)
+        # self.set_the_logfile_step2(dataset=dataset, recommender=recommender)
 
         # Executing the Random Search
         search_instance = RecommenderSearch(
-            recommender=recommender, dataset=dataset, trial=trial, fold=fold
+            recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+            n_inter=n_inter, n_jobs=n_jobs, n_cv=n_cv
         )
         search_instance.fit()
 
         # Finishing the counter
-        self.finish_count()
+        clock.finish_count()
 
         # Saving execution time
         SaveAndLoad.save_search_time(
-            data=self.clock_data(),
+            data=clock.clock_data(),
             dataset=dataset, algorithm=dataset
         )
+
+    # ############################################################################################# #
+    #  ################################# Main Method and Step Starts #############################  #
+    # ############################################################################################# #
+
+    def main(self) -> None:
+        """
+        Main method used to choice the run option.
+        """
+        if self.experimental_settings['opt'] == Label.CONFORMITY:
+            self.starting_cluster()
+        elif self.experimental_settings['opt'] == Label.RECOMMENDER:
+            self.preparing_to_batch_recommender_search()
+        else:
+            logger.info("Option not found!")
 
 
 if __name__ == '__main__':

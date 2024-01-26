@@ -32,14 +32,26 @@ class Input:
             exit(1)
 
     @staticmethod
+    def __verify_n_inter__(value):
+        if int(value) < 1:
+            print('Number out of range!')
+            exit(1)
+
+    @staticmethod
+    def __verify_n_cv__(value):
+        if int(value) < 1:
+            print('Number out of range!')
+            exit(1)
+
+    @staticmethod
     def __verify_trial__(value):
-        if int(value) <= 0 or int(value) > Constants.N_TRIAL_VALUE:
+        if int(value) <= 0:
             print('Trial out of range!')
             exit(1)
 
     @staticmethod
     def __verify_fold__(value):
-        if int(value) <= 0 or int(value) > Constants.K_FOLDS_VALUE:
+        if int(value) <= 0:
             print('Fold out of range!')
             exit(1)
 
@@ -173,6 +185,7 @@ class Input:
 
         # Experimental setup information
         experimental_setup['opt'] = Label.DATASET_SPLIT
+        experimental_setup['n_jobs'] = Constants.N_CORES
 
         experimental_setup['dataset'] = RegisteredDataset.DEFAULT_DATASET
         experimental_setup['n_folds'] = Constants.K_FOLDS_VALUE
@@ -193,6 +206,11 @@ class Input:
                         print("The possibilities are: ", Label.PREPROCESSING_OPTS)
                         exit(1)
                     experimental_setup['opt'] = str(value)
+
+                # Reading the work 'Number of Jobs' (-n_jobs) from the terminal entrance
+                elif param == '-n_jobs':
+                    Input.__verify_n_jobs__(value=value)
+                    experimental_setup['n_jobs'] = value
 
                 # Reading the work 'Number of Folds' (--n_folds) from the terminal entrance
                 elif param == '--n_folds':
@@ -260,7 +278,9 @@ class Input:
         :return: A dict with the input settings.
         """
         experimental_setup = dict()
-        experimental_setup['opt'] = Label.RECOMMENDER
+        experimental_setup['n_inter'] = Constants.N_INTER
+        experimental_setup['n_jobs'] = Constants.N_CORES
+        experimental_setup['n_cv'] = Constants.K_FOLDS_VALUE
         experimental_setup['dataset'] = RegisteredDataset.DEFAULT_DATASET
         experimental_setup['recommender'] = Label.DEFAULT_REC
         experimental_setup['distribution'] = Label.DEFAULT_DISTRIBUTION
@@ -278,6 +298,21 @@ class Input:
                         print(f'This option does not exists! {value}')
                         exit(1)
                     experimental_setup['opt'] = str(value)
+
+                # Reading the work 'Number of Cross Validation' (-n_cv) from the terminal entrance
+                elif param == '-n_cv':
+                    Input.__verify_n_cv__(value=value)
+                    experimental_setup['n_cv'] = value
+
+                # Reading the work 'Number of Interactions' (-n_inter) from the terminal entrance
+                elif param == '-n_inter':
+                    Input.__verify_n_jobs__(value=value)
+                    experimental_setup['n_inter'] = value
+
+                # Reading the work 'Number of Jobs' (-n_jobs) from the terminal entrance
+                elif param == '-n_jobs':
+                    Input.__verify_n_jobs__(value=value)
+                    experimental_setup['n_jobs'] = value
 
                 # Reading the work 'Recommender Algorithm' (--recommender) from the terminal entrance
                 elif param == '--recommender':
