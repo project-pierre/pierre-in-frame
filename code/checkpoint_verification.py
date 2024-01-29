@@ -10,6 +10,23 @@ class CheckpointVerification:
         pass
 
     @staticmethod
+    def unit_step3_verification(
+            dataset: str, recommender: str, trial: int, fold: int
+    ):
+
+        # Check integrity.
+        try:
+            users_recommendation_lists = SaveAndLoad.load_candidate_items(
+                dataset=dataset, algorithm=recommender, trial=trial, fold=fold
+            )
+            if len(users_recommendation_lists) > 0:
+                return True
+            else:
+                return False
+        except Exception:
+            return False
+
+    @staticmethod
     def unit_step4_verification(
             dataset: str, recommender: str, trial: int, fold: int,
             tradeoff: str, distribution: str, fairness: str, relevance: str,

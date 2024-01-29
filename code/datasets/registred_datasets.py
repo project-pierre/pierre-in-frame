@@ -1,5 +1,7 @@
+from datasets.foodcom import FoodComRecipe
 from datasets.last_fm_two_billion import LastFMTwoBillion
 from datasets.movielens_one_million import MovielensOneMillion
+from datasets.movielens_twenty_million import MovielensTwentyMillion
 from datasets.my_anime_list import MyAnimeList
 from datasets.taste_profile import TasteProfile
 from datasets.twitter_movies import TwitterMovies
@@ -13,6 +15,8 @@ class RegisteredDataset:
     """
     # Registered datasets
     MOVIELENS_ONE_MILLION_DATASET = MovielensOneMillion.system_name
+    MOVIELENS_TWENTY_MILLION_DATASET = MovielensTwentyMillion.system_name
+    FOOD_COM_RECIPE_DATASET = FoodComRecipe.system_name
     YAHOO_MOVIES_DATASET = YahooMovies.system_name
     TASTE_PROFILE_DATASET = TasteProfile.system_name
     MY_ANIME_LIST_DATASET = MyAnimeList.system_name
@@ -22,7 +26,7 @@ class RegisteredDataset:
     # Allowed to be accessed
     DATASET_LIST = [
         MOVIELENS_ONE_MILLION_DATASET, YAHOO_MOVIES_DATASET, TWITTER_MOVIES_DATASET,
-        LASTFM_TWO_BILLION_DATASET,
+        LASTFM_TWO_BILLION_DATASET, MOVIELENS_TWENTY_MILLION_DATASET, FOOD_COM_RECIPE_DATASET
         # TASTE_PROFILE_DATASET,
         # MY_ANIME_LIST_DATASET
     ]
@@ -40,6 +44,12 @@ class RegisteredDataset:
         # Movielens One Million
         if dataset == RegisteredDataset.MOVIELENS_ONE_MILLION_DATASET:
             return MovielensOneMillion()
+        # Movielens Twenty Million Movies
+        elif dataset == RegisteredDataset.MOVIELENS_TWENTY_MILLION_DATASET:
+            return MovielensTwentyMillion()
+        # Food.com recipes
+        elif dataset == RegisteredDataset.FOOD_COM_RECIPE_DATASET:
+            return FoodComRecipe()
         # Yahoo Movies
         elif dataset == RegisteredDataset.YAHOO_MOVIES_DATASET:
             return YahooMovies()
@@ -69,6 +79,14 @@ class RegisteredDataset:
         # Movielens One Million
         if dataset == RegisteredDataset.MOVIELENS_ONE_MILLION_DATASET:
             instance = MovielensOneMillion()
+            instance.mining_data_and_create_fold(n_trials=n_trials, n_folds=n_folds)
+        # Movielens Twenty Millions Movies
+        elif dataset == RegisteredDataset.MOVIELENS_TWENTY_MILLION_DATASET:
+            instance = MovielensTwentyMillion()
+            instance.mining_data_and_create_fold(n_trials=n_trials, n_folds=n_folds)
+        # Food.com Recipe
+        elif dataset == RegisteredDataset.FOOD_COM_RECIPE_DATASET:
+            instance = FoodComRecipe()
             instance.mining_data_and_create_fold(n_trials=n_trials, n_folds=n_folds)
         # Yahoo Movies
         elif dataset == RegisteredDataset.YAHOO_MOVIES_DATASET:

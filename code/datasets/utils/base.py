@@ -1,8 +1,12 @@
+from collections import Counter
+from statistics import median
+
 import itertools
 import logging
 import os
 
 import pandas as pd
+from numpy import mean
 
 from datasets.utils import split
 from settings.constants import Constants
@@ -29,6 +33,7 @@ class Dataset:
 
     # Clean paths.
     dataset_clean_path = PathDirFile.CLEAN_DATASETS_DIR
+    PROFILE_LEN_CUT_VALUE = 150
 
     # ######################################### #
     # ############## Constructor ############## #
@@ -265,7 +270,9 @@ class Dataset:
         # Creating Folds
         self.create_folds(n_trials=n_trials, n_folds=n_folds)
 
-    def create_folds(self, n_trials: int = Constants.N_TRIAL_VALUE, n_folds: int = Constants.K_FOLDS_VALUE):
+    def create_folds(
+            self, n_trials: int = Constants.N_TRIAL_VALUE, n_folds: int = Constants.K_FOLDS_VALUE
+    ) -> None:
         """
         Create all folds to be used by the system.
         The clean dataset produce n_trials with n_folds.
@@ -314,6 +321,14 @@ class Dataset:
             [higher_transactions[higher_transactions[Label.USER_ID].isin(selected_users)].copy(),
              lower_transactions[lower_transactions[Label.USER_ID].isin(selected_users)].copy()])
 
+    @staticmethod
+    def cut_item(
+        transactions: pd.DataFrame, item_cut_value: float = 5
+    ) -> pd.DataFrame:
+        item_counts = transactions[Label.ITEM_ID].value_counts()
+        selected_items = [k for k, v in item_counts.items() if v > item_cut_value]
+        return transactions[transactions[Label.ITEM_ID].isin(selected_items)].copy()
+
     # ######################################### #
     # ############# Data Analyze ############## #
     # ######################################### #
@@ -323,7 +338,9 @@ class Dataset:
         This method is to split the item genre.
         """
         splitted = item.split('|')
-        return [c for c in splitted]
+        return [
+            c for c in splitted
+        ]
 
     def raw_data_basic_info(self):
         """
@@ -333,13 +350,18 @@ class Dataset:
         self.load_raw_transactions()
 
         total_of_users = len(self.raw_transactions[Label.USER_ID].unique())
+
+        count_user_trans = Counter(self.raw_transactions[Label.USER_ID].tolist())
+        mean_c = round(mean(list(count_user_trans.values())), 3)
+        median_c = round(median(list(count_user_trans.values())), 3)
+
         total_of_items = len(self.raw_items)
         total_of_transactions = len(self.raw_transactions)
         total_of_classes = len(
             set(list(itertools.chain.from_iterable(list(map(Dataset.classes, self.raw_items[Label.GENRES].tolist()))))))
         return pd.DataFrame(
-            [['Raw', total_of_users, total_of_items, total_of_transactions, total_of_classes]],
-            columns=['Dataset', 'Users', 'Items', 'Transactions', 'Classes']
+            data=[['Raw', total_of_users, total_of_items, total_of_transactions, total_of_classes, mean_c, median_c]],
+            columns=['Dataset', 'Users', 'Items', 'Transactions', 'Classes', "Users_trans_mean", "Users_trans_median"]
         )
 
     def clean_data_basic_info(self):
@@ -349,11 +371,27 @@ class Dataset:
         self.load_clean_dataset()
 
         total_of_users = len(self.transactions[Label.USER_ID].unique())
+
+        count_user_trans = Counter(self.transactions[Label.USER_ID].tolist())
+        mean_c = round(mean(list(count_user_trans.values())), 3)
+        median_c = round(median(list(count_user_trans.values())), 3)
+
+        count_plays = self.transactions[Label.TRANSACTION_VALUE].tolist()
+        mean_count_plays = round(mean(count_plays), 3)
+        median_count_plays = round(median(count_plays), 3)
+
         total_of_items = len(self.items)
         total_of_transactions = len(self.transactions)
         total_of_classes = len(
-            set(list(itertools.chain.from_iterable(list(map(Dataset.classes, self.items[Label.GENRES].tolist()))))))
+            set(list(itertools.chain.from_iterable(list(map(Dataset.classes, self.items[Label.GENRES].tolist())))))
+        )
         return pd.DataFrame(
-            [['Clean', total_of_users, total_of_items, total_of_transactions, total_of_classes]],
-            columns=['Dataset', 'Users', 'Items', 'Transactions', 'Classes']
+            data=[[
+                'Clean', total_of_users, total_of_items, total_of_transactions, total_of_classes,
+                mean_c, median_c, mean_count_plays, median_count_plays
+            ]],
+            columns=[
+                'Dataset', 'Users', 'Items', 'Transactions', 'Classes',
+                "Users_trans_mean", "Users_trans_median", "mean_count_plays", "median_count_plays"
+            ]
         )

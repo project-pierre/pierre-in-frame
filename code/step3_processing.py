@@ -4,10 +4,12 @@ import logging
 
 from joblib import Parallel, delayed
 
+from checkpoint_verification import CheckpointVerification
 from processing.implicit_recommender_algorithms import ImplicitRecommenderAlgorithm
 from processing.surprise_recommender_algorithms import SurpriseRecommenderAlgorithm
 from settings.constants import Constants
 from settings.labels import Label
+from utils.clocker import Clocker
 from utils.logging_settings import setup_logging
 from settings.path_dir_file import PathDirFile
 from settings.save_and_load import SaveAndLoad
@@ -86,13 +88,10 @@ class PierreStep3(Step):
             ) for recommender, dataset, fold, trial in list(itertools.product(*combination))
         )
 
-        # for recommender, dataset, fold, trial in list(itertools.product(*combination)):
-        #     self.starting_recommender(recommender=recommender, dataset=dataset, trial=trial, fold=fold)
-
         # Finishing the Step
         logger.info(" ".join(['+' * 10, 'System shutdown', '+' * 10]))
 
-    def starting_recommender(self, dataset: str, recommender: str, trial: int, fold: int) -> None:
+    def starting_recommender(self, dataset: str, recommender: str, trial: int, fold: int) -> str:
         """
         Function to starting the recommender algorithm.
 
@@ -108,8 +107,20 @@ class PierreStep3(Step):
             dataset=dataset, trial=trial, fold=fold, algorithm=recommender
         )
 
+        system_name = "-".join([
+            dataset, 'trial-' + str(trial), 'fold-' + str(fold), recommender
+        ])
+
+        if self.experimental_settings['checkpoint'] == "YES" and CheckpointVerification.unit_step3_verification(
+                dataset=dataset, trial=trial, fold=fold, recommender=recommender
+        ):
+            logger.info(">> Already Done... " + system_name)
+            return "Already Done"
+
+        clock = Clocker()
+
         # Starting the counter
-        self.start_count()
+        clock.start_count()
 
         if recommender in Label.SURPRISE_RECOMMENDERS:
             # Executing the processing step
@@ -129,15 +140,16 @@ class PierreStep3(Step):
             pass
 
         # Finishing the counter
-        self.finish_count()
+        clock.finish_count()
 
         # Saving execution time
         SaveAndLoad.save_processing_time(
-            data=self.clock_data(),
+            data=clock.clock_data(),
             dataset=dataset, trial=trial, fold=fold, algorithm=recommender
         )
         # Finishing the step
-        logger.info(" ".join(['->>', 'Time Execution:', str(self.get_total_time())]))
+        clock.print_time_info()
+        return "Finished"
 
 
 if __name__ == '__main__':

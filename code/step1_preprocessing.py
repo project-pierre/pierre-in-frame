@@ -109,6 +109,7 @@ class PierreStep1(Step):
         clean_dataset_info_df = dataset_instance.clean_data_basic_info()
 
         dataset_info_df = pd.concat([raw_dataset_info_df, clean_dataset_info_df])
+        print(dataset_info_df)
 
         # Save the distributions
         SaveAndLoad.save_dataset_analyze(

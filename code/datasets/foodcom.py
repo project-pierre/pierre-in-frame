@@ -1,7 +1,6 @@
-import os
-
-import pandas as pd
 import numpy as np
+import os
+import pandas as pd
 
 from datasets.utils.base import Dataset
 from settings.constants import Constants
@@ -9,27 +8,27 @@ from settings.labels import Label
 from settings.path_dir_file import PathDirFile
 
 
-class MovielensOneMillion(Dataset):
+class FoodComRecipe(Dataset):
     """
-    Movielens 1Million dataset.
+    Food.com Recipes dataset.
     This class organizes the work with the dataset.
     """
     # Class information.
-    dir_name = "ml-1m"
-    verbose_name = "Movielens One Million"
-    system_name = "ml-1m"
+    dir_name = "food"
+    verbose_name = "Food.com Recipe"
+    system_name = "food"
 
     # Raw paths.
     dataset_raw_path = "/".join([PathDirFile.RAW_DATASETS_DIR, dir_name])
-    raw_transaction_file = "ratings.dat"
-    raw_items_file = "movies.dat"
+    raw_transaction_file = "RAW_interactions.csv"
+    raw_items_file = "RAW_recipes.csv"
 
     # Clean paths.
     dataset_clean_path = "/".join([PathDirFile.CLEAN_DATASETS_DIR, dir_name])
 
     # Constant Values
-    cut_value = 4
-    item_cut_value = 5
+    cut_value = 3
+    item_cut_value = 3
     profile_len_cut_value = 100
 
     # ######################################### #
@@ -52,8 +51,16 @@ class MovielensOneMillion(Dataset):
         """
         self.raw_transactions = pd.read_csv(
             os.path.join(self.dataset_raw_path, self.raw_transaction_file),
-            names=[Label.USER_ID, Label.ITEM_ID, Label.TRANSACTION_VALUE, Label.TIME],
-            engine='python', sep='::'
+            usecols=[0, 1, 2, 3],
+            engine='python', sep=','
+        )
+        self.raw_transactions.rename(
+            columns={
+                'user_id': Label.USER_ID,
+                'recipe_id': Label.ITEM_ID,
+                'rating': Label.TRANSACTION_VALUE,
+                'date': Label.TIME,
+            }, inplace=True
         )
 
     def clean_transactions(self):
@@ -63,21 +70,28 @@ class MovielensOneMillion(Dataset):
         super().clean_transactions()
 
         # Load the raw transactions.
-        raw_transactions = self.get_raw_transactions()
+        raw_transactions = self.get_raw_transactions().astype({
+            Label.USER_ID: 'int32',
+            Label.ITEM_ID: 'int32',
+            Label.TRANSACTION_VALUE: 'int32'
+        })
 
         # Filter transactions based on the items id list.
         filtered_raw_transactions = raw_transactions[
-            raw_transactions[Label.ITEM_ID].isin(self.items[Label.ITEM_ID].tolist())]
+            raw_transactions[Label.ITEM_ID].isin(
+                self.items[Label.ITEM_ID].tolist()
+            )
+        ]
 
         # Cut users and set the new data into the instance.
         self.set_transactions(
-            new_transactions=MovielensOneMillion.cut_users(
+            new_transactions=FoodComRecipe.cut_users(
                 transactions=filtered_raw_transactions, item_cut_value=self.cut_value,
                 profile_len_cut_value=self.profile_len_cut_value
             )
         )
         self.set_transactions(
-            new_transactions=MovielensOneMillion.cut_item(
+            new_transactions=FoodComRecipe.cut_item(
                 transactions=self.transactions, item_cut_value=self.item_cut_value
             )
         )
@@ -97,7 +111,10 @@ class MovielensOneMillion(Dataset):
             os.path.join(self.dataset_clean_path, PathDirFile.TRANSACTIONS_FILE),
             index=False
         )
-        self.items.to_csv(os.path.join(self.dataset_clean_path, PathDirFile.ITEMS_FILE), index=False)
+        self.items.to_csv(os.path.join(
+            self.dataset_clean_path, PathDirFile.ITEMS_FILE),
+            index=False
+        )
 
     # ######################################### #
     # ################# Items ################# #
@@ -109,23 +126,38 @@ class MovielensOneMillion(Dataset):
         """
         self.raw_items = pd.read_csv(
             os.path.join(self.dataset_raw_path, self.raw_items_file), engine='python',
-            sep='::', names=[Label.ITEM_ID, Label.TITLE, Label.GENRES], encoding='ISO-8859-1'
+            sep=',', usecols=[1, 5]
         )
+        self.raw_items.rename(
+            columns={
+                'id': Label.ITEM_ID,
+                'tags': Label.GENRES,
+            }, inplace=True
+        )
+        # self.raw_items.apply(lambda tags: "|".join(tags), index=[Label.GENRES], axis=1)
 
     def clean_items(self):
         """
         Cleaning the raw items and save as clean items.
         """
+        def clean_genres(tags: list):
+            return "|".join(tags)
+
         # Load the raw items.
         raw_items_df = self.get_raw_items()
 
         # Clean the items without information and with the label indicating no genre in the item.
         raw_items_df.dropna(inplace=True)
-        genre_clean_items = raw_items_df[raw_items_df[Label.GENRES] != '(no genres listed)']
+        raw_items_df[Label.GENRES] = raw_items_df[Label.GENRES].apply(lambda tags: "|".join(tags))
+        genre_clean_items = raw_items_df[raw_items_df[Label.GENRES] != ''].copy()
 
         # Set the new data into the instance.
         self.set_items(new_items=genre_clean_items)
         self.items.drop_duplicates(subset=[Label.ITEM_ID], inplace=True)
+
+        self.items = self.items.astype({
+            Label.ITEM_ID: 'int32'
+        })
 
         # Save the clean transactions as CSV.
         self.items.to_csv(os.path.join(self.dataset_clean_path, PathDirFile.ITEMS_FILE), index=False)

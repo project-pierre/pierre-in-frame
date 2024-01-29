@@ -1,15 +1,7 @@
-import ast
-
-import pickle
-
 import json
-
-import itertools
-import os
-
-import pandas as pd
 import numpy as np
-from Cython import typeof
+import os
+import pandas as pd
 
 from datasets.utils.base import Dataset
 from settings.constants import Constants
@@ -30,13 +22,16 @@ class LastFMTwoBillion(Dataset):
     # Raw paths.
     dataset_raw_path = "/".join([PathDirFile.RAW_DATASETS_DIR, dir_name])
     raw_transaction_file = "listening_events.tsv"
+    raw_combined_transaction_file = "listening_play_count.csv"
     raw_items_file = "tags-micro-genres.json"
 
     # Clean paths.
     dataset_clean_path = "/".join([PathDirFile.CLEAN_DATASETS_DIR, dir_name])
 
     # Constant Values
-    cut_value = 2
+    cut_value = 3
+    item_cut_value = 5
+    profile_len_cut_value = 100
 
     # ######################################### #
     # ############## Constructor ############## #
@@ -69,7 +64,6 @@ class LastFMTwoBillion(Dataset):
                 'timestamp': Label.TIME,
             }, inplace=True
         )
-        print(self.raw_transactions.head(5))
 
     def filtering_transations(self, raw_transactions):
         combined_raw_transactions = raw_transactions.groupby(
@@ -79,9 +73,9 @@ class LastFMTwoBillion(Dataset):
         ).sort_values(
             by=[Label.USER_ID, Label.ITEM_ID], ascending=False
         )
-        # combined_raw_transactions.sort_values(by=[Label.USER_ID, Label.ITEM_ID], ascending=False, inplace=True)
+
         df_f = raw_transactions.drop_duplicates(subset=[Label.USER_ID, Label.ITEM_ID], keep='last').copy()
-        # df_f.sort_values(by=[Label.USER_ID, Label.ITEM_ID], ascending=False, inplace=True)
+
         df_ordered = df_f.sort_values(by=[Label.USER_ID, Label.ITEM_ID], ascending=False).copy()
         combined_raw_transactions[Label.TIME] = df_ordered[Label.TIME].to_list()
         return combined_raw_transactions
@@ -104,20 +98,36 @@ class LastFMTwoBillion(Dataset):
         # Filter transactions based on the items id list.
         filtered_raw_transactions = combined_raw_transactions[
             combined_raw_transactions[Label.ITEM_ID].isin(self.items[Label.ITEM_ID].tolist())]
-
+        filtered_raw_transactions.to_csv(
+            os.path.join(self.dataset_raw_path, self.raw_combined_transaction_file),
+            index=False
+        )
         # Cut users and set the new data into the instance.
         self.set_transactions(
-            new_transactions=LastFMTwoBillion.cut_users(filtered_raw_transactions, self.cut_value)
+            new_transactions=LastFMTwoBillion.cut_users(
+                transactions=filtered_raw_transactions, item_cut_value=self.cut_value,
+                profile_len_cut_value=self.profile_len_cut_value
+            )
+        )
+        self.set_transactions(
+            new_transactions=LastFMTwoBillion.cut_item(
+                self.transactions, self.item_cut_value
+            )
+        )
+        self.set_items(
+            new_items=self.items[self.items[Label.ITEM_ID].isin(self.transactions[Label.ITEM_ID].unique().tolist())]
         )
 
         if Constants.NORMALIZED_SCORE:
-            self.transactions[Label.TRANSACTION_VALUE] = np.where(self.transactions[Label.TRANSACTION_VALUE] >= self.cut_value, 1, 0)
+            self.transactions[Label.TRANSACTION_VALUE] = np.where(
+                self.transactions[Label.TRANSACTION_VALUE] >= self.cut_value, 1, 0)
 
         # Save the clean transactions as CSV.
         self.transactions.to_csv(
             os.path.join(self.dataset_clean_path, PathDirFile.TRANSACTIONS_FILE),
             index=False
         )
+        self.items.to_csv(os.path.join(self.dataset_clean_path, PathDirFile.ITEMS_FILE), index=False)
 
     # ######################################### #
     # ################# Items ################# #
@@ -127,6 +137,7 @@ class LastFMTwoBillion(Dataset):
         """
         Load Raw Items into the instance variable.
         """
+
         def make_dict(line_str: str):
             line = json.loads(line_str)
             result = {

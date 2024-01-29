@@ -4,7 +4,7 @@
   "checkpoint": "YES",
   "recommender": ["SVD", "ALS"],
   "cluster": [],
-  "dataset": ["ml-1m"],
+  "dataset": ["lfm-2b-subset"],
   "fold": [1, 2, 3],
   "trial": [1],
   "tradeoff": ["LIN"],

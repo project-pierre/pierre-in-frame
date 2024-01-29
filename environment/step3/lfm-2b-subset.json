@@ -1,6 +1,7 @@
 {
   "opt": "RECOMMENDER",
   "n_jobs": 2,
+  "checkpoint": "YES",
   "dataset": ["lfm-2b-subset"],
   "recommender": ["SVD", "ALS", "BPR"],
   "fold": [1, 2, 3],
