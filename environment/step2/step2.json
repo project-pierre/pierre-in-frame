@@ -3,8 +3,8 @@
   "n_inter": 50,
   "n_jobs": 7,
   "n_cv": 3,
-  "dataset": ["food", "lfm-2b-subset", "ml-20m"],
-  "recommender": ["SVD"],
+  "dataset": ["ml-1m"],
+  "recommender": ["ALS", "BPR"],
   "fold": [1, 2, 3],
   "trial": [1]
 }

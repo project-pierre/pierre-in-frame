@@ -41,15 +41,17 @@ class ImplicitRecommenderAlgorithm:
         # params = full_params[metric]
         if self.recommender_name == Label.ALS:
             self.recommender = implicit.als.AlternatingLeastSquares(
-                factors=50, random_state=42, num_threads=1, iterations=50
+                factors=100, regularization=0.003, alpha=0.1,
+                random_state=42, num_threads=1, iterations=100
             )
         elif self.recommender_name == Label.BPR:
             self.recommender = implicit.bpr.BayesianPersonalizedRanking(
-                factors=50, random_state=42, num_threads=1
+                factors=100,
+                random_state=42, num_threads=1
             )
         elif self.recommender_name == Label.LMF:
             self.recommender = implicit.lmf.LogisticMatrixFactorization(
-                factors=50, random_state=42, num_threads=1
+                factors=100, random_state=42, num_threads=1
             )
         else:
             pass

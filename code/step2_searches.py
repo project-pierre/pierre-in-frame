@@ -2,6 +2,7 @@ import itertools
 import logging
 
 from searches.conformity_search import ManualConformityAlgorithmSearch
+from searches.implicit_search import ImplicitGridSearch
 from searches.recommender_search import RecommenderSearch
 from settings.labels import Label
 from settings.path_dir_file import PathDirFile
@@ -145,10 +146,19 @@ class PierreStep2(Step):
         # self.set_the_logfile_step2(dataset=dataset, recommender=recommender)
 
         # Executing the Random Search
-        search_instance = RecommenderSearch(
-            recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-            n_inter=n_inter, n_jobs=n_jobs, n_cv=n_cv
-        )
+
+        if recommender in Label.SURPRISE_RECOMMENDERS:
+            search_instance = RecommenderSearch(
+                recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+                n_inter=n_inter, n_jobs=n_jobs, n_cv=n_cv
+            )
+        elif recommender in Label.IMPLICIT_RECOMMENDERS:
+            search_instance = ImplicitGridSearch(
+                algorithm=recommender, dataset_name=dataset, trial=trial, fold=fold,
+                n_jobs=n_jobs, n_splits=n_cv, n_inter=n_inter
+            )
+        else:
+            exit(0)
         search_instance.fit()
 
         # Finishing the counter
