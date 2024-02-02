@@ -26,11 +26,6 @@ class MovielensTwentyMillion(Dataset):
     # Clean paths.
     dataset_clean_path = "/".join([PathDirFile.CLEAN_DATASETS_DIR, dir_name])
 
-    # Constant Values
-    cut_value = 4
-    item_cut_value = 5
-    profile_len_cut_value = 300
-
     # ######################################### #
     # ############## Constructor ############## #
     # ######################################### #
@@ -40,6 +35,10 @@ class MovielensTwentyMillion(Dataset):
         Class constructor. Firstly call the super constructor and after start personalized things.
         """
         super().__init__()
+        # Constant Values
+        self.cut_value = 4
+        self.item_cut_value = 10
+        self.profile_len_cut_value = 200
 
     # ######################################### #
     # ############# Transactions ############## #
@@ -104,6 +103,8 @@ class MovielensTwentyMillion(Dataset):
             self.transactions[Label.TRANSACTION_VALUE] = np.where(
                 self.transactions[Label.TRANSACTION_VALUE] >= self.cut_value, 1, 0
             )
+
+        self.reset_indexes()
 
         # Save the clean transactions as CSV.
         self.transactions.to_csv(

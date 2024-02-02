@@ -55,12 +55,23 @@ class Dataset:
         self.train_transaction = None
         self.test_transaction = None
 
+        # Domain Variable
+
+        self.cut_value = None
+        self.item_cut_value = None
+        self.profile_len_cut_value = None
+
         # Creating the directory to lead with the clean data.
         self.create_clean_dir()
 
     # ######################################### #
     # ############## Get and Sets ############# #
     # ######################################### #
+
+    def set_experiment_variables(self, cut_value: int, item_cut_value: int, profile_len_cut_value: int):
+        self.cut_value = cut_value
+        self.item_cut_value = item_cut_value
+        self.profile_len_cut_value = profile_len_cut_value
 
     def get_dataset_name(self) -> str:
         return self.system_name
@@ -328,6 +339,22 @@ class Dataset:
         item_counts = transactions[Label.ITEM_ID].value_counts()
         selected_items = [k for k, v in item_counts.items() if v > item_cut_value]
         return transactions[transactions[Label.ITEM_ID].isin(selected_items)].copy()
+
+    def reset_indexes(self):
+        self.items.sort_values(by=[Label.ITEM_ID], inplace=True)
+        translation_index_items = {old_index: new_index for new_index, old_index in
+                                   enumerate(self.items[Label.ITEM_ID].tolist())}
+        self.items[Label.ITEM_ID] = [new_index for new_index, _ in enumerate(self.items[Label.ITEM_ID].tolist())]
+        self.transactions[Label.ITEM_ID] = [translation_index_items[old_index] for old_index in
+                                            self.transactions[Label.ITEM_ID].tolist()]
+
+        self.transactions.sort_values(by=[Label.USER_ID], inplace=True)
+        translation_index_user = {old_index: new_index for new_index, old_index in
+                                  enumerate(self.transactions[Label.USER_ID].unique())}
+        self.transactions[Label.USER_ID] = [translation_index_user[old_index] for old_index in
+                                            self.transactions[Label.USER_ID].tolist()]
+        self.transactions.reset_index(drop=True, inplace=True)
+        self.items.reset_index(drop=True, inplace=True)
 
     # ######################################### #
     # ############# Data Analyze ############## #

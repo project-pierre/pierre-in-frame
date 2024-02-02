@@ -7,7 +7,6 @@ from joblib import Parallel, delayed
 from checkpoint_verification import CheckpointVerification
 from processing.implicit_recommender_algorithms import ImplicitRecommenderAlgorithm
 from processing.surprise_recommender_algorithms import SurpriseRecommenderAlgorithm
-from settings.constants import Constants
 from settings.labels import Label
 from utils.clocker import Clocker
 from utils.logging_settings import setup_logging

@@ -1,6 +1,13 @@
+import itertools
+from collections import Counter
+
+import ast
+
 import numpy as np
 import os
 import pandas as pd
+from numpy import mean
+from numpy.ma import median
 
 from datasets.utils.base import Dataset
 from settings.constants import Constants
@@ -26,11 +33,6 @@ class FoodComRecipe(Dataset):
     # Clean paths.
     dataset_clean_path = "/".join([PathDirFile.CLEAN_DATASETS_DIR, dir_name])
 
-    # Constant Values
-    cut_value = 3
-    item_cut_value = 3
-    profile_len_cut_value = 100
-
     # ######################################### #
     # ############## Constructor ############## #
     # ######################################### #
@@ -40,6 +42,12 @@ class FoodComRecipe(Dataset):
         Class constructor. Firstly call the super constructor and after start personalized things.
         """
         super().__init__()
+        self.translation_index_items = None
+
+        # Constant Values
+        self.cut_value = 3
+        self.item_cut_value = 5
+        self.profile_len_cut_value = 100
 
     # ######################################### #
     # ############# Transactions ############## #
@@ -106,6 +114,7 @@ class FoodComRecipe(Dataset):
                 self.transactions[Label.TRANSACTION_VALUE] >= self.cut_value, 1, 0
             )
 
+        self.reset_indexes()
         # Save the clean transactions as CSV.
         self.transactions.to_csv(
             os.path.join(self.dataset_clean_path, PathDirFile.TRANSACTIONS_FILE),
@@ -140,15 +149,13 @@ class FoodComRecipe(Dataset):
         """
         Cleaning the raw items and save as clean items.
         """
-        def clean_genres(tags: list):
-            return "|".join(tags)
 
         # Load the raw items.
         raw_items_df = self.get_raw_items()
 
         # Clean the items without information and with the label indicating no genre in the item.
         raw_items_df.dropna(inplace=True)
-        raw_items_df[Label.GENRES] = raw_items_df[Label.GENRES].apply(lambda tags: "|".join(tags))
+        raw_items_df[Label.GENRES] = raw_items_df[Label.GENRES].apply(lambda tags: "|".join(ast.literal_eval(tags)))
         genre_clean_items = raw_items_df[raw_items_df[Label.GENRES] != ''].copy()
 
         # Set the new data into the instance.
@@ -161,3 +168,28 @@ class FoodComRecipe(Dataset):
 
         # Save the clean transactions as CSV.
         self.items.to_csv(os.path.join(self.dataset_clean_path, PathDirFile.ITEMS_FILE), index=False)
+
+    def raw_data_basic_info(self):
+        """
+        This method is to print the raw basic information
+        """
+        self.load_raw_items()
+        self.load_raw_transactions()
+
+        total_of_users = len(self.raw_transactions[Label.USER_ID].unique())
+
+        count_user_trans = Counter(self.raw_transactions[Label.USER_ID].tolist())
+        mean_c = round(mean(list(count_user_trans.values())), 3)
+        median_c = round(median(list(count_user_trans.values())), 3)
+
+        total_of_items = len(self.raw_items)
+        total_of_transactions = len(self.raw_transactions)
+        raw_items_df = self.raw_items.copy()
+        raw_items_df[Label.GENRES] = self.raw_items[Label.GENRES].apply(lambda tags: "|".join(ast.literal_eval(tags)))
+
+        total_of_classes = len(
+            set(list(itertools.chain.from_iterable(list(map(Dataset.classes, raw_items_df[Label.GENRES].tolist()))))))
+        return pd.DataFrame(
+            data=[['Raw', total_of_users, total_of_items, total_of_transactions, total_of_classes, mean_c, median_c]],
+            columns=['Dataset', 'Users', 'Items', 'Transactions', 'Classes', "Users_trans_mean", "Users_trans_median"]
+        )

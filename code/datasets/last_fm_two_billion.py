@@ -28,11 +28,6 @@ class LastFMTwoBillion(Dataset):
     # Clean paths.
     dataset_clean_path = "/".join([PathDirFile.CLEAN_DATASETS_DIR, dir_name])
 
-    # Constant Values
-    cut_value = 3
-    item_cut_value = 5
-    profile_len_cut_value = 100
-
     # ######################################### #
     # ############## Constructor ############## #
     # ######################################### #
@@ -43,6 +38,10 @@ class LastFMTwoBillion(Dataset):
         """
         super().__init__()
         self.raw_transactions_events = None
+        # Constant Values
+        self.cut_value = 3
+        self.item_cut_value = 10
+        self.profile_len_cut_value = 100
 
     # ######################################### #
     # ############# Transactions ############## #
@@ -121,6 +120,8 @@ class LastFMTwoBillion(Dataset):
         if Constants.NORMALIZED_SCORE:
             self.transactions[Label.TRANSACTION_VALUE] = np.where(
                 self.transactions[Label.TRANSACTION_VALUE] >= self.cut_value, 1, 0)
+
+        self.reset_indexes()
 
         # Save the clean transactions as CSV.
         self.transactions.to_csv(

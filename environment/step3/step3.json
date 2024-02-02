@@ -1,9 +1,9 @@
 {
   "opt": "RECOMMENDER",
   "n_jobs": 6,
-  "checkpoint": "NO",
-  "dataset": ["ml-20m", "food"],
-  "recommender": ["SVD"],
+  "checkpoint": "YES",
+  "dataset": ["ml-20m", "food", "lfm-2b-subset"],
+  "recommender": ["SVD", "BPR", "ALS"],
   "fold": [1, 2, 3],
   "trial": [1],
   "list_size": 100,

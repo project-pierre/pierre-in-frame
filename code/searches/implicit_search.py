@@ -1,18 +1,16 @@
-import random
-
-from copy import deepcopy
-
-from statistics import mean
-
-import itertools
-
 import implicit
+import itertools
 import pandas as pd
+import random
+import threadpoolctl
 from joblib import Parallel, delayed
+from pprint import pprint
 from scipy import sparse
 from sklearn.model_selection import KFold
+from statistics import mean
 
 from datasets.registred_datasets import RegisteredDataset
+from datasets.utils import split
 from scikit_pierre.metrics.evaluation import mean_average_precision
 from searches.parameters import ImplicitParams
 from settings.labels import Label
@@ -27,6 +25,9 @@ class ImplicitGridSearch:
             dataset_name: str, n_splits: int = 3, trial: int = 1, fold: int = 3,
             n_jobs: int = 1, list_size: int = 10, n_inter: int = 50
     ):
+        global OPENBLAS_NUM_THREADS
+        OPENBLAS_NUM_THREADS = 1
+        threadpoolctl.threadpool_limits(1, "blas")
         self.dataset = RegisteredDataset.load_dataset(dataset_name)
         self.algorithm = algorithm
         self.trial = trial
@@ -87,7 +88,7 @@ class ImplicitGridSearch:
         for train, test in zip(train_list, test_list):
             recommender = implicit.als.AlternatingLeastSquares(
                 factors=factors, regularization=regularization, alpha=alpha, iterations=iterations,
-                random_state=random_state, num_threads=num_threads
+                random_state=random_state, num_threads=1
             )
             rec_lists_df = self.__run__(recommender=recommender, users_preferences=train)
             map_value.append(mean_average_precision(rec_lists_df, test))
@@ -112,7 +113,7 @@ class ImplicitGridSearch:
         for train, test in zip(train_list, test_list):
             recommender = implicit.bpr.BayesianPersonalizedRanking(
                 factors=factors, regularization=regularization, learning_rate=learning_rate, iterations=iterations,
-                random_state=random_state, num_threads=num_threads
+                random_state=random_state, num_threads=1
             )
             rec_lists_df = self.__run__(recommender=recommender, users_preferences=train)
             map_value.append(mean_average_precision(rec_lists_df, test))
@@ -135,14 +136,11 @@ class ImplicitGridSearch:
         train_list = []
         test_list = []
         self.users_preferences = self.dataset.get_train_transactions(fold=self.fold, trial=self.trial)
-        cv_folds = KFold(
-            n_splits=self.n_splits, random_state=42 * self.trial * self.fold, shuffle=True
-        ).split(self.users_preferences)
-        i = 0
+        cv_folds = split.split_with_joblib(transactions_df=self.users_preferences, trial=1, n_folds=self.n_splits)
+
         for train, test in cv_folds:
-            train_list.append(self.users_preferences.iloc[train].copy())
-            test_list.append(self.users_preferences.iloc[test].copy())
-            i += 1
+            train_list.append(train)
+            test_list.append(test)
 
         output = []
         if self.algorithm == Label.ALS:
@@ -157,7 +155,7 @@ class ImplicitGridSearch:
             output = Parallel(n_jobs=self.n_jobs)(
                 delayed(self.fit_als)(
                     factors=factors, regularization=regularization, alpha=alpha, iterations=iterations,
-                    random_state=random_state, num_threads=num_threads, train_list=train_list, test_list=train_list
+                    random_state=random_state, num_threads=num_threads, train_list=train_list, test_list=test_list
                 ) for factors, regularization, alpha, iterations, random_state, num_threads in params_to_use
             )
             # for factors, regularization, alpha, iterations, random_state, num_threads in list(
@@ -180,7 +178,7 @@ class ImplicitGridSearch:
             output = Parallel(n_jobs=self.n_jobs)(
                 delayed(self.fit_bpr)(
                     factors=factors, regularization=regularization, learning_rate=learning_rate, iterations=iterations,
-                    random_state=random_state, num_threads=num_threads, train_list=train_list, test_list=train_list
+                    random_state=random_state, num_threads=num_threads, train_list=train_list, test_list=test_list
                 ) for factors, regularization, learning_rate, iterations, random_state, num_threads in params_to_use
             )
             # for factors, regularization, learning_rate, iterations, random_state, num_threads in list(
@@ -195,10 +193,11 @@ class ImplicitGridSearch:
         else:
             pass
         best_params = {
-            "map": 0
+            "map": 0.0
         }
+        pprint(output)
         for item in output:
-            if best_params["map"] < item["map"]:
+            if float(best_params["map"]) < float(item["map"]):
                 best_params = item
         # Saving
         SaveAndLoad.save_hyperparameters_recommender(

@@ -16,7 +16,7 @@ class ImplicitRecommenderAlgorithm:
     Class to lead with the surprise recommender algorithms, generating the recommendation and saving in the results path
     """
 
-    def __init__(self, recommender_name: str, dataset_name: str, fold: int, trial: int, list_size: int):
+    def __init__(self, recommender_name: str, dataset_name: str, fold: int, trial: int, list_size: int, metric: str = "map"):
         """
         Class constructor.
 
@@ -34,25 +34,24 @@ class ImplicitRecommenderAlgorithm:
         self.list_size = list_size
 
         # Load the surprise recommender algorithm
-        # full_params = SaveAndLoad.load_hyperparameters_recommender(
-        #     dataset=self.dataset.system_name, algorithm=self.recommender_name,
-        #     trial=self.trial, fold=self.fold
-        # )
-        # params = full_params[metric]
+        full_params = SaveAndLoad.load_hyperparameters_recommender(
+            dataset=self.dataset.system_name, algorithm=self.recommender_name,
+            trial=self.trial, fold=self.fold
+        )
         if self.recommender_name == Label.ALS:
             self.recommender = implicit.als.AlternatingLeastSquares(
-                factors=100, regularization=0.003, alpha=0.1,
-                random_state=42, num_threads=1, iterations=100
+                factors=int(full_params["params"]["factors"]), regularization=float(full_params["params"]["regularization"]),
+                alpha=float(full_params["params"]["alpha"]), iterations=int(full_params["params"]["iterations"]),
+                random_state=int(full_params["params"]["random_state"]), num_threads=1
             )
         elif self.recommender_name == Label.BPR:
             self.recommender = implicit.bpr.BayesianPersonalizedRanking(
-                factors=100,
-                random_state=42, num_threads=1
+                factors=full_params["params"]["factors"], regularization=full_params["params"]["regularization"],
+                learning_rate=full_params["params"]["learning_rate"], iterations=full_params["params"]["iterations"],
+                random_state=full_params["params"]["random_state"], num_threads=1
             )
         elif self.recommender_name == Label.LMF:
-            self.recommender = implicit.lmf.LogisticMatrixFactorization(
-                factors=100, random_state=42, num_threads=1
-            )
+            pass
         else:
             pass
 

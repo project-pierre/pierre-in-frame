@@ -69,7 +69,10 @@ class PierreStep1(Step):
         RegisteredDataset.preprocessing(
             dataset=self.experimental_settings['dataset'],
             n_trials=self.experimental_settings['n_trials'],
-            n_folds=self.experimental_settings['n_folds']
+            n_folds=self.experimental_settings['n_folds'],
+            cut_value=self.experimental_settings['cut_value'],
+            item_cut_value=self.experimental_settings['item_cut_value'],
+            profile_len_cut_value=self.experimental_settings['profile_len_cut_value']
         )
 
         # Finishing the counter
