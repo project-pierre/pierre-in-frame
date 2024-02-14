@@ -7,8 +7,8 @@
   "fold": [1, 2, 3],
   "trial": [1],
   "tradeoff": ["LIN"],
-  "fairness": ["VICIS_EMANON2"],
-  "relevance": ["NDCG"],
+  "fairness": ["KL"],
+  "relevance": ["SUM"],
   "weight": [
     "C@0.0", "C@0.1", "C@0.2", "C@0.3", "C@0.4", "C@0.5",
     "C@0.6", "C@0.7", "C@0.8", "C@0.9", "C@1.0"

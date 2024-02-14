@@ -2,7 +2,7 @@
   "multiprocessing": "joblib",
   "n_jobs": 7,
   "checkpoint": "YES",
-  "dataset": ["ml-20m"],
+  "dataset": ["ml-1m"],
   "recommender": ["SVD", "BPR", "ALS"],
   "fold": [1, 2, 3],
   "trial": [1],

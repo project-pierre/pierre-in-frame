@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import itertools
 from collections import Counter
 
@@ -45,7 +47,7 @@ class FoodComRecipe(Dataset):
         self.translation_index_items = None
 
         # Constant Values
-        self.cut_value = 3
+        self.cut_value = 4
         self.item_cut_value = 5
         self.profile_len_cut_value = 100
 
@@ -115,6 +117,7 @@ class FoodComRecipe(Dataset):
             )
 
         self.reset_indexes()
+        self.transactions[Label.TIME] = self.transactions[Label.TIME].apply(lambda dtimestamp: int(round(datetime.strptime(dtimestamp, '%Y-%m-%d').timestamp())))
         # Save the clean transactions as CSV.
         self.transactions.to_csv(
             os.path.join(self.dataset_clean_path, PathDirFile.TRANSACTIONS_FILE),

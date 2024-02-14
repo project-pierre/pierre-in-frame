@@ -56,15 +56,8 @@ def compute_kfold(
         delayed(user_split_in_kfolds)(transactions, trial, n_folds)
         for user_id, transactions in grouped_transactions
     )
-    out = Parallel(n_jobs=n_jobs, verbose=10, batch_size=128, require='sharedmem')(delayed_list)
 
-    # delayed_concat = (
-    #     delayed(concat_folds)(train_df, test_df)
-    #     for train_df, test_df in zip(global_train, global_test)
-    # )
-    # resp = list(Parallel(
-    #     n_jobs=n_jobs, verbose=10, batch_size=64, prefer='processes', backend='multiprocessing'
-    # )(delayed_concat))
+    Parallel(n_jobs=n_jobs, verbose=10, batch_size=128, require='sharedmem')(delayed_list)
 
     resp = []
     for train_df, test_df in zip(global_train, global_test):
@@ -73,6 +66,29 @@ def compute_kfold(
 
 
 def split_with_joblib(
+        transactions_df: pd.DataFrame, trial: int = Constants.N_TRIAL_VALUE, n_folds: int = Constants.K_FOLDS_VALUE
+) -> list:
+    """
+    Prepare the users to be processed in parallel with the joblib.
+    :param transactions_df: A Pandas DataFrame with user transactions.
+    :param trial: An int that represents a number of the experimental trial.
+    :param n_folds: An int representing a number of the k folds.
+    :return: A list composed of the fold in positions, each fold position has [0] as the k fold train transactions and [1] as the k fold test transactions.
+    """
+    global global_train
+    global global_test
+
+    global_train = [[] for _ in range(n_folds)]
+    global_test = [[] for _ in range(n_folds)]
+
+    resp = compute_kfold(transactions_df=transactions_df, trial=trial, n_folds=n_folds)
+
+    return resp
+
+
+# ############################################################################################### #
+
+def split_base_on_time(
         transactions_df: pd.DataFrame, trial: int = Constants.N_TRIAL_VALUE, n_folds: int = Constants.K_FOLDS_VALUE
 ) -> list:
     """

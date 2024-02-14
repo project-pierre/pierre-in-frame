@@ -1,9 +1,10 @@
 {
   "opt": "SPLIT",
+  "based_on": "TIMESTAMP",
   "dataset": "lfm-2b-subset",
   "n_folds": 3,
   "n_trials": 1,
   "cut_value": 3,
-  "item_cut_value": 10,
-  "profile_len_cut_value": 100
+  "item_cut_value": 1,
+  "profile_len_cut_value": 10
 }

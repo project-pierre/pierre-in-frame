@@ -72,7 +72,8 @@ class PierreStep1(Step):
             n_folds=self.experimental_settings['n_folds'],
             cut_value=self.experimental_settings['cut_value'],
             item_cut_value=self.experimental_settings['item_cut_value'],
-            profile_len_cut_value=self.experimental_settings['profile_len_cut_value']
+            profile_len_cut_value=self.experimental_settings['profile_len_cut_value'],
+            based_on=self.experimental_settings['based_on']
         )
 
         # Finishing the counter

@@ -28,9 +28,6 @@ class MovielensOneMillion(Dataset):
     dataset_clean_path = "/".join([PathDirFile.CLEAN_DATASETS_DIR, dir_name])
 
     # Constant Values
-    cut_value = 4
-    item_cut_value = 5
-    profile_len_cut_value = 100
 
     # ######################################### #
     # ############## Constructor ############## #
@@ -41,6 +38,9 @@ class MovielensOneMillion(Dataset):
         Class constructor. Firstly call the super constructor and after start personalized things.
         """
         super().__init__()
+        self.cut_value = 4
+        self.item_cut_value = 5
+        self.profile_len_cut_value = 100
 
     # ######################################### #
     # ############# Transactions ############## #

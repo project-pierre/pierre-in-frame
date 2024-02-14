@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import json
 import numpy as np
 import os
@@ -122,6 +124,9 @@ class LastFMTwoBillion(Dataset):
                 self.transactions[Label.TRANSACTION_VALUE] >= self.cut_value, 1, 0)
 
         self.reset_indexes()
+        self.transactions[Label.TIME] = self.transactions[Label.TIME].apply(
+            lambda dtimestamp: int(round(datetime.strptime(dtimestamp, '%Y-%m-%d %H:%M:%S').timestamp()))
+        )
 
         # Save the clean transactions as CSV.
         self.transactions.to_csv(

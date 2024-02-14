@@ -6,7 +6,7 @@ import logging
 import os
 
 import pandas as pd
-from numpy import mean
+from numpy import mean, array_split
 
 from datasets.utils import split
 from settings.constants import Constants
@@ -311,6 +311,77 @@ class Dataset:
                 if 'index' in test_df.columns.tolist():
                     test_df.drop(columns=['index'], inplace=True)
                 test_df.to_csv(test_path, index=False)
+
+    def mining_data_and_create_fold_based_on_time(
+            self, n_trials: int = Constants.N_TRIAL_VALUE, n_folds: int = Constants.K_FOLDS_VALUE
+    ):
+        """
+        The raw dataset is preprocessed and the clean dataset produce n_trials with n_folds.
+
+        :param n_trials: An int that represents a number of experimental trials to create.
+        :param n_folds: An int that represents a number of the k folds.
+        """
+        # Clean and filter the data
+        self.clean_data()
+        # Creating Folds
+        self.create_folds_based_on_time(n_trials=n_trials, n_folds=n_folds)
+
+    def create_folds_based_on_time(
+            self, n_trials: int = Constants.N_TRIAL_VALUE, n_folds: int = Constants.K_FOLDS_VALUE
+    ) -> None:
+        """
+        Create all folds to be used by the system.
+        The clean dataset produce n_trials with n_folds.
+
+        :param n_trials: An int that represents a number of experimental trials to create.
+        :param n_folds: An int that represents a number of the k folds.
+        """
+        self.transactions.sort_values(by=[Label.TIME], inplace=True)
+        split_list = array_split(self.transactions, n_folds)
+
+        train_list = []
+        test_filter_df = None
+        for ix, fold in enumerate(split_list):
+            if ix == n_folds - 1:
+                test_filter_df = pd.DataFrame(fold)
+            else:
+                train_list.append(pd.DataFrame(fold))
+        train_df = pd.concat(train_list)
+
+        item_cut_value = self.cut_value
+
+        if Constants.NORMALIZED_SCORE:
+            item_cut_value = 1
+        test_df = self.cut_users(
+            transactions=test_filter_df, item_cut_value=item_cut_value,
+            profile_len_cut_value=self.profile_len_cut_value
+        )
+
+        train_df = train_df[
+            train_df[Label.USER_ID].isin(test_df[Label.USER_ID].unique().tolist())
+        ]
+
+        logger.info("+ + Preparing fold: " + str(n_folds))
+        fold_dir = "/".join([self.dataset_clean_path, "trial-" + str(1), "fold-" + str(1)])
+        if not os.path.exists(fold_dir):
+            os.makedirs(fold_dir)
+
+        train_path = os.path.join(fold_dir, PathDirFile.TRAIN_FILE)
+        if 'index' in train_df.columns.tolist():
+            train_df.drop(columns=['index'], inplace=True)
+        train_df.to_csv(train_path, index=False)
+
+        test_path = os.path.join(fold_dir, PathDirFile.TEST_FILE)
+        if 'index' in test_df.columns.tolist():
+            test_df.drop(columns=['index'], inplace=True)
+        test_df.to_csv(test_path, index=False)
+
+        transactions = pd.concat([train_df, test_df])
+
+        transactions.to_csv(
+            str(os.path.join(self.dataset_clean_path, PathDirFile.TRANSACTIONS_FILE)),
+            index=False
+        )
 
     @staticmethod
     def cut_users(

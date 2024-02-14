@@ -1,5 +1,3 @@
-from collections import Counter
-
 import itertools
 import logging
 import multiprocessing
@@ -21,7 +19,7 @@ def starting_postprocessing(
         recommender: str, fold: int, trial: int, dataset: str,
         tradeoff: str, distribution: str, calibration: str, relevance: str,
         weight: str, selector: str, list_size: int, alpha: int, d: int, checkpoint: str
-) -> str:
+) -> None:
     """
     TODO: Docstring
     """
@@ -41,41 +39,40 @@ def starting_postprocessing(
             relevance=relevance, tradeoff_weight=weight, select_item=selector
     ):
         logger.info(">> Already Done... " + system_name)
-        return "Already Done"
-    try:
-        clock = Clocker()
-        # Starting the counter
-        clock.start_count()
+    else:
+        try:
+            clock = Clocker()
 
-        # Instancing the post-processing
-        pierre = PostProcessingStep(
-            recommender=recommender, dataset_name=dataset, trial=trial, fold=fold,
-            tradeoff_component=tradeoff, distribution_component=distribution,
-            fairness_component=calibration, relevance_component=relevance,
-            tradeoff_weight_component=weight, selector_component=selector,
-            list_size=list_size, alpha=alpha, d=d
-        )
-        logger.info(">> Running... " + system_name)
-        pierre.run()
+            # Starting the counter
+            clock.start_count()
 
-        # Finishing the counter
-        clock.finish_count()
+            # Instancing the post-processing
+            pierre = PostProcessingStep(
+                recommender=recommender, dataset_name=dataset, trial=trial, fold=fold,
+                tradeoff_component=tradeoff, distribution_component=distribution,
+                fairness_component=calibration, relevance_component=relevance,
+                tradeoff_weight_component=weight, selector_component=selector,
+                list_size=list_size, alpha=alpha, d=d
+            )
+            logger.info(">> Running... " + system_name)
+            pierre.run()
 
-        # Saving execution time
-        SaveAndLoad.save_postprocessing_time(
-            data=clock.clock_data(),
-            dataset=dataset, trial=trial, fold=fold, recommender=recommender,
-            tradeoff=tradeoff, distribution=distribution, fairness=calibration,
-            relevance=relevance, tradeoff_weight=weight, select_item=selector
-        )
+            # Finishing the counter
+            clock.finish_count()
 
-        # Finishing the step
-        clock.print_time_info()
-        return "Finished"
-    except Exception as e:
-        logger.error(">> Error... " + system_name)
-        logger.exception(e)
-        return "Error"
+            # Saving execution time
+            SaveAndLoad.save_postprocessing_time(
+                data=clock.clock_data(),
+                dataset=dataset, trial=trial, fold=fold, recommender=recommender,
+                tradeoff=tradeoff, distribution=distribution, fairness=calibration,
+                relevance=relevance, tradeoff_weight=weight, select_item=selector
+            )
+
+            # Finishing the step
+            clock.print_time_info()
+        except Exception as e:
+            logger.error(">> Error... " + system_name)
+            logger.exception(e)
 
 
 class PierreStep4(Step):
@@ -115,6 +112,7 @@ class PierreStep4(Step):
 
         logger.info("$" * 50)
         logger.info("$" * 50)
+
         # Logging machine data
         self.machine_information()
         logger.info("-" * 50)
@@ -136,8 +134,11 @@ class PierreStep4(Step):
             self.experimental_settings['fold'], self.experimental_settings['trial'],
         ]
 
+        system_combination = list(itertools.product(*combination))
+        print("The total of process is: " + str(len(system_combination)))
+
         if self.experimental_settings['multiprocessing'] == "joblib":
-            load = Parallel(
+            Parallel(
                 n_jobs=self.experimental_settings['n_jobs'], verbose=10, batch_size=1,
                 backend="multiprocessing", prefer="processes"
             )(
@@ -148,26 +149,22 @@ class PierreStep4(Step):
                     list_size=list_size, alpha=alpha, d=d, checkpoint=checkpoint
                 ) for
                 recommender, tradeoff, relevance, distribution, selector, weight, calibration, list_size, alpha, d, checkpoint, dataset, fold, trial
-                in list(itertools.product(*combination))
+                in system_combination
             )
         elif self.experimental_settings['multiprocessing'] == "starmap":
             process_args = []
-            for recommender, tradeoff, relevance, distribution, selector, weight, calibration, list_size, alpha, d, checkpoint, dataset, fold, trial in list(
-                    itertools.product(*combination)):
+            for recommender, tradeoff, relevance, distribution, selector, weight, calibration, list_size, alpha, d, checkpoint, dataset, fold, trial in system_combination:
                 process_args.append((
                     recommender, fold, trial, dataset, tradeoff, distribution, calibration, relevance, weight, selector,
                     list_size, alpha, d, checkpoint))
             pool = multiprocessing.Pool(processes=self.experimental_settings["n_jobs"])
-            load = pool.starmap(starting_postprocessing, process_args)
+            pool.starmap(starting_postprocessing, process_args)
             pool.close()
             pool.join()
         else:
             logger.warning(
                 f"The multiprocessing option {self.experimental_settings['multiprocessing']} does not exist! Please check for a possible option.")
             exit(1)
-
-        jobs = dict(Counter(load))
-        logger.info(jobs)
 
 
 if __name__ == '__main__':

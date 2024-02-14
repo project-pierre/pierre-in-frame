@@ -1,6 +1,10 @@
 {
   "opt": "SPLIT",
+  "based_on": "TIMESTAMP",
   "dataset": "ml-1m",
   "n_folds": 3,
-  "n_trials": 1
+  "n_trials": 1,
+  "cut_value": 4,
+  "item_cut_value": 5,
+  "profile_len_cut_value": 100
 }

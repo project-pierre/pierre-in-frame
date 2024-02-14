@@ -109,6 +109,9 @@ class PierreStep2(Step):
             self.experimental_settings['trial'], self.experimental_settings['fold']
         ]
 
+        system_combination = list(itertools.product(*combination))
+        print("The total of process is: " + str(len(system_combination)))
+
         starmap_params = [
             (
                 recommender, dataset, trial, fold,
@@ -116,20 +119,13 @@ class PierreStep2(Step):
                 self.experimental_settings['n_jobs'],
                 self.experimental_settings['n_cv']
             )
-            for recommender, dataset, trial, fold in list(itertools.product(*combination))
+            for recommender, dataset, trial, fold in system_combination
         ]
 
-        output = list(itertools.starmap(
+        list(itertools.starmap(
             PierreStep2.starting_recommender_search,
             starmap_params
         ))
-
-        # for recommender, dataset, trial, fold in list(itertools.product(*combination)):
-        #     self.starting_recommender_search(
-        #         recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-        #         n_inter=self.experimental_settings['n_inter'], n_jobs=self.experimental_settings['n_jobs'],
-        #         n_cv=self.experimental_settings['n_cv']
-        #     )
 
     @staticmethod
     def starting_recommender_search(

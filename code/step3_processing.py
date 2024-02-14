@@ -18,6 +18,66 @@ from utils.step import Step
 logger = logging.getLogger(__name__)
 
 
+def starting_recommender(dataset: str, recommender: str, trial: int, fold: int, checkpoint: str, metric: str, list_size: int) -> None:
+    """
+    Function to starting the recommender algorithm.
+
+    :param dataset: A string that's representing the dataset name.
+    :param recommender: A string that's representing the recommender algorithm name.
+    :param trial: The trial number.
+    :param fold: The fold number.
+    :param checkpoint: TODO
+    :param metric: TODO
+    :param list_size: TODO
+    """
+
+    system_name = "-".join([
+        dataset, 'trial-' + str(trial), 'fold-' + str(fold), recommender
+    ])
+
+    if checkpoint == "YES" and CheckpointVerification.unit_step3_verification(
+            dataset=dataset, trial=trial, fold=fold, recommender=recommender
+    ):
+        logger.info(">> Already Done... " + system_name)
+    else:
+        try:
+            clock = Clocker()
+
+            # Starting the counter
+            clock.start_count()
+
+            if recommender in Label.SURPRISE_RECOMMENDERS:
+                # Executing the processing step
+                recommender_algorithm = SurpriseRecommenderAlgorithm(
+                    dataset_name=dataset, trial=trial, fold=fold, recommender_name=recommender,
+                    metric=metric,
+                    list_size=list_size
+                )
+                recommender_algorithm.run()
+            elif recommender in Label.IMPLICIT_RECOMMENDERS:
+                recommender_algorithm = ImplicitRecommenderAlgorithm(
+                    dataset_name=dataset, trial=trial, fold=fold, recommender_name=recommender,
+                    list_size=list_size
+                )
+                recommender_algorithm.run()
+            else:
+                pass
+
+            # Finishing the counter
+            clock.finish_count()
+
+            # Saving execution time
+            SaveAndLoad.save_processing_time(
+                data=clock.clock_data(),
+                dataset=dataset, trial=trial, fold=fold, algorithm=recommender
+            )
+            # Finishing the step
+            clock.print_time_info()
+        except Exception as e:
+            logger.error(">> Error... " + system_name)
+            logger.exception(e)
+
+
 class PierreStep3(Step):
     """
     This class is administrating the Step 3 of the framework (Processing)
@@ -77,78 +137,24 @@ class PierreStep3(Step):
         """
         combination = [
             self.experimental_settings['recommender'], self.experimental_settings['dataset'],
-            self.experimental_settings['fold'], self.experimental_settings['trial']
+            self.experimental_settings['fold'], self.experimental_settings['trial'],
+            [self.experimental_settings['checkpoint']], [self.experimental_settings['metric']],
+            [self.experimental_settings['list_size']]
         ]
+
+        system_combination = list(itertools.product(*combination))
+        print("The total of process is: " + str(len(system_combination)))
 
         # Starting the recommender algorithm
         Parallel(n_jobs=self.experimental_settings['n_jobs'])(
-            delayed(self.starting_recommender)(
-                recommender=recommender, dataset=dataset, trial=trial, fold=fold
-            ) for recommender, dataset, fold, trial in list(itertools.product(*combination))
+            delayed(starting_recommender)(
+                recommender=recommender, dataset=dataset, trial=trial, fold=fold, checkpoint=checkpoint,
+                metric=metric, list_size=list_size
+            ) for recommender, dataset, fold, trial, checkpoint, metric, list_size in system_combination
         )
 
         # Finishing the Step
         logger.info(" ".join(['+' * 10, 'System shutdown', '+' * 10]))
-
-    def starting_recommender(self, dataset: str, recommender: str, trial: int, fold: int) -> str:
-        """
-        Function to starting the recommender algorithm.
-
-        :param dataset: A string that's representing the dataset name.
-        :param recommender: A string that's representing the recommender algorithm name.
-        :param trial: The trial number.
-        :param fold: The fold number.
-        """
-        self.set_the_logfile_by_instance(
-            dataset=dataset, trial=trial, fold=fold, algorithm=recommender
-        )
-        self.print_basic_info_by_instance(
-            dataset=dataset, trial=trial, fold=fold, algorithm=recommender
-        )
-
-        system_name = "-".join([
-            dataset, 'trial-' + str(trial), 'fold-' + str(fold), recommender
-        ])
-
-        if self.experimental_settings['checkpoint'] == "YES" and CheckpointVerification.unit_step3_verification(
-                dataset=dataset, trial=trial, fold=fold, recommender=recommender
-        ):
-            logger.info(">> Already Done... " + system_name)
-            return "Already Done"
-
-        clock = Clocker()
-
-        # Starting the counter
-        clock.start_count()
-
-        if recommender in Label.SURPRISE_RECOMMENDERS:
-            # Executing the processing step
-            recommender_algorithm = SurpriseRecommenderAlgorithm(
-                dataset_name=dataset, trial=trial, fold=fold, recommender_name=recommender,
-                metric=self.experimental_settings['metric'],
-                list_size=self.experimental_settings['list_size']
-            )
-            recommender_algorithm.run()
-        elif recommender in Label.IMPLICIT_RECOMMENDERS:
-            recommender_algorithm = ImplicitRecommenderAlgorithm(
-                dataset_name=dataset, trial=trial, fold=fold, recommender_name=recommender,
-                list_size=self.experimental_settings['list_size']
-            )
-            recommender_algorithm.run()
-        else:
-            pass
-
-        # Finishing the counter
-        clock.finish_count()
-
-        # Saving execution time
-        SaveAndLoad.save_processing_time(
-            data=clock.clock_data(),
-            dataset=dataset, trial=trial, fold=fold, algorithm=recommender
-        )
-        # Finishing the step
-        clock.print_time_info()
-        return "Finished"
 
 
 if __name__ == '__main__':
