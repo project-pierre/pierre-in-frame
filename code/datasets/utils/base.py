@@ -9,6 +9,7 @@ import pandas as pd
 from numpy import mean, array_split
 
 from datasets.utils import split
+from datasets.utils.split import SequentialTimeSplit
 from settings.constants import Constants
 from settings.labels import Label
 from settings.path_dir_file import PathDirFile
@@ -60,6 +61,7 @@ class Dataset:
         self.cut_value = None
         self.item_cut_value = None
         self.profile_len_cut_value = None
+        self.test_len_cut_value = None
 
         # Creating the directory to lead with the clean data.
         self.create_clean_dir()
@@ -68,10 +70,14 @@ class Dataset:
     # ############## Get and Sets ############# #
     # ######################################### #
 
-    def set_experiment_variables(self, cut_value: int, item_cut_value: int, profile_len_cut_value: int):
+    def set_experiment_variables(
+            self, cut_value: int, item_cut_value: int,
+            profile_len_cut_value: int, test_len_cut_value: int
+    ):
         self.cut_value = cut_value
         self.item_cut_value = item_cut_value
         self.profile_len_cut_value = profile_len_cut_value
+        self.test_len_cut_value = test_len_cut_value
 
     def get_dataset_name(self) -> str:
         return self.system_name
@@ -337,24 +343,18 @@ class Dataset:
         :param n_folds: An int that represents a number of the k folds.
         """
         self.transactions.sort_values(by=[Label.TIME], inplace=True)
-        split_list = array_split(self.transactions, n_folds)
 
-        train_list = []
-        test_filter_df = None
-        for ix, fold in enumerate(split_list):
-            if ix == n_folds - 1:
-                test_filter_df = pd.DataFrame(fold)
-            else:
-                train_list.append(pd.DataFrame(fold))
-        train_df = pd.concat(train_list)
+        instance = SequentialTimeSplit(transactions_df=self.transactions, n_folds=n_folds)
+        train_df, test_df = instance.main()
 
         item_cut_value = self.cut_value
 
         if Constants.NORMALIZED_SCORE:
             item_cut_value = 1
+
         test_df = self.cut_users(
-            transactions=test_filter_df, item_cut_value=item_cut_value,
-            profile_len_cut_value=self.profile_len_cut_value
+            transactions=test_df, item_cut_value=item_cut_value,
+            profile_len_cut_value=self.test_len_cut_value
         )
 
         train_df = train_df[
@@ -451,15 +451,17 @@ class Dataset:
 
         count_user_trans = Counter(self.raw_transactions[Label.USER_ID].tolist())
         mean_c = round(mean(list(count_user_trans.values())), 3)
-        median_c = round(median(list(count_user_trans.values())), 3)
+        median_c = median(list(count_user_trans.values()))
+        min_c = min(list(count_user_trans.values()))
+        max_c = max(list(count_user_trans.values()))
 
         total_of_items = len(self.raw_items)
         total_of_transactions = len(self.raw_transactions)
         total_of_classes = len(
             set(list(itertools.chain.from_iterable(list(map(Dataset.classes, self.raw_items[Label.GENRES].tolist()))))))
         return pd.DataFrame(
-            data=[['Raw', total_of_users, total_of_items, total_of_transactions, total_of_classes, mean_c, median_c]],
-            columns=['Dataset', 'Users', 'Items', 'Transactions', 'Classes', "Users_trans_mean", "Users_trans_median"]
+            data=[['Raw', total_of_users, total_of_items, total_of_transactions, total_of_classes, mean_c, median_c, min_c, max_c]],
+            columns=['Dataset', 'Users', 'Items', 'Transactions', 'Classes', "Users_trans_mean", "Users_trans_median", "Minimum", "Maximum"]
         )
 
     def clean_data_basic_info(self):
@@ -472,7 +474,9 @@ class Dataset:
 
         count_user_trans = Counter(self.transactions[Label.USER_ID].tolist())
         mean_c = round(mean(list(count_user_trans.values())), 3)
-        median_c = round(median(list(count_user_trans.values())), 3)
+        median_c = median(list(count_user_trans.values()))
+        min_c = min(list(count_user_trans.values()))
+        max_c = max(list(count_user_trans.values()))
 
         count_plays = self.transactions[Label.TRANSACTION_VALUE].tolist()
         mean_count_plays = round(mean(count_plays), 3)
@@ -486,10 +490,10 @@ class Dataset:
         return pd.DataFrame(
             data=[[
                 'Clean', total_of_users, total_of_items, total_of_transactions, total_of_classes,
-                mean_c, median_c, mean_count_plays, median_count_plays
+                mean_c, median_c, mean_count_plays, median_count_plays, min_c, max_c
             ]],
             columns=[
                 'Dataset', 'Users', 'Items', 'Transactions', 'Classes',
-                "Users_trans_mean", "Users_trans_median", "mean_count_plays", "median_count_plays"
+                "Users_trans_mean", "Users_trans_median", "mean_count_plays", "median_count_plays", "Minimum", "Maximum"
             ]
         )

@@ -6,11 +6,11 @@ import threadpoolctl
 from joblib import Parallel, delayed
 from pprint import pprint
 from scipy import sparse
-from sklearn.model_selection import KFold
 from statistics import mean
 
 from datasets.registred_datasets import RegisteredDataset
 from datasets.utils import split
+from datasets.utils.split import SequentialTimeSplit
 from scikit_pierre.metrics.evaluation import mean_average_precision
 from searches.parameters import ImplicitParams
 from settings.labels import Label
@@ -23,7 +23,8 @@ class ImplicitGridSearch:
             self,
             algorithm: str,
             dataset_name: str, n_splits: int = 3, trial: int = 1, fold: int = 3,
-            n_jobs: int = 1, list_size: int = 10, n_inter: int = 50
+            n_jobs: int = 1, list_size: int = 10, n_inter: int = 50,
+            based_on: str = "RANDOM"
     ):
         global OPENBLAS_NUM_THREADS
         OPENBLAS_NUM_THREADS = 1
@@ -37,6 +38,7 @@ class ImplicitGridSearch:
         self.n_jobs = n_jobs
         self.list_size = list_size
         self.users_preferences = None
+        self.based_on = based_on
 
     def __predict(self, user_preferences: pd.DataFrame, user_id, recommender) -> pd.DataFrame:
         """
@@ -133,14 +135,23 @@ class ImplicitGridSearch:
         """
         TODO: Docstring
         """
+        print(self.algorithm)
+        print(self.dataset.system_name)
         train_list = []
         test_list = []
         self.users_preferences = self.dataset.get_train_transactions(fold=self.fold, trial=self.trial)
-        cv_folds = split.split_with_joblib(transactions_df=self.users_preferences, trial=1, n_folds=self.n_splits)
+        if self.based_on == Label.TIME:
+            cv_folds = []
+            instance = SequentialTimeSplit(transactions_df=self.users_preferences, n_folds=self.n_splits)
+            train_df, test_df = instance.main()
+            train_list.append(train_df)
+            test_list.append(test_df)
+        else:
+            cv_folds = split.split_with_joblib(transactions_df=self.users_preferences, trial=1, n_folds=self.n_splits)
 
-        for train, test in cv_folds:
-            train_list.append(train)
-            test_list.append(test)
+            for train, test in cv_folds:
+                train_list.append(train)
+                test_list.append(test)
 
         output = []
         if self.algorithm == Label.ALS:
@@ -158,13 +169,6 @@ class ImplicitGridSearch:
                     random_state=random_state, num_threads=num_threads, train_list=train_list, test_list=test_list
                 ) for factors, regularization, alpha, iterations, random_state, num_threads in params_to_use
             )
-            # for factors, regularization, alpha, iterations, random_state, num_threads in list(
-            #         itertools.product(*combination)):
-            #     output.append(self.fit_als(
-            #             factors=factors, regularization=regularization, alpha=alpha, iterations=iterations,
-            #             random_state=random_state, num_threads=num_threads, train_list=train_list, test_list=train_list
-            #         )
-            #     )
         elif self.algorithm == Label.BPR:
             param_distributions = ImplicitParams.BPR_PARAMS
             combination = [
@@ -181,13 +185,6 @@ class ImplicitGridSearch:
                     random_state=random_state, num_threads=num_threads, train_list=train_list, test_list=test_list
                 ) for factors, regularization, learning_rate, iterations, random_state, num_threads in params_to_use
             )
-            # for factors, regularization, learning_rate, iterations, random_state, num_threads in list(
-            #         itertools.product(*combination)):
-            #     output.append(self.fit_bpr(
-            #             factors=factors, regularization=regularization, learning_rate=learning_rate, iterations=iterations,
-            #             random_state=random_state, num_threads=num_threads, train_list=train_list, test_list=train_list
-            #         )
-            #     )
         elif self.algorithm == Label.LMF:
             pass
         else:
@@ -195,10 +192,10 @@ class ImplicitGridSearch:
         best_params = {
             "map": 0.0
         }
-        pprint(output)
         for item in output:
             if float(best_params["map"]) < float(item["map"]):
                 best_params = item
+        pprint(best_params)
         # Saving
         SaveAndLoad.save_hyperparameters_recommender(
             best_params=best_params, dataset=self.dataset.system_name, algorithm=self.algorithm,

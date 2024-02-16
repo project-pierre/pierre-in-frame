@@ -73,6 +73,7 @@ class PierreStep1(Step):
             cut_value=self.experimental_settings['cut_value'],
             item_cut_value=self.experimental_settings['item_cut_value'],
             profile_len_cut_value=self.experimental_settings['profile_len_cut_value'],
+            test_len_cut_value=self.experimental_settings['test_len_cut_value'],
             based_on=self.experimental_settings['based_on']
         )
 
@@ -132,11 +133,12 @@ class PierreStep1(Step):
         ]
 
         # Start the processes in parallel using joblib
-        load = Parallel(n_jobs=self.experimental_settings['n_jobs'])(
+        Parallel(n_jobs=self.experimental_settings['n_jobs'])(
             delayed(self.compute_distribution)(
                 dataset=dataset, trial=trial, fold=fold, distribution=distribution
             ) for dataset, trial, fold, distribution
-            in list(itertools.product(*combination)))
+            in list(itertools.product(*combination))
+        )
 
     @staticmethod
     def compute_distribution(dataset: str, trial: int, fold: int, distribution: str) -> None:

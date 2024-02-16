@@ -73,7 +73,7 @@ class RegisteredDataset:
     def preprocessing(
             dataset: str, n_trials: int, n_folds: int,
             cut_value: int, item_cut_value: int, profile_len_cut_value: int,
-            based_on: str
+            based_on: str, test_len_cut_value: int
     ):
         """
         Preprocessing the requested dataset, if the dataset is registered.
@@ -84,7 +84,11 @@ class RegisteredDataset:
         # Movielens One Million
         if dataset == RegisteredDataset.MOVIELENS_ONE_MILLION_DATASET:
             instance = MovielensOneMillion()
-            instance.set_experiment_variables(cut_value=cut_value, item_cut_value=item_cut_value, profile_len_cut_value=profile_len_cut_value)
+            instance.set_experiment_variables(
+                cut_value=cut_value, item_cut_value=item_cut_value,
+                profile_len_cut_value=profile_len_cut_value,
+                test_len_cut_value=test_len_cut_value
+            )
             if based_on == Label.TIME:
                 instance.mining_data_and_create_fold_based_on_time(n_trials=n_trials, n_folds=n_folds)
             else:
@@ -92,7 +96,11 @@ class RegisteredDataset:
         # Movielens Twenty Millions Movies
         elif dataset == RegisteredDataset.MOVIELENS_TWENTY_MILLION_DATASET:
             instance = MovielensTwentyMillion()
-            instance.set_experiment_variables(cut_value=cut_value, item_cut_value=item_cut_value, profile_len_cut_value=profile_len_cut_value)
+            instance.set_experiment_variables(
+                cut_value=cut_value, item_cut_value=item_cut_value,
+                profile_len_cut_value=profile_len_cut_value,
+                test_len_cut_value=test_len_cut_value
+            )
             if based_on == Label.TIME:
                 instance.mining_data_and_create_fold_based_on_time(n_trials=n_trials, n_folds=n_folds)
             else:
@@ -100,7 +108,11 @@ class RegisteredDataset:
         # Food.com Recipe
         elif dataset == RegisteredDataset.FOOD_COM_RECIPE_DATASET:
             instance = FoodComRecipe()
-            instance.set_experiment_variables(cut_value=cut_value, item_cut_value=item_cut_value, profile_len_cut_value=profile_len_cut_value)
+            instance.set_experiment_variables(
+                cut_value=cut_value, item_cut_value=item_cut_value,
+                profile_len_cut_value=profile_len_cut_value,
+                test_len_cut_value=test_len_cut_value
+            )
             if based_on == Label.TIME:
                 instance.mining_data_and_create_fold_based_on_time(n_trials=n_trials, n_folds=n_folds)
             else:
@@ -108,7 +120,11 @@ class RegisteredDataset:
         # Yahoo Movies
         elif dataset == RegisteredDataset.YAHOO_MOVIES_DATASET:
             instance = YahooMovies()
-            instance.set_experiment_variables(cut_value=cut_value, item_cut_value=item_cut_value, profile_len_cut_value=profile_len_cut_value)
+            instance.set_experiment_variables(
+                cut_value=cut_value, item_cut_value=item_cut_value,
+                profile_len_cut_value=profile_len_cut_value,
+                test_len_cut_value=test_len_cut_value
+            )
             if based_on == Label.TIME:
                 instance.mining_data_and_create_fold_based_on_time(n_trials=n_trials, n_folds=n_folds)
             else:
@@ -116,7 +132,11 @@ class RegisteredDataset:
         # Taste Profile
         elif dataset == RegisteredDataset.TASTE_PROFILE_DATASET:
             instance = TasteProfile()
-            instance.set_experiment_variables(cut_value=cut_value, item_cut_value=item_cut_value, profile_len_cut_value=profile_len_cut_value)
+            instance.set_experiment_variables(
+                cut_value=cut_value, item_cut_value=item_cut_value,
+                profile_len_cut_value=profile_len_cut_value,
+                test_len_cut_value=test_len_cut_value
+            )
             if based_on == Label.TIME:
                 instance.mining_data_and_create_fold_based_on_time(n_trials=n_trials, n_folds=n_folds)
             else:
@@ -124,7 +144,11 @@ class RegisteredDataset:
         # My Anime List
         elif dataset == RegisteredDataset.MY_ANIME_LIST_DATASET:
             instance = MyAnimeList()
-            instance.set_experiment_variables(cut_value=cut_value, item_cut_value=item_cut_value, profile_len_cut_value=profile_len_cut_value)
+            instance.set_experiment_variables(
+                cut_value=cut_value, item_cut_value=item_cut_value,
+                profile_len_cut_value=profile_len_cut_value,
+                test_len_cut_value=test_len_cut_value
+            )
             if based_on == Label.TIME:
                 instance.mining_data_and_create_fold_based_on_time(n_trials=n_trials, n_folds=n_folds)
             else:
@@ -132,7 +156,11 @@ class RegisteredDataset:
         # Twitter Movies
         elif dataset == RegisteredDataset.TWITTER_MOVIES_DATASET:
             instance = TwitterMovies()
-            instance.set_experiment_variables(cut_value=cut_value, item_cut_value=item_cut_value, profile_len_cut_value=profile_len_cut_value)
+            instance.set_experiment_variables(
+                cut_value=cut_value, item_cut_value=item_cut_value,
+                profile_len_cut_value=profile_len_cut_value,
+                test_len_cut_value=test_len_cut_value
+            )
             if based_on == Label.TIME:
                 instance.mining_data_and_create_fold_based_on_time(n_trials=n_trials, n_folds=n_folds)
             else:
@@ -140,7 +168,11 @@ class RegisteredDataset:
         # Last FM Two Billion
         elif dataset == RegisteredDataset.LASTFM_TWO_BILLION_DATASET:
             instance = LastFMTwoBillion()
-            instance.set_experiment_variables(cut_value=cut_value, item_cut_value=item_cut_value, profile_len_cut_value=profile_len_cut_value)
+            instance.set_experiment_variables(
+                cut_value=cut_value, item_cut_value=item_cut_value,
+                profile_len_cut_value=profile_len_cut_value,
+                test_len_cut_value=test_len_cut_value
+            )
             if based_on == Label.TIME:
                 instance.mining_data_and_create_fold_based_on_time(n_trials=n_trials, n_folds=n_folds)
             else:

@@ -6,5 +6,6 @@
   "n_trials": 1,
   "cut_value": 4,
   "item_cut_value": 1,
-  "profile_len_cut_value": 10
+  "profile_len_cut_value": 30,
+  "test_len_cut_value": 10
 }

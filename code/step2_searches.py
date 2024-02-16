@@ -117,7 +117,8 @@ class PierreStep2(Step):
                 recommender, dataset, trial, fold,
                 self.experimental_settings['n_inter'],
                 self.experimental_settings['n_jobs'],
-                self.experimental_settings['n_cv']
+                self.experimental_settings['n_cv'],
+                self.experimental_settings['based_on']
             )
             for recommender, dataset, trial, fold in system_combination
         ]
@@ -129,7 +130,8 @@ class PierreStep2(Step):
 
     @staticmethod
     def starting_recommender_search(
-            recommender: str, dataset: str, trial: int, fold: int, n_inter: int, n_jobs: int, n_cv: int
+            recommender: str, dataset: str, trial: int, fold: int,
+            n_inter: int, n_jobs: int, n_cv: int, based_on: str
     ) -> None:
         """
         Method to start the recommender algorithm hyperparameter search optimization.
@@ -151,7 +153,7 @@ class PierreStep2(Step):
         elif recommender in Label.IMPLICIT_RECOMMENDERS:
             search_instance = ImplicitGridSearch(
                 algorithm=recommender, dataset_name=dataset, trial=trial, fold=fold,
-                n_jobs=n_jobs, n_splits=n_cv, n_inter=n_inter
+                n_jobs=n_jobs, n_splits=n_cv, n_inter=n_inter, based_on=based_on
             )
         else:
             exit(0)

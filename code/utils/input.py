@@ -1,4 +1,5 @@
 import sys
+import os
 
 from datasets.registred_datasets import RegisteredDataset
 from settings.constants import Constants
@@ -252,6 +253,7 @@ class Input:
         elif sys.argv[1].split('=')[0] == "from_file" and sys.argv[1].split('=')[1] == "YES" and sys.argv[2].split('=')[
             0] == "file_name":
             experimental_setup = SaveAndLoad.load_step_file(step="step1", file_name=sys.argv[2].split('=')[1])
+            os.environ = experimental_setup
         else:
             print("More information are needed!")
             print("All params possibilities are: \n"

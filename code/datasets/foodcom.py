@@ -105,6 +105,12 @@ class FoodComRecipe(Dataset):
                 transactions=self.transactions, item_cut_value=self.item_cut_value
             )
         )
+        self.set_transactions(
+            new_transactions=FoodComRecipe.cut_users(
+                transactions=filtered_raw_transactions, item_cut_value=self.cut_value,
+                profile_len_cut_value=self.profile_len_cut_value
+            )
+        )
         self.set_items(
             new_items=self.items[
                 self.items[Label.ITEM_ID].isin(self.transactions[Label.ITEM_ID].unique().tolist())
@@ -119,6 +125,11 @@ class FoodComRecipe(Dataset):
         self.reset_indexes()
         self.transactions[Label.TIME] = self.transactions[Label.TIME].apply(lambda dtimestamp: int(round(datetime.strptime(dtimestamp, '%Y-%m-%d').timestamp())))
         # Save the clean transactions as CSV.
+        count_user_trans = Counter(self.transactions[Label.USER_ID].tolist())
+        min_c = min(list(count_user_trans.values()))
+        max_c = max(list(count_user_trans.values()))
+        print(f"Maximum: {max_c}")
+        print(f"Minimum: {min_c}")
         self.transactions.to_csv(
             os.path.join(self.dataset_clean_path, PathDirFile.TRANSACTIONS_FILE),
             index=False
