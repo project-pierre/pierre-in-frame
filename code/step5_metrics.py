@@ -1,5 +1,3 @@
-from collections import Counter
-
 import itertools
 import logging
 import multiprocessing
@@ -239,7 +237,7 @@ class PierreStep5(Step):
         process_combination = list(itertools.product(*combination))
         print(f"The total of process that will be run are: {len(process_combination)}")
         if self.experimental_settings['multiprocessing'] == "joblib":
-            load = Parallel(
+            Parallel(
                 n_jobs=self.experimental_settings['n_jobs'], verbose=10, batch_size=1,
                 backend="multiprocessing", prefer="processes"
             )(
@@ -260,16 +258,13 @@ class PierreStep5(Step):
                     list_size, alpha, d, checkpoint
                 ))
             pool = multiprocessing.Pool(processes=self.experimental_settings["n_jobs"])
-            load = pool.starmap(applying_evaluation_metrics, process_args)
+            pool.starmap(applying_evaluation_metrics, process_args)
             pool.close()
             pool.join()
         else:
             logger.warning(
                 f"The multiprocessing option {self.experimental_settings['multiprocessing']} does not exist! Please check for a possible option.")
             exit(1)
-
-        jobs = dict(Counter(list(load)))
-        print(jobs)
 
     def cluster_parallelization(self):
         """
@@ -286,7 +281,7 @@ class PierreStep5(Step):
         ]
         print(f"The total of process that will be run are: {len(combination)}")
 
-        load = Parallel(n_jobs=self.experimental_settings['n_jobs'])(
+        Parallel(n_jobs=self.experimental_settings['n_jobs'])(
             delayed(starting_cluster)(
                 cluster=cluster,
                 recommender=recommender, dataset=dataset, trial=trial, fold=fold,
@@ -296,9 +291,6 @@ class PierreStep5(Step):
             cluster, recommender, dataset, trial, fold, distribution, fairness, relevance, weight, tradeoff, selector, checkpoint
             in list(itertools.product(*combination))
         )
-
-        jobs = dict(Counter(load))
-        print(jobs)
 
 
 if __name__ == '__main__':
