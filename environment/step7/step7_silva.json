@@ -4,8 +4,8 @@
   "dataset": ["ml-1m"],
   "type": ["LINE", "HEAT_WELCH"],
   "goal": ["DISTRIBUTION_LABEL"],
-  "metric": ["MAP", "MRR", "COVERAGE", "NOVELTY", "UNEXPECTEDNESS", "SERENDIPITY", "PERSONALIZATION"],
-  "recommender": ["SVD", "ALS", "BPR"],
+  "metric": ["MAP", "MRR", "COVERAGE"],
+  "recommender": ["ALS", "BPR"],
   "tradeoff": ["LIN"],
   "fairness": ["VICIS_EMANON2"],
   "relevance": ["NDCG"],
@@ -14,16 +14,13 @@
       "C@0.6", "C@0.7", "C@0.8", "C@0.9", "C@1.0"
   ],
   "distribution": [
-    "CWS", "WPS",
-    "PGD", "PGD_P",
-    "TWB", "TWB_P",
-    "TGD", "TGD_P",
-    "GLEB", "GLEB_P",
-    "GLEB_TWB", "GLEB_TWB_P",
-    "TSW", "TSW_P",
-    "TSW_GLEB", "TSW_GLEB_P",
-    "TSW_TWB", "TSW_TWB_P",
-    "TSW_TWB_GLEB", "TSW_TWB_GLEB_P"
+    "CWS",
+    "WPS",
+    "TWB",
+    "GLEB_TWB",
+    "TSW",
+    "TSW_GLEB",
+    "TSW_TWB_GLEB"
   ],
   "selector": ["SURROGATE"]
 }
