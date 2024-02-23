@@ -8,16 +8,12 @@ Babel==2.14.0
 backcall==0.2.0
 beautifulsoup4==4.12.2
 bleach==6.1.0
-Bottleneck @ file:///opt/conda/conda-bld/bottleneck_1657175564434/work
-certifi @ file:///croot/certifi_1700501669400/work/certifi
 cffi==1.16.0
 charset-normalizer==3.3.2
 click==7.1.2
 comm==0.2.1
-contourpy @ file:///opt/conda/conda-bld/contourpy_1663827406301/work
 coverage==7.4.0
 cryptography==41.0.7
-cycler @ file:///tmp/build/80754af9/cycler_1637851556182/work
 Cython==3.0.8
 debugpy==1.8.0
 decorator==5.1.1
@@ -32,7 +28,6 @@ fuzzy-c-means==1.6.3
 idna==3.6
 implicit==0.7.2
 importlib-metadata==7.0.1
-importlib-resources @ file:///croot/importlib_resources-suite_1702931911817/work
 iniconfig==2.0.0
 ipykernel==6.28.0
 ipython==7.34.0
@@ -60,10 +55,8 @@ jupyterlab-widgets==3.0.9
 jupyterlab_pygments==0.3.0
 jupyterlab_server==2.25.2
 keyring==24.3.0
-kiwisolver @ file:///croot/kiwisolver_1672387140495/work
 markdown-it-py==3.0.0
 MarkupSafe==2.1.3
-matplotlib @ file:///croot/matplotlib-suite_1693812469450/work
 matplotlib-inline==0.1.6
 mdurl==0.1.2
 mistune==3.0.2
@@ -76,10 +69,7 @@ nest-asyncio==1.5.8
 nh3==0.2.15
 notebook==7.0.6
 notebook_shim==0.2.3
-numexpr @ file:///croot/numexpr_1683221822650/work
-numpy @ file:///croot/numpy_and_numpy_base_1682520569166/work
 overrides==7.4.0
-packaging @ file:///croot/packaging_1693575174725/work
 pandas==2.0.3
 pandocfilters==1.5.0
 parso==0.8.3
@@ -99,9 +89,7 @@ ptyprocess==0.7.0
 pycparser==2.21
 pydantic==1.10.13
 Pygments==2.17.2
-pyparsing @ file:///opt/conda/conda-bld/pyparsing_1661452539315/work
 PyQt5==5.15.10
-PyQt5-sip @ file:///croot/pyqt-split_1698769088074/work/pyqt_sip
 pytest==7.4.4
 pytest-cov==2.12.1
 python-dateutil==2.8.2
@@ -122,24 +110,18 @@ rfc3986==2.0.0
 rfc3986-validator==0.1.1
 rich==13.7.0
 rpds-py==0.16.2
-scikit-learn @ file:///croot/scikit-learn_1690978916802/work
-scikit-pierre @ file:///home/diego/Code/pierre-in-frame/scikit_pierre-0.0.1-cp38-cp38-linux_x86_64.whl#sha256=fcae608ca86bee837759322b6ef95f7b1d4271220c2e25ce693cf833131bffee
 scikit-surprise==1.1.3
 scipy==1.9.0
 seaborn==0.11.2
 SecretStorage==3.3.3
 Send2Trash==1.8.2
-sip @ file:///croot/sip_1698675935381/work
 six==1.16.0
 sniffio==1.3.0
 soupsieve==2.5
 tabulate==0.8.10
 terminado==0.18.0
-threadpoolctl @ file:///Users/ktietz/demo/mc3/conda-bld/threadpoolctl_1629802263681/work
 tinycss2==1.2.1
 toml==0.10.2
-tomli @ file:///opt/conda/conda-bld/tomli_1657175507142/work
-tornado @ file:///croot/tornado_1696936946304/work
 tqdm==4.66.1
 traitlets==5.14.1
 twine==4.0.2
@@ -154,4 +136,3 @@ webcolors==1.13
 webencodings==0.5.1
 websocket-client==1.7.0
 widgetsnbextension==4.0.9
-zipp @ file:///croot/zipp_1672387121353/work
