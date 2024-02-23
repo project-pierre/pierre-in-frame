@@ -1,7 +1,7 @@
 {
   "opt": "EVALUATION_METRICS",
   "view": "CHART",
-  "dataset": ["ml-1m"],
+  "dataset": ["ml-20m", "food", "lfm-2b-subset"],
   "type": ["LINE", "HEAT_WELCH"],
   "goal": ["DISTRIBUTION_LABEL"],
   "metric": ["MAP", "MRR", "COVERAGE"],
