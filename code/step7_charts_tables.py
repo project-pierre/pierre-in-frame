@@ -136,6 +136,7 @@ class PierreStep7(Step):
                         for selector in self.experimental_settings['selector']:
                             for graphic in self.experimental_settings['type']:
                                 temp_graphic_name = "_".join([graphic, graphic_name, recommender, tradeoff, fairness, relevance, selector])
+                                print(temp_graphic_name)
                                 filtered_data = data[
                                     (data[Label.RECOMMENDER] == recommender) &
                                     (data[Label.TRADEOFF] == tradeoff) &
