@@ -1,7 +1,7 @@
 {
   "multiprocessing": "joblib",
   "n_jobs": 30,
-  "checkpoint": "NO",
+  "checkpoint": "YES",
   "opt": "EVALUATION_METRICS",
   "metric": ["MAP", "MRR", "COVERAGE", "MACE"],
   "recommender": ["ALS", "BPR"],
