@@ -2,7 +2,7 @@
   "multiprocessing": "joblib",
   "n_jobs": 7,
   "opt": "EVALUATION_METRICS",
-  "metric": ["MAP", "MRR", "COVERAGE"],
+  "metric": ["MAP", "MRR", "COVERAGE", "MACE"],
   "recommender": ["ALS", "BPR"],
   "dataset": ["ml-20m", "food", "lfm-2b-subset"],
   "fold": [1],

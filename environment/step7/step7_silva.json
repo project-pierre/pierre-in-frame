@@ -4,7 +4,7 @@
   "dataset": ["ml-20m", "food", "lfm-2b-subset"],
   "type": ["LINE", "HEAT_WELCH"],
   "goal": ["DISTRIBUTION_LABEL"],
-  "metric": ["MAP", "MRR", "COVERAGE"],
+  "metric": ["MAP", "MRR", "COVERAGE", "MACE"],
   "recommender": ["ALS", "BPR"],
   "tradeoff": ["LIN"],
   "fairness": ["VICIS_EMANON2"],
