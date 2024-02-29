@@ -311,12 +311,12 @@ class Dataset:
                 train_path = os.path.join(fold_dir, PathDirFile.TRAIN_FILE)
                 if 'index' in train_df.columns.tolist():
                     train_df.drop(columns=['index'], inplace=True)
-                train_df.to_csv(train_path, index=False)
+                train_df.to_csv(train_path, index=False, mode='w+')
 
                 test_path = os.path.join(fold_dir, PathDirFile.TEST_FILE)
                 if 'index' in test_df.columns.tolist():
                     test_df.drop(columns=['index'], inplace=True)
-                test_df.to_csv(test_path, index=False)
+                test_df.to_csv(test_path, index=False, mode='w+')
 
     def mining_data_and_create_fold_based_on_time(
             self, n_trials: int = Constants.N_TRIAL_VALUE, n_folds: int = Constants.K_FOLDS_VALUE
@@ -376,12 +376,58 @@ class Dataset:
             test_df.drop(columns=['index'], inplace=True)
         test_df.to_csv(test_path, index=False)
 
-        transactions = pd.concat([train_df, test_df])
+        self.transactions = pd.concat([train_df, test_df])
 
-        transactions.to_csv(
+        self.transactions.to_csv(
             str(os.path.join(self.dataset_clean_path, PathDirFile.TRANSACTIONS_FILE)),
             index=False
         )
+
+        self.items = self.items[self.items[Label.ITEM_ID].isin(self.transactions[Label.ITEM_ID])]
+
+        self.items.sort_values(by=[Label.ITEM_ID], inplace=True)
+        translation_index_items = {old_index: new_index for new_index, old_index in
+                                   enumerate(self.items[Label.ITEM_ID].tolist())}
+        self.items[Label.ITEM_ID] = [new_index for new_index, _ in enumerate(self.items[Label.ITEM_ID].tolist())]
+
+        self.transactions[Label.ITEM_ID] = [translation_index_items[old_index] for old_index in
+                                            self.transactions[Label.ITEM_ID].tolist()]
+        train_df[Label.ITEM_ID] = [translation_index_items[old_index] for old_index in
+                                   train_df[Label.ITEM_ID].tolist()]
+        test_df[Label.ITEM_ID] = [translation_index_items[old_index] for old_index in
+                                  test_df[Label.ITEM_ID].tolist()]
+
+        self.transactions.sort_values(by=[Label.USER_ID], inplace=True)
+        train_df.sort_values(by=[Label.USER_ID], inplace=True)
+        test_df.sort_values(by=[Label.USER_ID], inplace=True)
+
+        translation_index_user = {old_index: new_index for new_index, old_index in
+                                  enumerate(self.transactions[Label.USER_ID].unique())}
+
+        self.transactions[Label.USER_ID] = [translation_index_user[old_index] for old_index in
+                                            self.transactions[Label.USER_ID].tolist()]
+        train_df[Label.USER_ID] = [translation_index_user[old_index] for old_index in
+                                   train_df[Label.USER_ID].tolist()]
+        test_df[Label.USER_ID] = [translation_index_user[old_index] for old_index in
+                                  test_df[Label.USER_ID].tolist()]
+
+        self.transactions.sort_values(by=[Label.USER_ID], inplace=True)
+        self.items.sort_values(by=[Label.ITEM_ID], inplace=True)
+        self.transactions.reset_index(drop=True, inplace=True)
+        self.items.reset_index(drop=True, inplace=True)
+        train_df.reset_index(drop=True, inplace=True)
+        test_df.reset_index(drop=True, inplace=True)
+        self.transactions.to_csv(
+            str(os.path.join(self.dataset_clean_path, PathDirFile.TRANSACTIONS_FILE)), index=False, mode='w+'
+        )
+        train_df.to_csv(train_path, index=False, mode='w+')
+        test_df.to_csv(test_path, index=False, mode='w+')
+        print(self.transactions)
+        print(self.transactions[Label.USER_ID])
+        print(self.transactions[Label.USER_ID].max())
+        print(max(self.transactions[Label.USER_ID].tolist()))
+        print(self.transactions[Label.USER_ID].min())
+        print(len(self.transactions[Label.USER_ID].unique()))
 
     @staticmethod
     def cut_users(

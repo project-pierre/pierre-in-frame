@@ -106,6 +106,10 @@ class MovielensOneMillion(Dataset):
         max_c = max(list(count_user_trans.values()))
         print(f"Maximum: {max_c}")
         print(f"Minimum: {min_c}")
+        self.transactions = self.transactions.astype({
+            Label.USER_ID: 'int32',
+            Label.ITEM_ID: 'int32'
+        })
         self.transactions.to_csv(
             os.path.join(self.dataset_clean_path, PathDirFile.TRANSACTIONS_FILE),
             index=False
