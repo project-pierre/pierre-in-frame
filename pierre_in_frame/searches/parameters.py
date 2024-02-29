@@ -46,6 +46,24 @@ class ImplicitParams:
     }
 
 
+class PierreParams:
+    size = 10
+    DAE_PARAMS = {
+        "factors": randint(10, 150).rvs(size=size),
+        "reg": uniform(0.0003, 0.1).rvs(size=size),
+        "lr": uniform(0.0003, 0.1).rvs(size=size),
+        "dropout": uniform(0.01, 0.9).rvs(size=size),
+        "epochs": randint(10, 150).rvs(size=size)
+    }
+    AUTOENC_PARAMS = {
+        "factors": randint(10, 150).rvs(size=size),
+        "reg": uniform(0.0003, 0.1).rvs(size=size),
+        "lr": uniform(0.0003, 0.1).rvs(size=size),
+        "dropout": uniform(0.01, 0.9).rvs(size=size),
+        "epochs": randint(10, 150).rvs(size=size)
+    }
+
+
 class ConformityParams:
     # Cluster Params
     CLUSTER_PARAMS = {

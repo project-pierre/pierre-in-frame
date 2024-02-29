@@ -3,6 +3,7 @@ import logging
 
 from searches.conformity_search import ManualConformityAlgorithmSearch
 from searches.implicit_search import ImplicitGridSearch
+from searches.pierre_search import PierreGridSearch
 from searches.recommender_search import RecommenderSearch
 from settings.labels import Label
 from settings.path_dir_file import PathDirFile
@@ -155,6 +156,11 @@ class PierreStep2(Step):
                 algorithm=recommender, dataset_name=dataset, trial=trial, fold=fold,
                 n_jobs=n_jobs, n_splits=n_cv, n_inter=n_inter, based_on=based_on
             )
+        elif recommender in Label.PIERRE_RECOMMENDERS:
+            search_instance = PierreGridSearch(
+                algorithm=recommender, dataset_name=dataset, trial=trial, fold=fold,
+                n_jobs=n_jobs, n_splits=n_cv, n_inter=n_inter, based_on=based_on
+            )
         else:
             exit(0)
         search_instance.fit()
@@ -177,7 +183,8 @@ class PierreStep2(Step):
         Main method used to choice the run option.
         """
         if self.experimental_settings['opt'] == Label.CONFORMITY:
-            self.starting_cluster()
+            # self.starting_cluster()
+            pass
         elif self.experimental_settings['opt'] == Label.RECOMMENDER:
             self.preparing_to_batch_recommender_search()
         else:

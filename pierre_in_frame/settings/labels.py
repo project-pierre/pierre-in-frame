@@ -64,7 +64,15 @@ class Label:
     IMPLICIT_RECOMMENDERS = [
         ALS, BPR, LMF
     ]
-    REGISTERED_RECOMMENDERS = SURPRISE_RECOMMENDERS + IMPLICIT_RECOMMENDERS
+
+    AUTOENC = "AUTOENC"
+    DAE = "DAE"
+
+    PIERRE_RECOMMENDERS = [
+        AUTOENC, DAE
+    ]
+
+    REGISTERED_RECOMMENDERS = SURPRISE_RECOMMENDERS + IMPLICIT_RECOMMENDERS + PIERRE_RECOMMENDERS
 
     ########################################################
     # Hyperparameter Search Metrics
