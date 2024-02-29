@@ -2,7 +2,7 @@
   "opt": "RECOMMENDER",
   "based_on": "TIMESTAMP",
   "n_inter": 50,
-  "n_jobs": 7,
+  "n_jobs": 15,
   "n_cv": 3,
   "dataset": ["lfm-2b-subset"],
   "recommender": ["ALS", "BPR", "DAE"],
