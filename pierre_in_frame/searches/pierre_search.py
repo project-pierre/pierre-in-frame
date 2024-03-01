@@ -1,11 +1,9 @@
-import recommender_pierre
 import itertools
 import random
-import threadpoolctl
-from joblib import Parallel, delayed
 from pprint import pprint
 from statistics import mean
 
+import recommender_pierre
 from datasets.registred_datasets import RegisteredDataset
 from datasets.utils import split
 from datasets.utils.split import SequentialTimeSplit
