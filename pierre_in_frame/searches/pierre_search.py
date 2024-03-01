@@ -10,7 +10,7 @@ from datasets.registred_datasets import RegisteredDataset
 from datasets.utils import split
 from datasets.utils.split import SequentialTimeSplit
 from scikit_pierre.metrics.evaluation import mean_average_precision
-from searches.parameters import ImplicitParams, PierreParams
+from searches.parameters import PierreParams
 from settings.labels import Label
 from settings.save_and_load import SaveAndLoad
 
@@ -44,9 +44,14 @@ class PierreGridSearch:
         map_value = []
 
         for train, test in zip(train_list, test_list):
-            recommender = recommender_pierre.CDAEModel.CDAEModel(
-                factors=int(factors), epochs=int(epochs), dropout=int(dropout), lr=int(lr), reg=int(reg)
-            )
+            if self.algorithm == Label.AUTOENC:
+                recommender = recommender_pierre.AutoEncModel.AutoEncModel(
+                    factors=int(factors), epochs=int(epochs), dropout=int(dropout), lr=int(lr), reg=int(reg)
+                )
+            else:
+                recommender = recommender_pierre.CDAEModel.CDAEModel(
+                    factors=int(factors), epochs=int(epochs), dropout=int(dropout), lr=int(lr), reg=int(reg)
+                )
             rec_lists_df = recommender.train_and_produce_rec_list(user_transactions_df=train)
             map_value.append(mean_average_precision(rec_lists_df, test))
 
