@@ -39,13 +39,13 @@ class PierreRecommenderAlgorithm:
             self.recommender = recommender_pierre.AutoEncModel.AutoEncModel(
                 factors=int(full_params["params"]["factors"]), epochs=int(full_params["params"]["epochs"]),
                 dropout=int(full_params["params"]["dropout"]), lr=int(full_params["params"]["lr"]),
-                reg=int(full_params["params"]["reg"])
+                reg=int(full_params["params"]["reg"]), list_size=int(self.list_size)
             )
         else:
             self.recommender = recommender_pierre.CDAEModel.CDAEModel(
                 factors=int(full_params["params"]["factors"]), epochs=int(full_params["params"]["epochs"]),
                 dropout=int(full_params["params"]["dropout"]), lr=int(full_params["params"]["lr"]),
-                reg=int(full_params["params"]["reg"])
+                reg=int(full_params["params"]["reg"]), list_size=int(self.list_size)
             )
 
     def run(self):
