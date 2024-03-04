@@ -6,6 +6,7 @@ from joblib import Parallel, delayed
 
 from checkpoint_verification import CheckpointVerification
 from processing.implicit_recommender_algorithms import ImplicitRecommenderAlgorithm
+from processing.pierre_recommender_algorithms import PierreRecommenderAlgorithm
 from processing.surprise_recommender_algorithms import SurpriseRecommenderAlgorithm
 from settings.labels import Label
 from utils.clocker import Clocker
@@ -56,6 +57,12 @@ def starting_recommender(dataset: str, recommender: str, trial: int, fold: int, 
                 recommender_algorithm.run()
             elif recommender in Label.IMPLICIT_RECOMMENDERS:
                 recommender_algorithm = ImplicitRecommenderAlgorithm(
+                    dataset_name=dataset, trial=trial, fold=fold, recommender_name=recommender,
+                    list_size=list_size
+                )
+                recommender_algorithm.run()
+            elif recommender in Label.PIERRE_RECOMMENDERS:
+                recommender_algorithm = PierreRecommenderAlgorithm(
                     dataset_name=dataset, trial=trial, fold=fold, recommender_name=recommender,
                     list_size=list_size
                 )

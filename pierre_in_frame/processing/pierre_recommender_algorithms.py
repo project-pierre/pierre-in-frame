@@ -37,15 +37,15 @@ class PierreRecommenderAlgorithm:
         )
         if self.recommender_name == Label.AUTOENC:
             self.recommender = recommender_pierre.AutoEncModel.AutoEncModel(
-                factors=int(full_params["factors"]), epochs=int(full_params["epochs"]),
-                dropout=int(full_params["dropout"]), lr=int(full_params["lr"]),
-                reg=int(full_params["reg"])
+                factors=int(full_params["params"]["factors"]), epochs=int(full_params["params"]["epochs"]),
+                dropout=int(full_params["params"]["dropout"]), lr=int(full_params["params"]["lr"]),
+                reg=int(full_params["params"]["reg"])
             )
         else:
             self.recommender = recommender_pierre.CDAEModel.CDAEModel(
-                factors=int(full_params["factors"]), epochs=int(full_params["epochs"]),
-                dropout=int(full_params["dropout"]), lr=int(full_params["lr"]),
-                reg=int(full_params["reg"])
+                factors=int(full_params["params"]["factors"]), epochs=int(full_params["params"]["epochs"]),
+                dropout=int(full_params["params"]["dropout"]), lr=int(full_params["params"]["lr"]),
+                reg=int(full_params["params"]["reg"])
             )
 
     def run(self):
