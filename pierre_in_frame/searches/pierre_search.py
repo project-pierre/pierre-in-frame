@@ -45,12 +45,12 @@ class PierreGridSearch:
             if self.algorithm == Label.AUTOENC:
                 recommender = recommender_pierre.AutoEncModel.AutoEncModel(
                     factors=int(factors), epochs=int(epochs), dropout=int(dropout), lr=int(lr), reg=int(reg),
-                    batch=16
+                    batch=8
                 )
             else:
                 recommender = recommender_pierre.CDAEModel.CDAEModel(
                     factors=int(factors), epochs=int(epochs), dropout=int(dropout), lr=int(lr), reg=int(reg),
-                    batch=16
+                    batch=8
                 )
             rec_lists_df = recommender.train_and_produce_rec_list(user_transactions_df=train)
             map_value.append(mean_average_precision(rec_lists_df, test))
