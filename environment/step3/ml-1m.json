@@ -1,7 +1,7 @@
 {
   "opt": "RECOMMENDER",
   "n_jobs": 20,
-  "checkpoint": "NO",
+  "checkpoint": "YES",
   "dataset": ["ml-1m"],
   "recommender": ["ALS", "BPR", "DAE"],
   "fold": [1],
