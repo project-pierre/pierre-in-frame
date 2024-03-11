@@ -2,8 +2,8 @@
   "multiprocessing": "joblib",
   "n_jobs": 30,
   "opt": "EVALUATION_METRICS",
-  "metric": ["MAP", "MRR", "COVERAGE", "MACE"],
-  "recommender": ["ALS", "BPR"],
+  "metric": ["MAP", "MRR"],
+  "recommender": ["ALS", "BPR", "DAE"],
   "dataset": ["ml-20m", "food", "lfm-2b-subset"],
   "fold": [1],
   "trial": [1],
@@ -21,7 +21,8 @@
     "GLEB_TWB",
     "TSW",
     "TSW_GLEB",
-    "TSW_TWB_GLEB"
+    "TSW_TWB_GLEB",
+    "TSW_TWB_GLEB_P"
   ],
   "selector": ["SURROGATE"]
 }

@@ -1,10 +1,10 @@
 {
   "multiprocessing": "joblib",
-  "n_jobs": 10,
-  "checkpoint": "YES",
+  "n_jobs": 30,
+  "checkpoint": "NO",
   "opt": "EVALUATION_METRICS",
-  "metric": ["MAP", "MRR", "COVERAGE", "MACE"],
-  "recommender": ["ALS", "BPR"],
+  "metric": ["MAP", "MRR"],
+  "recommender": ["ALS", "BPR", "DAE"],
   "cluster": [],
   "dataset": ["ml-20m", "food", "lfm-2b-subset"],
   "fold": [1],
@@ -23,7 +23,8 @@
     "GLEB_TWB",
     "TSW",
     "TSW_GLEB",
-    "TSW_TWB_GLEB"
+    "TSW_TWB_GLEB",
+    "TSW_TWB_GLEB_P"
   ],
   "selector": ["SURROGATE"]
 }
