@@ -203,8 +203,8 @@ class Label:
     TSW_P = "TSW_P"
     GLEB = "GLEB"  # Global and Local Entropy Based
     GLEB_P = "GLEB_P"
-    GLEB_TWB = "GLEB_TWB"  # Global and Local Entropy Based
-    GLEB_TWB_P = "GLEB_TWB_P"
+    GLEB_TWB = "TWB_GLEB"  # Global and Local Entropy Based
+    GLEB_TWB_P = "TWB_GLEB_P"
     PGD = "PGD"
     PGD_P = "PGD_P"
     TGD = "TGD"
