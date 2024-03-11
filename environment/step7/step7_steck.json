@@ -4,8 +4,8 @@
   "dataset": ["ml-20m", "food", "lfm-2b-subset"],
   "type": ["LINE", "HEAT_WELCH"],
   "goal": ["DISTRIBUTION_LABEL"],
-  "metric": ["MAP", "MRR", "COVERAGE", "MACE"],
-  "recommender": ["ALS", "BPR"],
+  "metric": ["MAP", "MRR"],
+  "recommender": ["ALS", "BPR", "DAE"],
   "tradeoff": ["LIN"],
   "fairness": ["KL"],
   "relevance": ["SUM"],
@@ -20,7 +20,8 @@
     "GLEB_TWB",
     "TSW",
     "TSW_GLEB",
-    "TSW_TWB_GLEB"
+    "TSW_TWB_GLEB",
+    "TSW_TWB_GLEB_P"
   ],
   "selector": ["SURROGATE"]
 }
