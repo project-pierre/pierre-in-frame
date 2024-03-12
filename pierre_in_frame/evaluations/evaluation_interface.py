@@ -158,6 +158,15 @@ def applying_mace(
         trial=trial, fold=fold
     )
 
+    set_1 = set([str(ix) for ix in users_recommendation_lists['USER_ID'].unique().tolist()])
+    set_2 = set([str(ix) for ix in users_preference_set['USER_ID'].unique().tolist()])
+
+    if set_1 != set_2:
+        print(set_1 - set_2)
+        print("Size rec list: ", str(len(set_1)))
+        print("Size profiles: ", str(len(set_2)))
+        raise Exception('Unknown users in recommendation or test set. Please make sure the users are the same.')
+
     mace_value = mace(
         users_preference_set=users_preference_set, users_recommendation_lists=users_recommendation_lists,
         items_set_df=items_set, distribution=distribution
