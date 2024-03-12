@@ -165,7 +165,10 @@ def applying_mace(
         print(set_1 - set_2)
         print("Size rec list: ", str(len(set_1)))
         print("Size profiles: ", str(len(set_2)))
-        raise Exception('Unknown users in recommendation or test set. Please make sure the users are the same.')
+        msg = "".join(["Size rec list: ", str(len(set_1)),
+                       "----", "Size profiles: ", str(len(set_2)),
+                       "---------------------", set_1 - set_2])
+        raise Exception('Unknown users in recommendation or test set. Please make sure the users are the same.' + msg)
 
     mace_value = mace(
         users_preference_set=users_preference_set, users_recommendation_lists=users_recommendation_lists,
