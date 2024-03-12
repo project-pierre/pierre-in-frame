@@ -238,7 +238,7 @@ class PierreStep5(Step):
         print(f"The total of process that will be run are: {len(process_combination)}")
         if self.experimental_settings['multiprocessing'] == "joblib":
             Parallel(
-                n_jobs=self.experimental_settings['n_jobs'], verbose=10, batch_size=1,
+                n_jobs=self.experimental_settings['n_jobs'], verbose=100,
                 backend="multiprocessing", prefer="processes"
             )(
                 delayed(applying_evaluation_metrics)(
