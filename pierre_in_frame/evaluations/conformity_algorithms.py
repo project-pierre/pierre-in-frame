@@ -12,7 +12,6 @@ from sklearn.neighbors import LocalOutlierFactor
 from sklearn.neural_network import BernoulliRBM
 from sklearn.svm import OneClassSVM
 
-from scikit_pierre.distributions.accessible import distributions_funcs_pandas
 from scikit_pierre.measures.accessible import calibration_measures_funcs
 from scikit_pierre.classes.genre import genre_probability_approach
 
@@ -59,7 +58,7 @@ class ConformityAlgorithms:
         self.users_recommendation_instance = None
 
         self.items_classes_set = genre_probability_approach(item_set=self.dataset.get_items())
-        self.dist_func = distributions_funcs_pandas(distribution=self.distribution_str)
+        self.dist_func = None # distributions_funcs_pandas(distribution=self.distribution_str)
 
     def __load_conformity_algorithm_instance(self):
         """

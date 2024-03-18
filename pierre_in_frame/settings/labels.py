@@ -145,7 +145,8 @@ class Label:
     # # Calibration Metrics
     MACE = 'MACE'
     MRMC = 'MRMC'
-    CALIBRATION = [MACE, MRMC]
+    RMC = 'RMC'
+    CALIBRATION = [MACE, MRMC, RMC]
     # # Time Metrics
     RUN_TIME = 'TIME'
 
