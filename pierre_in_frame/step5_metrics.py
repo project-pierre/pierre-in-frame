@@ -69,7 +69,7 @@ def applying_evaluation_metrics(
             )
         elif m == Label.MC:
             load_monitoring.append(
-                evaluation_interface.applying_rmc(
+                evaluation_interface.applying_MC(
                     recommender=recommender, dataset=dataset, trial=trial, fold=fold,
                     distribution=distribution, fairness=fairness, relevance=relevance,
                     weight=weight, tradeoff=tradeoff, selector=selector, checkpoint=checkpoint
