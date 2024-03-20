@@ -239,12 +239,13 @@ def applying_MC(
                        "---------------------", set_1 - set_2])
         raise Exception(msg)
 
-    mace_value = miscalibration(
-        users_preference_set=users_preference_set, users_recommendation_lists=users_recommendation_lists,
+    _value = miscalibration(
+        users_preference_set=users_preference_set,
+        users_recommendation_lists=users_recommendation_lists,
         items_set_df=items_set, distribution=distribution, distance_func_name=fairness
     )
     results = pd.DataFrame([[
-        mace_value
+        _value
     ]], columns=[Label.MC])
 
     SaveAndLoad.save_recommender_metric(
