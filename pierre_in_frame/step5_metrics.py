@@ -67,6 +67,14 @@ def applying_evaluation_metrics(
                     weight=weight, tradeoff=tradeoff, selector=selector, checkpoint=checkpoint
                 )
             )
+        elif m == Label.MC:
+            load_monitoring.append(
+                evaluation_interface.applying_rmc(
+                    recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+                    distribution=distribution, fairness=fairness, relevance=relevance,
+                    weight=weight, tradeoff=tradeoff, selector=selector, checkpoint=checkpoint
+                )
+            )
         elif m == Label.UNEXPECTEDNESS:
             load_monitoring.append(
                 evaluation_interface.applying_unexpectedness(

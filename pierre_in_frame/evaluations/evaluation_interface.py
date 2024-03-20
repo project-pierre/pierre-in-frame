@@ -6,10 +6,10 @@ import recmetrics
 
 from checkpoint_verification import CheckpointVerification
 from datasets.registred_datasets import RegisteredDataset
-from scikit_pierre.classes.genre import genre_probability_approach
-from scikit_pierre.measures.accessible import calibration_measures_funcs
-from scikit_pierre.metrics.evaluation import (mace, mean_average_precision, mrmc, rank_miscalibration,
-                                              mean_reciprocal_rank, serendipity, unexpectedness)
+from scikit_pierre.metrics.evaluation import (mace, mean_average_precision,
+                                              rank_miscalibration, miscalibration,
+                                              mean_reciprocal_rank, serendipity, unexpectedness
+                                              )
 from settings.constants import Constants
 from settings.labels import Label
 from settings.path_dir_file import PathDirFile
@@ -179,6 +179,76 @@ def applying_mace(
 
     SaveAndLoad.save_recommender_metric(
         data=results, metric=Label.MACE,
+        recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+        distribution=distribution, fairness=fairness, relevance=relevance,
+        weight=weight, tradeoff=tradeoff, selector=selector
+    )
+    return "Finished"
+
+
+def applying_MC(
+    recommender: str, dataset: str, trial: int, fold: int,
+    distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str,
+    checkpoint: str
+):
+    """
+    Function that apply the evaluation metrics.
+    """
+
+    system_name = "-".join([
+        dataset, 'trial-' + str(trial), 'fold-' + str(fold), recommender,
+        tradeoff, distribution, relevance, selector, fairness, tradeoff, "-->", Label.MC
+    ])
+
+    if checkpoint == "YES" and CheckpointVerification.unit_step5_recommendation_verification(
+            dataset=dataset, trial=trial, fold=fold,
+            metric=Label.MC, recommender=recommender,
+            distribution=distribution, fairness=fairness, relevance=relevance,
+            weight=weight, tradeoff=tradeoff, selector=selector
+    ):
+        logger.info(">> Already Done... " + system_name)
+        return "Already Done"
+
+    dataset_instance = RegisteredDataset.load_dataset(dataset)
+
+    path = PathDirFile.get_recommendation_list_file(
+        dataset=dataset, recommender=recommender, trial=trial, fold=fold,
+        tradeoff=tradeoff, distribution=distribution, fairness=fairness,
+        relevance=relevance, tradeoff_weight=weight, select_item=selector
+    )
+    users_recommendation_lists = pd.read_csv(path)
+    users_recommendation_lists[Label.USER_ID] = users_recommendation_lists[Label.USER_ID].astype(str)
+
+    # Executing
+    items_set = dataset_instance.get_items()
+
+    # Get the users' preferences set
+    users_preference_set = dataset_instance.get_train_transactions(
+        trial=trial, fold=fold
+    )
+
+    set_1 = set([str(ix) for ix in users_recommendation_lists['USER_ID'].unique().tolist()])
+    set_2 = set([str(ix) for ix in users_preference_set['USER_ID'].unique().tolist()])
+
+    if set_1 != set_2:
+        print(set_1 - set_2)
+        print("Size rec list: ", str(len(set_1)))
+        print("Size profiles: ", str(len(set_2)))
+        msg = "".join(["Size rec list: ", str(len(set_1)),
+                       "----", "Size profiles: ", str(len(set_2)),
+                       "---------------------", set_1 - set_2])
+        raise Exception(msg)
+
+    mace_value = miscalibration(
+        users_preference_set=users_preference_set, users_recommendation_lists=users_recommendation_lists,
+        items_set_df=items_set, distribution=distribution, distance_func_name=fairness
+    )
+    results = pd.DataFrame([[
+        mace_value
+    ]], columns=[Label.MC])
+
+    SaveAndLoad.save_recommender_metric(
+        data=results, metric=Label.MC,
         recommender=recommender, dataset=dataset, trial=trial, fold=fold,
         distribution=distribution, fairness=fairness, relevance=relevance,
         weight=weight, tradeoff=tradeoff, selector=selector

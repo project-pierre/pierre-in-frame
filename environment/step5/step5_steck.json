@@ -3,7 +3,7 @@
   "n_jobs": 31,
   "checkpoint": "YES",
   "opt": "EVALUATION_METRICS",
-  "metric": ["RMC"],
+  "metric": ["MAP", "MRR", "MC"],
   "recommender": ["ALS", "BPR", "DAE"],
   "cluster": [],
   "dataset": ["ml-20m", "food", "lfm-2b-subset"],
