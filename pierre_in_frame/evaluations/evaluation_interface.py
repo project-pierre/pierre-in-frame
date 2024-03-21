@@ -8,7 +8,8 @@ from checkpoint_verification import CheckpointVerification
 from datasets.registred_datasets import RegisteredDataset
 from scikit_pierre.metrics.evaluation import (mace, mean_average_precision,
                                               rank_miscalibration, miscalibration,
-                                              mean_reciprocal_rank, serendipity, unexpectedness
+                                              mean_reciprocal_rank, serendipity, unexpectedness,
+                                              Miscalibration, MeanAbsoluteCalibrationError
                                               )
 from settings.constants import Constants
 from settings.labels import Label
@@ -169,12 +170,20 @@ def applying_mace(
                        "---------------------", set_1 - set_2])
         raise Exception(msg)
 
-    mace_value = mace(
-        users_preference_set=users_preference_set, users_recommendation_lists=users_recommendation_lists,
+    # mace_value = mace(
+    #     users_preference_set=users_preference_set,
+    #     users_recommendation_lists=users_recommendation_lists,
+    #     items_set_df=items_set, distribution=distribution
+    # )
+
+    instance = MeanAbsoluteCalibrationError(
+        users_preference_set=users_preference_set,
+        users_recommendation_lists=users_recommendation_lists,
         items_set_df=items_set, distribution=distribution
     )
+    _value = instance.main()
     results = pd.DataFrame([[
-        mace_value
+        _value
     ]], columns=[Label.MACE])
 
     SaveAndLoad.save_recommender_metric(
@@ -244,6 +253,13 @@ def applying_MC(
         users_recommendation_lists=users_recommendation_lists,
         items_set_df=items_set, distribution=distribution, distance_func_name=fairness
     )
+
+    instance = Miscalibration(
+        users_preference_set=users_preference_set,
+        users_recommendation_lists=users_recommendation_lists,
+        items_set_df=items_set, distribution=distribution, distance_func_name=fairness
+    )
+    _value = instance.main()
     results = pd.DataFrame([[
         _value
     ]], columns=[Label.MC])
