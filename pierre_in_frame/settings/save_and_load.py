@@ -87,7 +87,7 @@ class SaveAndLoad:
         data.to_csv(
             PathDirFile.dataset_analyze_file(
                 dataset=dataset, filename="general" + '.' + ext
-            ), index=False
+            ), index=False, mode='w+'
         )
 
     # ########################################################################################### #
@@ -155,7 +155,7 @@ class SaveAndLoad:
         """
         data.to_csv(
             PathDirFile.set_search_time_file(dataset=dataset, algorithm=algorithm),
-            index=False
+            index=False, mode='w+'
         )
 
     @staticmethod
@@ -167,7 +167,7 @@ class SaveAndLoad:
             PathDirFile.set_search_conformity_time_file(
                 dataset=dataset, algorithm=algorithm, distribution=distribution
             ),
-            index=False
+            index=False, mode='w+'
         )
 
     # ########################################################################################### #
@@ -182,7 +182,7 @@ class SaveAndLoad:
             PathDirFile.set_candidate_items_file(
                 dataset=dataset, algorithm=algorithm, fold=fold, trial=trial
             ),
-            index=False
+            index=False, mode='w+'
         )
 
     @staticmethod
@@ -228,7 +228,7 @@ class SaveAndLoad:
                 tradeoff=tradeoff, distribution=distribution, fairness=fairness,
                 relevance=relevance, tradeoff_weight=tradeoff_weight, select_item=select_item
             ),
-            index=False
+            index=False, mode='w+'
         )
 
     # ########################################################################################### #
@@ -270,7 +270,7 @@ class SaveAndLoad:
             tradeoff_weight=tradeoff_weight,
             select_item=select_item
         )
-        data.to_csv(path, index=False)
+        data.to_csv(path, index=False, mode='w+')
 
     # ########################################################################################### #
     # [STEP 5] Metrics step methods - Time
@@ -312,7 +312,7 @@ class SaveAndLoad:
                 tradeoff_weight=weight, tradeoff=tradeoff, select_item=selector,
                 cluster=cluster, filename=metric + '.csv'
             ),
-            index=False
+            index=False, mode='w+'
         )
 
     @staticmethod
@@ -351,7 +351,7 @@ class SaveAndLoad:
                 tradeoff_weight=weight, tradeoff=tradeoff, select_item=selector,
                 filename=metric + '.csv'
             ),
-            index=False
+            index=False, mode='w+'
         )
 
     @staticmethod
@@ -382,7 +382,7 @@ class SaveAndLoad:
         path = PathDirFile.set_compiled_metric_file(
             dataset=dataset, filename=metric, ext=ext
         )
-        data.to_csv(path, index=False)
+        data.to_csv(path, index=False, mode='w+')
 
     @staticmethod
     def load_compiled_metric(dataset: str, metric: str, ext: str = 'csv') -> DataFrame:
