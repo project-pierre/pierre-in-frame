@@ -6,11 +6,11 @@ import recmetrics
 
 from checkpoint_verification import CheckpointVerification
 from datasets.registred_datasets import RegisteredDataset
-from scikit_pierre.metrics.evaluation import (mace, mean_average_precision,
-                                              rank_miscalibration, miscalibration,
-                                              mean_reciprocal_rank, serendipity, unexpectedness,
-                                              Miscalibration, MeanAbsoluteCalibrationError
-                                              )
+from scikit_pierre.metrics.evaluation import (
+    serendipity, unexpectedness,
+    Miscalibration, MeanAbsoluteCalibrationError,
+    MeanAveragePrecision, MeanReciprocalRank, MeanAverageMiscalibration
+)
 from settings.constants import Constants
 from settings.labels import Label
 from settings.path_dir_file import PathDirFile
@@ -53,10 +53,15 @@ def applying_mrr(
 
     # Executing
     users_test_items = dataset_instance.get_test_transactions(trial=trial, fold=fold)
-    mrr_value = mean_reciprocal_rank(users_recommendation_lists, users_test_items)
+
+    instance = MeanReciprocalRank(
+        users_rec_list_df=users_recommendation_lists,
+        users_test_set_df=users_test_items
+    )
+    _value = instance.compute()
 
     results = pd.DataFrame([[
-        mrr_value
+        _value
     ]], columns=[Label.MRR])
 
     SaveAndLoad.save_recommender_metric(
@@ -102,10 +107,15 @@ def applying_map(
 
     # Executing
     users_test_items = dataset_instance.get_test_transactions(trial=trial, fold=fold)
-    map_value = mean_average_precision(users_recommendation_lists, users_test_items)
+
+    instance = MeanAveragePrecision(
+        users_rec_list_df=users_recommendation_lists,
+        users_test_set_df=users_test_items
+    )
+    _value = instance.compute()
 
     results = pd.DataFrame([[
-        map_value
+        _value
     ]], columns=[Label.MAP])
 
     SaveAndLoad.save_recommender_metric(
@@ -158,30 +168,13 @@ def applying_mace(
         trial=trial, fold=fold
     )
 
-    set_1 = set([str(ix) for ix in users_recommendation_lists['USER_ID'].unique().tolist()])
-    set_2 = set([str(ix) for ix in users_preference_set['USER_ID'].unique().tolist()])
-
-    if set_1 != set_2:
-        print(set_1 - set_2)
-        print("Size rec list: ", str(len(set_1)))
-        print("Size profiles: ", str(len(set_2)))
-        msg = "".join(["Size rec list: ", str(len(set_1)),
-                       "----", "Size profiles: ", str(len(set_2)),
-                       "---------------------", set_1 - set_2])
-        raise Exception(msg)
-
-    # mace_value = mace(
-    #     users_preference_set=users_preference_set,
-    #     users_recommendation_lists=users_recommendation_lists,
-    #     items_set_df=items_set, distribution=distribution
-    # )
-
     instance = MeanAbsoluteCalibrationError(
-        users_preference_set=users_preference_set,
-        users_recommendation_lists=users_recommendation_lists,
-        items_set_df=items_set, distribution=distribution
+        users_profile_df=users_preference_set,
+        users_rec_list_df=users_recommendation_lists,
+        items_set_df=items_set, distribution_name=distribution
     )
-    _value = instance.main()
+    _value = instance.compute()
+    
     results = pd.DataFrame([[
         _value
     ]], columns=[Label.MACE])
@@ -236,30 +229,12 @@ def applying_MC(
         trial=trial, fold=fold
     )
 
-    set_1 = set([str(ix) for ix in users_recommendation_lists['USER_ID'].unique().tolist()])
-    set_2 = set([str(ix) for ix in users_preference_set['USER_ID'].unique().tolist()])
-
-    if set_1 != set_2:
-        print(set_1 - set_2)
-        print("Size rec list: ", str(len(set_1)))
-        print("Size profiles: ", str(len(set_2)))
-        msg = "".join(["Size rec list: ", str(len(set_1)),
-                       "----", "Size profiles: ", str(len(set_2)),
-                       "---------------------", set_1 - set_2])
-        raise Exception(msg)
-
-    _value = miscalibration(
-        users_preference_set=users_preference_set,
-        users_recommendation_lists=users_recommendation_lists,
-        items_set_df=items_set, distribution=distribution, distance_func_name=fairness
-    )
-
     instance = Miscalibration(
-        users_preference_set=users_preference_set,
-        users_recommendation_lists=users_recommendation_lists,
-        items_set_df=items_set, distribution=distribution, distance_func_name=fairness
+        users_profile_df=users_preference_set,
+        users_rec_list_df=users_recommendation_lists,
+        items_set_df=items_set, distribution_name=distribution, distance_func_name=fairness
     )
-    _value = instance.main()
+    _value = instance.compute()
     results = pd.DataFrame([[
         _value
     ]], columns=[Label.MC])
@@ -273,7 +248,7 @@ def applying_MC(
     return "Finished"
 
 
-def applying_rmc(
+def applying_mamc(
     recommender: str, dataset: str, trial: int, fold: int,
     distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str,
     checkpoint: str
@@ -284,12 +259,12 @@ def applying_rmc(
 
     system_name = "-".join([
         dataset, 'trial-' + str(trial), 'fold-' + str(fold), recommender,
-        tradeoff, distribution, relevance, selector, fairness, tradeoff, "-->", Label.RMC
+        tradeoff, distribution, relevance, selector, fairness, tradeoff, "-->", Label.MAMC
     ])
 
     if checkpoint == "YES" and CheckpointVerification.unit_step5_recommendation_verification(
             dataset=dataset, trial=trial, fold=fold,
-            metric=Label.RMC, recommender=recommender,
+            metric=Label.MAMC, recommender=recommender,
             distribution=distribution, fairness=fairness, relevance=relevance,
             weight=weight, tradeoff=tradeoff, selector=selector
     ):
@@ -314,28 +289,18 @@ def applying_rmc(
         trial=trial, fold=fold
     )
 
-    set_1 = set([str(ix) for ix in users_recommendation_lists['USER_ID'].unique().tolist()])
-    set_2 = set([str(ix) for ix in users_preference_set['USER_ID'].unique().tolist()])
-
-    if set_1 != set_2:
-        print(set_1 - set_2)
-        print("Size rec list: ", str(len(set_1)))
-        print("Size profiles: ", str(len(set_2)))
-        msg = "".join(["Size rec list: ", str(len(set_1)),
-                       "----", "Size profiles: ", str(len(set_2)),
-                       "---------------------", set_1 - set_2])
-        raise Exception(msg)
-
-    mace_value = rank_miscalibration(
-        users_preference_set=users_preference_set, users_recommendation_lists=users_recommendation_lists,
-        items_set_df=items_set, distribution=distribution, distance_func_name=fairness
+    instance = MeanAverageMiscalibration(
+        users_profile_df=users_preference_set,
+        users_rec_list_df=users_recommendation_lists,
+        items_set_df=items_set, distribution_name=distribution, distance_func_name=fairness
     )
+    _value = instance.compute()
     results = pd.DataFrame([[
-        mace_value
-    ]], columns=[Label.RMC])
+        _value
+    ]], columns=[Label.MAMC])
 
     SaveAndLoad.save_recommender_metric(
-        data=results, metric=Label.RMC,
+        data=results, metric=Label.MAMC,
         recommender=recommender, dataset=dataset, trial=trial, fold=fold,
         distribution=distribution, fairness=fairness, relevance=relevance,
         weight=weight, tradeoff=tradeoff, selector=selector
