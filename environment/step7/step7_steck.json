@@ -1,10 +1,10 @@
 {
   "opt": "EVALUATION_METRICS",
   "view": "CHART",
-  "dataset": ["food"],
+  "dataset": ["food", "ml-20m", "lfm-2b-subset"],
   "type": ["LINE", "HEAT_WELCH"],
   "goal": ["DISTRIBUTION_LABEL"],
-  "metric": ["MC"],
+  "metric": ["MAP", "MRR", "MC"],
   "recommender": ["ALS", "BPR", "DAE"],
   "tradeoff": ["LIN"],
   "fairness": ["KL"],
