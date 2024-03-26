@@ -9,7 +9,8 @@ from datasets.registred_datasets import RegisteredDataset
 from scikit_pierre.metrics.evaluation import (
     serendipity, unexpectedness,
     Miscalibration, MeanAbsoluteCalibrationError,
-    MeanAveragePrecision, MeanReciprocalRank, MeanAverageMiscalibration
+    MeanAveragePrecision, MeanReciprocalRank, MeanAverageMiscalibration,
+    AverageNumberOfOItemsChanges, AverageNumberOfGenreChanges
 )
 from settings.constants import Constants
 from settings.labels import Label
@@ -19,299 +20,176 @@ from settings.save_and_load import SaveAndLoad
 logger = logging.getLogger(__name__)
 
 
-def applying_mrr(
-    recommender: str, dataset: str, trial: int, fold: int,
-    distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str,
-    checkpoint: str
-):
-    """
-    Function that apply the evaluation metrics.
+class ApplyingMetric:
     """
 
-    system_name = "-".join([
-        dataset, 'trial-' + str(trial), 'fold-' + str(fold), recommender,
-        tradeoff, distribution, relevance, selector, fairness, tradeoff, "-->", Label.MRR
-    ])
+    """
 
-    if checkpoint == "YES" and CheckpointVerification.unit_step5_recommendation_verification(
-            dataset=dataset, trial=trial, fold=fold,
-            metric=Label.MRR, recommender=recommender,
-            distribution=distribution, fairness=fairness, relevance=relevance,
-            weight=weight, tradeoff=tradeoff, selector=selector
+    def __init__(
+            self,
+            recommender: str, dataset: str, trial: int, fold: int,
+            distribution: str, fairness: str, relevance: str,
+            weight: str, tradeoff: str, selector: str,
+            checkpoint: str
     ):
-        logger.info(">> Already Done... " + system_name)
-        return "Already Done"
+        """
 
-    dataset_instance = RegisteredDataset.load_dataset(dataset)
+        """
+        self.recommender = recommender
+        self.dataset = dataset
+        self.trial = trial
+        self.fold = fold
+        self.distribution = distribution
+        self.fairness = fairness
+        self.relevance = relevance
+        self.weight = weight
+        self.tradeoff = tradeoff
+        self.selector = selector
+        self.checkpoint = checkpoint
+        self.metric = None
+        self.users_prof_df = None
+        self.users_rec_list_df = None
+        self.users_test_set_df = None
+        self.users_cand_items_df = None
+        self.dataset_instance = None
+        self.metric_instance = None
+        self.items_set = None
 
-    path = PathDirFile.get_recommendation_list_file(
-        dataset=dataset, recommender=recommender, trial=trial, fold=fold,
-        tradeoff=tradeoff, distribution=distribution, fairness=fairness,
-        relevance=relevance, tradeoff_weight=weight, select_item=selector
-    )
-    users_recommendation_lists = pd.read_csv(path)
+    def set_metric(self, metric: str):
+        """
 
-    # Executing
-    users_test_items = dataset_instance.get_test_transactions(trial=trial, fold=fold)
+        """
+        self.metric = metric
 
-    instance = MeanReciprocalRank(
-        users_rec_list_df=users_recommendation_lists,
-        users_test_set_df=users_test_items
-    )
-    _value = instance.compute()
+    def load_user_profile(self):
+        self.users_prof_df = self.dataset_instance.get_train_transactions(
+            trial=self.trial, fold=self.fold
+        )
 
-    results = pd.DataFrame([[
-        _value
-    ]], columns=[Label.MRR])
+    def load_rec_list(self):
+        """
 
-    SaveAndLoad.save_recommender_metric(
-        data=results, metric=Label.MRR,
-        recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-        distribution=distribution, fairness=fairness, relevance=relevance,
-        weight=weight, tradeoff=tradeoff, selector=selector
-    )
-    return "Finished"
+        """
+        self.users_rec_list_df = SaveAndLoad.load_recommendation_lists(
+            recommender=self.recommender, dataset=self.dataset, trial=self.trial, fold=self.fold,
+            distribution=self.distribution, fairness=self.fairness, relevance=self.relevance,
+            tradeoff_weight=self.weight, tradeoff=self.tradeoff, select_item=self.selector
+        )
 
+    def load_items_set(self):
+        self.items_set = self.dataset_instance.get_items()
 
-def applying_map(
-    recommender: str, dataset: str, trial: int, fold: int,
-    distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str,
-    checkpoint: str
-):
-    """
-    Function that apply the evaluation metrics.
-    """
+    def load_candidate_items(self):
+        """
 
-    system_name = "-".join([
-        dataset, 'trial-' + str(trial), 'fold-' + str(fold), recommender,
-        tradeoff, distribution, relevance, selector, fairness, tradeoff, "-->", Label.MAP
-    ])
+        """
+        self.users_cand_items_df = SaveAndLoad.load_candidate_items(
+            algorithm=self.recommender, dataset=self.dataset, trial=self.trial, fold=self.fold
+        )
 
-    if checkpoint == "YES" and CheckpointVerification.unit_step5_recommendation_verification(
-            dataset=dataset, trial=trial, fold=fold,
-            metric=Label.MAP, recommender=recommender,
-            distribution=distribution, fairness=fairness, relevance=relevance,
-            weight=weight, tradeoff=tradeoff, selector=selector
-    ):
-        logger.info(">> Already Done... " + system_name)
-        return "Already Done"
+    def load_test_set(self):
+        self.users_test_set_df = self.dataset_instance.get_test_transactions(
+            trial=self.trial, fold=self.fold
+        )
 
-    dataset_instance = RegisteredDataset.load_dataset(dataset)
+    def load_dataset(self):
+        """
 
-    path = PathDirFile.get_recommendation_list_file(
-        dataset=dataset, recommender=recommender, trial=trial, fold=fold,
-        tradeoff=tradeoff, distribution=distribution, fairness=fairness,
-        relevance=relevance, tradeoff_weight=weight, select_item=selector
-    )
-    users_recommendation_lists = pd.read_csv(path)
+        """
+        self.dataset_instance = RegisteredDataset.load_dataset(self.dataset)
 
-    # Executing
-    users_test_items = dataset_instance.get_test_transactions(trial=trial, fold=fold)
+    def load(self):
+        self.load_dataset()
+        self.load_rec_list()
+        self.load_test_set()
+        self.load_candidate_items()
+        self.load_items_set()
+        self.load_user_profile()
 
-    instance = MeanAveragePrecision(
-        users_rec_list_df=users_recommendation_lists,
-        users_test_set_df=users_test_items
-    )
-    _value = instance.compute()
+    def load_anc(self):
+        self.metric_instance = AverageNumberOfOItemsChanges(
+            users_rec_list_df=self.users_rec_list_df,
+            users_cand_items_df=self.users_cand_items_df
+        )
 
-    results = pd.DataFrame([[
-        _value
-    ]], columns=[Label.MAP])
+    def load_map(self):
+        self.metric_instance = MeanAveragePrecision(
+            users_rec_list_df=self.users_rec_list_df,
+            users_test_set_df=self.users_test_set_df
+        )
 
-    SaveAndLoad.save_recommender_metric(
-        data=results, metric=Label.MAP,
-        recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-        distribution=distribution, fairness=fairness, relevance=relevance,
-        weight=weight, tradeoff=tradeoff, selector=selector
-    )
-    return "Finished"
+    def load_mrr(self):
+        self.metric_instance = MeanReciprocalRank(
+            users_rec_list_df=self.users_rec_list_df,
+            users_test_set_df=self.users_test_set_df
+        )
 
+    def load_mace(self):
+        self.metric_instance = MeanAbsoluteCalibrationError(
+            users_profile_df=self.users_prof_df,
+            users_rec_list_df=self.users_rec_list_df,
+            items_set_df=self.items_set, distribution_name=self.distribution
+        )
 
-def applying_mace(
-    recommender: str, dataset: str, trial: int, fold: int,
-    distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str,
-    checkpoint: str
-):
-    """
-    Function that apply the evaluation metrics.
-    """
+    def load_mc(self):
+        self.metric_instance = Miscalibration(
+            users_profile_df=self.users_prof_df,
+            users_rec_list_df=self.users_rec_list_df,
+            items_set_df=self.items_set, distribution_name=self.distribution,
+            distance_func_name=self.fairness
+        )
 
-    system_name = "-".join([
-        dataset, 'trial-' + str(trial), 'fold-' + str(fold), recommender,
-        tradeoff, distribution, relevance, selector, fairness, tradeoff, "-->", Label.MACE
-    ])
+    def load_mamc(self):
+        self.metric_instance = MeanAverageMiscalibration(
+            users_profile_df=self.users_prof_df,
+            users_rec_list_df=self.users_rec_list_df,
+            items_set_df=self.items_set, distribution_name=self.distribution,
+            distance_func_name=self.fairness
+        )
 
-    if checkpoint == "YES" and CheckpointVerification.unit_step5_recommendation_verification(
-            dataset=dataset, trial=trial, fold=fold,
-            metric=Label.MACE, recommender=recommender,
-            distribution=distribution, fairness=fairness, relevance=relevance,
-            weight=weight, tradeoff=tradeoff, selector=selector
-    ):
-        logger.info(">> Already Done... " + system_name)
-        return "Already Done"
+    def load_angc(self):
+        self.metric_instance = AverageNumberOfGenreChanges(
+            users_cand_items_df=self.users_cand_items_df,
+            users_rec_list_df=self.users_rec_list_df,
+            items_df=self.items_set
+        )
 
-    dataset_instance = RegisteredDataset.load_dataset(dataset)
+    def compute(self):
+        _value = self.metric_instance.compute()
 
-    path = PathDirFile.get_recommendation_list_file(
-        dataset=dataset, recommender=recommender, trial=trial, fold=fold,
-        tradeoff=tradeoff, distribution=distribution, fairness=fairness,
-        relevance=relevance, tradeoff_weight=weight, select_item=selector
-    )
-    users_recommendation_lists = pd.read_csv(path)
-    users_recommendation_lists[Label.USER_ID] = users_recommendation_lists[Label.USER_ID].astype(str)
+        results = pd.DataFrame([[
+            _value
+        ]], columns=[self.metric])
 
-    # Executing
-    items_set = dataset_instance.get_items()
+        self.saving_results(results)
 
-    # Get the users' preferences set
-    users_preference_set = dataset_instance.get_train_transactions(
-        trial=trial, fold=fold
-    )
+    def saving_results(self, results):
+        SaveAndLoad.save_recommender_metric(
+            data=results, metric=self.metric,
+            recommender=self.recommender, dataset=self.dataset, trial=self.trial, fold=self.fold,
+            distribution=self.distribution, fairness=self.fairness, relevance=self.relevance,
+            weight=self.weight, tradeoff=self.tradeoff, selector=self.selector
+        )
 
-    instance = MeanAbsoluteCalibrationError(
-        users_profile_df=users_preference_set,
-        users_rec_list_df=users_recommendation_lists,
-        items_set_df=items_set, distribution_name=distribution
-    )
-    _value = instance.compute()
-    
-    results = pd.DataFrame([[
-        _value
-    ]], columns=[Label.MACE])
-
-    SaveAndLoad.save_recommender_metric(
-        data=results, metric=Label.MACE,
-        recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-        distribution=distribution, fairness=fairness, relevance=relevance,
-        weight=weight, tradeoff=tradeoff, selector=selector
-    )
-    return "Finished"
-
-
-def applying_MC(
-    recommender: str, dataset: str, trial: int, fold: int,
-    distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str,
-    checkpoint: str
-):
-    """
-    Function that apply the evaluation metrics.
-    """
-
-    system_name = "-".join([
-        dataset, 'trial-' + str(trial), 'fold-' + str(fold), recommender,
-        tradeoff, distribution, relevance, selector, fairness, tradeoff, "-->", Label.MC
-    ])
-
-    if checkpoint == "YES" and CheckpointVerification.unit_step5_recommendation_verification(
-            dataset=dataset, trial=trial, fold=fold,
-            metric=Label.MC, recommender=recommender,
-            distribution=distribution, fairness=fairness, relevance=relevance,
-            weight=weight, tradeoff=tradeoff, selector=selector
-    ):
-        logger.info(">> Already Done... " + system_name)
-        return "Already Done"
-
-    dataset_instance = RegisteredDataset.load_dataset(dataset)
-
-    path = PathDirFile.get_recommendation_list_file(
-        dataset=dataset, recommender=recommender, trial=trial, fold=fold,
-        tradeoff=tradeoff, distribution=distribution, fairness=fairness,
-        relevance=relevance, tradeoff_weight=weight, select_item=selector
-    )
-    users_recommendation_lists = pd.read_csv(path)
-    users_recommendation_lists[Label.USER_ID] = users_recommendation_lists[Label.USER_ID].astype(str)
-
-    # Executing
-    items_set = dataset_instance.get_items()
-
-    # Get the users' preferences set
-    users_preference_set = dataset_instance.get_train_transactions(
-        trial=trial, fold=fold
-    )
-
-    instance = Miscalibration(
-        users_profile_df=users_preference_set,
-        users_rec_list_df=users_recommendation_lists,
-        items_set_df=items_set, distribution_name=distribution, distance_func_name=fairness
-    )
-    _value = instance.compute()
-    results = pd.DataFrame([[
-        _value
-    ]], columns=[Label.MC])
-
-    SaveAndLoad.save_recommender_metric(
-        data=results, metric=Label.MC,
-        recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-        distribution=distribution, fairness=fairness, relevance=relevance,
-        weight=weight, tradeoff=tradeoff, selector=selector
-    )
-    return "Finished"
-
-
-def applying_mamc(
-    recommender: str, dataset: str, trial: int, fold: int,
-    distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str,
-    checkpoint: str
-):
-    """
-    Function that apply the evaluation metrics.
-    """
-
-    system_name = "-".join([
-        dataset, 'trial-' + str(trial), 'fold-' + str(fold), recommender,
-        tradeoff, distribution, relevance, selector, fairness, tradeoff, "-->", Label.MAMC
-    ])
-
-    if checkpoint == "YES" and CheckpointVerification.unit_step5_recommendation_verification(
-            dataset=dataset, trial=trial, fold=fold,
-            metric=Label.MAMC, recommender=recommender,
-            distribution=distribution, fairness=fairness, relevance=relevance,
-            weight=weight, tradeoff=tradeoff, selector=selector
-    ):
-        logger.info(">> Already Done... " + system_name)
-        return "Already Done"
-
-    dataset_instance = RegisteredDataset.load_dataset(dataset)
-
-    path = PathDirFile.get_recommendation_list_file(
-        dataset=dataset, recommender=recommender, trial=trial, fold=fold,
-        tradeoff=tradeoff, distribution=distribution, fairness=fairness,
-        relevance=relevance, tradeoff_weight=weight, select_item=selector
-    )
-    users_recommendation_lists = pd.read_csv(path)
-    users_recommendation_lists[Label.USER_ID] = users_recommendation_lists[Label.USER_ID].astype(str)
-
-    # Executing
-    items_set = dataset_instance.get_items()
-
-    # Get the users' preferences set
-    users_preference_set = dataset_instance.get_train_transactions(
-        trial=trial, fold=fold
-    )
-
-    instance = MeanAverageMiscalibration(
-        users_profile_df=users_preference_set,
-        users_rec_list_df=users_recommendation_lists,
-        items_set_df=items_set, distribution_name=distribution, distance_func_name=fairness
-    )
-    _value = instance.compute()
-    results = pd.DataFrame([[
-        _value
-    ]], columns=[Label.MAMC])
-
-    SaveAndLoad.save_recommender_metric(
-        data=results, metric=Label.MAMC,
-        recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-        distribution=distribution, fairness=fairness, relevance=relevance,
-        weight=weight, tradeoff=tradeoff, selector=selector
-    )
-    return "Finished"
+    def verifying_checkpoint(self):
+        if (
+            self.checkpoint == "YES" and
+            CheckpointVerification.unit_step5_recommendation_verification(
+                dataset=self.dataset, trial=self.trial, fold=self.fold,
+                metric=self.metric, recommender=self.recommender,
+                distribution=self.distribution, fairness=self.fairness,
+                relevance=self.relevance,
+                weight=self.weight, tradeoff=self.tradeoff, selector=self.selector
+            )
+        ):
+            return True
+        return False
 
 
 def applying_mrmc(
-    recommender: str, dataset: str, trial: int, fold: int,
-    distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str,
-    checkpoint: str
+        recommender: str, dataset: str, trial: int, fold: int,
+        distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str,
+        checkpoint: str
 ):
     """
     Function that apply the evaluation metrics.
@@ -369,9 +247,9 @@ def applying_mrmc(
 
 
 def applying_unexpectedness(
-    recommender: str, dataset: str, trial: int, fold: int,
-    distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str,
-    checkpoint: str
+        recommender: str, dataset: str, trial: int, fold: int,
+        distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str,
+        checkpoint: str
 ):
     """
     Function that apply the evaluation metrics.
@@ -419,9 +297,9 @@ def applying_unexpectedness(
 
 
 def applying_serendipity(
-    recommender: str, dataset: str, trial: int, fold: int,
-    distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str,
-    checkpoint: str
+        recommender: str, dataset: str, trial: int, fold: int,
+        distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str,
+        checkpoint: str
 ):
     """
     Function that apply the evaluation metrics.
@@ -477,9 +355,9 @@ def applying_serendipity(
 
 
 def applying_novelty(
-    recommender: str, dataset: str, trial: int, fold: int,
-    distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str,
-    checkpoint: str
+        recommender: str, dataset: str, trial: int, fold: int,
+        distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str,
+        checkpoint: str
 ):
     """
     Function that apply the evaluation metrics.
@@ -511,7 +389,8 @@ def applying_novelty(
 
     # Executing
 
-    rec_set = [row[Label.ITEM_ID].tolist() for ix, row in users_recommendation_lists.groupby(by=[Label.USER_ID])]
+    rec_set = [row[Label.ITEM_ID].tolist() for ix, row in
+               users_recommendation_lists.groupby(by=[Label.USER_ID])]
     pop = Counter(train_df[Label.ITEM_ID].tolist())
     u = train_df[Label.USER_ID].nunique()
     metric_value, _ = recmetrics.novelty(
@@ -534,9 +413,9 @@ def applying_novelty(
 
 
 def applying_coverage(
-    recommender: str, dataset: str, trial: int, fold: int,
-    distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str,
-    checkpoint: str
+        recommender: str, dataset: str, trial: int, fold: int,
+        distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str,
+        checkpoint: str
 ):
     """
     Function that apply the evaluation metrics.
@@ -565,7 +444,8 @@ def applying_coverage(
         relevance=relevance, tradeoff_weight=weight, select_item=selector
     )
     users_recommendation_lists = pd.read_csv(path)
-    rec_set = [row[Label.ITEM_ID].tolist() for ix, row in users_recommendation_lists.groupby(by=[Label.USER_ID])]
+    rec_set = [row[Label.ITEM_ID].tolist() for ix, row in
+               users_recommendation_lists.groupby(by=[Label.USER_ID])]
 
     # Executing
     metric_value = recmetrics.prediction_coverage(
@@ -588,9 +468,9 @@ def applying_coverage(
 
 
 def applying_personalization(
-    recommender: str, dataset: str, trial: int, fold: int,
-    distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str,
-    checkpoint: str
+        recommender: str, dataset: str, trial: int, fold: int,
+        distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str,
+        checkpoint: str
 ):
     """
     Function that apply the evaluation metrics.
@@ -598,7 +478,8 @@ def applying_personalization(
 
     system_name = "-".join([
         dataset, 'trial-' + str(trial), 'fold-' + str(fold), recommender,
-        tradeoff, distribution, relevance, selector, fairness, tradeoff, "-->", Label.PERSONALIZATION
+        tradeoff, distribution, relevance, selector, fairness, tradeoff, "-->",
+        Label.PERSONALIZATION
     ])
 
     if checkpoint == "YES" and CheckpointVerification.unit_step5_recommendation_verification(
@@ -616,7 +497,8 @@ def applying_personalization(
         relevance=relevance, tradeoff_weight=weight, select_item=selector
     )
     users_recommendation_lists = pd.read_csv(path)
-    rec_set = [row[Label.ITEM_ID].tolist() for ix, row in users_recommendation_lists.groupby(by=[Label.USER_ID])]
+    rec_set = [row[Label.ITEM_ID].tolist() for ix, row in
+               users_recommendation_lists.groupby(by=[Label.USER_ID])]
 
     # Executing
     metric_value = recmetrics.personalization(
@@ -639,9 +521,9 @@ def applying_personalization(
 
 
 def execution_time_fold(
-    recommender: str, dataset: str, trial: int, fold: int,
-    distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str,
-    checkpoint: str
+        recommender: str, dataset: str, trial: int, fold: int,
+        distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str,
+        checkpoint: str
 ):
     path = PathDirFile.get_postprocessing_time_file(
         dataset=dataset, recommender=recommender, trial=trial, fold=fold,

@@ -142,6 +142,9 @@ class Label:
     SERENDIPITY = "SERENDIPITY"
     PERSONALIZATION = "PERSONALIZATION"
 
+    ANC = "ANC"
+    ANGC = "ANGC"
+
     # # Calibration Metrics
     MACE = 'MACE'
     MRMC = 'MRMC'

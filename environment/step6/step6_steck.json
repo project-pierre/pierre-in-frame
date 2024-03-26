@@ -1,8 +1,8 @@
 {
   "multiprocessing": "joblib",
-  "n_jobs": 30,
+  "n_jobs": 6,
   "opt": "EVALUATION_METRICS",
-  "metric": ["MAP", "MRR", "MC"],
+  "metric": ["ANC"],
   "recommender": ["ALS", "BPR", "DAE"],
   "dataset": ["food", "ml-20m", "lfm-2b-subset"],
   "fold": [1],
