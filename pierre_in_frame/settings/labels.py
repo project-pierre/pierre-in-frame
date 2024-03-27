@@ -142,7 +142,7 @@ class Label:
     SERENDIPITY = "SERENDIPITY"
     PERSONALIZATION = "PERSONALIZATION"
 
-    ANC = "ANC"
+    ANIC = "ANIC"
     ANGC = "ANGC"
 
     # # Calibration Metrics

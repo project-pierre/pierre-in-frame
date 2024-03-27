@@ -38,43 +38,25 @@ def applying_evaluation_metrics(
 
         if instance.verifying_checkpoint():
             continue
+
         if m == Label.MAP:
             instance.load_map()
-            instance.compute()
         elif m == Label.MRR:
             instance.load_mrr()
-            instance.compute()
-        elif m == Label.ANC:
+        elif m == Label.UNEXPECTEDNESS:
+            instance.load_unexpectedness()
+        elif m == Label.ANIC:
             instance.load_anc()
-            instance.compute()
         elif m == Label.ANGC:
             instance.load_angc()
-            instance.compute()
         elif m == Label.MACE:
             instance.load_mace()
-            instance.compute()
         elif m == Label.MAMC:
             instance.load_mamc()
-            instance.compute()
         elif m == Label.MC:
             instance.load_mc()
-            instance.compute()
-        elif m == Label.UNEXPECTEDNESS:
-            load_monitoring.append(
-                evaluation_interface.applying_unexpectedness(
-                    recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-                    distribution=distribution, fairness=fairness, relevance=relevance,
-                    weight=weight, tradeoff=tradeoff, selector=selector, checkpoint=checkpoint
-                )
-            )
         elif m == Label.SERENDIPITY:
-            load_monitoring.append(
-                evaluation_interface.applying_serendipity(
-                    recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-                    distribution=distribution, fairness=fairness, relevance=relevance,
-                    weight=weight, tradeoff=tradeoff, selector=selector, checkpoint=checkpoint
-                )
-            )
+            instance.load_serendipity()
         elif m == Label.NOVELTY:
             load_monitoring.append(
                 evaluation_interface.applying_novelty(
@@ -107,16 +89,10 @@ def applying_evaluation_metrics(
                     weight=weight, tradeoff=tradeoff, selector=selector, checkpoint=checkpoint
                 )
             )
-        elif m == Label.MRMC:
-            load_monitoring.append(
-                evaluation_interface.applying_mrmc(
-                    recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-                    distribution=distribution, fairness=fairness, relevance=relevance,
-                    weight=weight, tradeoff=tradeoff, selector=selector, checkpoint=checkpoint
-                )
-            )
         else:
             continue
+
+        instance.compute()
     return load_monitoring
 
 

@@ -3,7 +3,7 @@
   "n_jobs": 31,
   "checkpoint": "NO",
   "opt": "EVALUATION_METRICS",
-  "metric": ["ANGC"],
+  "metric": ["MAP", "MRR", "UNEXPECTEDNESS", "SERENDIPITY","ANIC", "ANGC"],
   "recommender": ["ALS", "BPR", "DAE"],
   "cluster": [],
   "dataset": ["food", "ml-20m", "lfm-2b-subset"],
