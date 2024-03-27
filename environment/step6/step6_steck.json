@@ -2,7 +2,7 @@
   "multiprocessing": "joblib",
   "n_jobs": 6,
   "opt": "EVALUATION_METRICS",
-  "metric": ["ANC"],
+  "metric": ["ANGC"],
   "recommender": ["ALS", "BPR", "DAE"],
   "dataset": ["food", "ml-20m", "lfm-2b-subset"],
   "fold": [1],
