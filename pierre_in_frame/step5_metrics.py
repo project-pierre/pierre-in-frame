@@ -46,8 +46,10 @@ def applying_evaluation_metrics(
         elif m == Label.UNEXPECTEDNESS:
             instance.load_unexpectedness()
         elif m == Label.ANIC:
+            instance.load_rec_baseline()
             instance.load_anc()
         elif m == Label.ANGC:
+            instance.load_rec_baseline()
             instance.load_angc()
         elif m == Label.MACE:
             instance.load_mace()
@@ -56,6 +58,7 @@ def applying_evaluation_metrics(
         elif m == Label.MC:
             instance.load_mc()
         elif m == Label.SERENDIPITY:
+            instance.load_rec_baseline()
             instance.load_serendipity()
         elif m == Label.NOVELTY:
             load_monitoring.append(

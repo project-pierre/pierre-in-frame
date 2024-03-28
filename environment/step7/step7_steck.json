@@ -4,7 +4,7 @@
   "dataset": ["food", "ml-20m", "lfm-2b-subset"],
   "type": ["LINE", "HEAT_WELCH"],
   "goal": ["DISTRIBUTION_LABEL"],
-  "metric": ["MAP", "MRR", "UNEXPECTEDNESS", "SERENDIPITY","ANIC", "ANGC"],
+  "metric": ["MC", "ANIC", "ANGC"],
   "recommender": ["ALS", "BPR", "DAE"],
   "tradeoff": ["LIN"],
   "fairness": ["KL"],

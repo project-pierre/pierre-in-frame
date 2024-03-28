@@ -119,7 +119,7 @@ class ApplyingMetric:
     def load_anc(self):
         self.metric_instance = AverageNumberOfOItemsChanges(
             users_rec_list_df=self.users_rec_list_df,
-            users_cand_items_df=self.users_cand_items_df
+            users_baseline_df=self.users_baseline_df
         )
 
     def load_map(self):
@@ -141,7 +141,6 @@ class ApplyingMetric:
         )
 
     def load_serendipity(self):
-        self.load_rec_baseline()
         self.metric_instance = Serendipity(
             users_rec_list_df=self.users_rec_list_df,
             users_test_df=self.users_test_set_df,
@@ -176,7 +175,7 @@ class ApplyingMetric:
 
     def load_angc(self):
         self.metric_instance = AverageNumberOfGenreChanges(
-            users_cand_items_df=self.users_cand_items_df,
+            users_baseline_df=self.users_baseline_df,
             users_rec_list_df=self.users_rec_list_df,
             items_df=self.items_set
         )

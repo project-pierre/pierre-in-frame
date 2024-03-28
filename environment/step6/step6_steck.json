@@ -2,7 +2,7 @@
   "multiprocessing": "joblib",
   "n_jobs": 31,
   "opt": "EVALUATION_METRICS",
-  "metric": ["MAP", "MRR", "UNEXPECTEDNESS", "SERENDIPITY","ANIC", "ANGC"],
+  "metric": ["MC", "ANIC", "ANGC"],
   "recommender": ["ALS", "BPR", "DAE"],
   "dataset": ["food", "ml-20m", "lfm-2b-subset"],
   "fold": [1],
