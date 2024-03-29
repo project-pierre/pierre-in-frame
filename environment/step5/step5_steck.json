@@ -1,9 +1,9 @@
 {
   "multiprocessing": "joblib",
   "n_jobs": 31,
-  "checkpoint": "NO",
+  "checkpoint": "YES",
   "opt": "EVALUATION_METRICS",
-  "metric": ["MC", "ANIC", "ANGC"],
+  "metric": ["MACE", "INC_MC", "DEC_MC"],
   "recommender": ["ALS", "BPR", "DAE"],
   "cluster": [],
   "dataset": ["food", "ml-20m", "lfm-2b-subset"],

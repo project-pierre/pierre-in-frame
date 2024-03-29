@@ -9,7 +9,8 @@ from datasets.registred_datasets import RegisteredDataset
 from scikit_pierre.metrics.evaluation import (
     Miscalibration, MeanAbsoluteCalibrationError,
     MeanAveragePrecision, MeanReciprocalRank, MeanAverageMiscalibration,
-    AverageNumberOfOItemsChanges, AverageNumberOfGenreChanges, Unexpectedness, Serendipity
+    AverageNumberOfOItemsChanges, AverageNumberOfGenreChanges, Unexpectedness, Serendipity,
+    ExplainingMiscalibration, IncreaseAndDecreaseMiscalibration
 )
 from settings.constants import Constants
 from settings.labels import Label
@@ -80,11 +81,12 @@ class ApplyingMetric:
         """
 
         """
-        self.users_baseline_df = SaveAndLoad.load_recommendation_lists(
-            recommender=self.recommender, dataset=self.dataset, trial=self.trial, fold=self.fold,
-            distribution=self.distribution, fairness=self.fairness, relevance=self.relevance,
-            tradeoff_weight="C@0.0", tradeoff=self.tradeoff, select_item=self.selector
-        )
+        if self.users_baseline_df is None:
+            self.users_baseline_df = SaveAndLoad.load_recommendation_lists(
+                recommender=self.recommender, dataset=self.dataset, trial=self.trial, fold=self.fold,
+                distribution=self.distribution, fairness=self.fairness, relevance=self.relevance,
+                tradeoff_weight="C@0.0", tradeoff=self.tradeoff, select_item=self.selector
+            )
 
     def load_items_set(self):
         self.items_set = self.dataset_instance.get_items()
@@ -120,6 +122,13 @@ class ApplyingMetric:
         self.metric_instance = AverageNumberOfOItemsChanges(
             users_rec_list_df=self.users_rec_list_df,
             users_baseline_df=self.users_baseline_df
+        )
+
+    def load_angc(self):
+        self.metric_instance = AverageNumberOfGenreChanges(
+            users_baseline_df=self.users_baseline_df,
+            users_rec_list_df=self.users_rec_list_df,
+            items_df=self.items_set
         )
 
     def load_map(self):
@@ -173,12 +182,26 @@ class ApplyingMetric:
             distance_func_name=self.fairness
         )
 
-    def load_angc(self):
-        self.metric_instance = AverageNumberOfGenreChanges(
-            users_baseline_df=self.users_baseline_df,
+    def load_exp_mc(self):
+        self.metric_instance = ExplainingMiscalibration(
+            users_profile_df=self.users_prof_df,
             users_rec_list_df=self.users_rec_list_df,
-            items_df=self.items_set
+            users_baseline_df=self.users_baseline_df,
+            items_df=self.items_set,
+            distribution_name=self.distribution,
+            distance_func_name=self.fairness
         )
+
+    def load_inc_dec_mc(self, choice: bool):
+        self.metric_instance = IncreaseAndDecreaseMiscalibration(
+            users_profile_df=self.users_prof_df,
+            users_rec_list_df=self.users_rec_list_df,
+            users_baseline_df=self.users_baseline_df,
+            items_df=self.items_set,
+            distribution_name=self.distribution,
+            distance_func_name=self.fairness
+        )
+        self.metric_instance.set_choice(choice)
 
     def compute(self):
         _value = self.metric_instance.compute()
