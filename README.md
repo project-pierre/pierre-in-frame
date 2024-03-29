@@ -61,17 +61,17 @@ The train and test file from each fold and trial are created inside:
 1. Train: `data/datasets/clean/<dataset_name>/trial-<trial_number>/fold-<fold_number>/train.csv`  
 2. Test: `data/datasets/clean/<dataset_name>/trial-<trial_number>/fold-<fold_number>/test.csv`  
 
-#### Run Examples
+#### Run Examples of Split option
 1. Movielens 1M     
-1.1. 10-trials by default 5-folds: `python step1_preprocessing.py --dataset=ml-1m --n_trials=10`  
-1.2. 3-folds by default 7-trials: `python step1_preprocessing.py --dataset=ml-1m --n_folds=3`  
-1.3. 3-folds by 10-trials: `python step1_preprocessing.py --dataset=ml-1m --n_trials=10 --n_folds=3`  
-1.4. Default (5-fold 7-trials): `python step1_preprocessing.py --dataset=ml-1m`  
+1.1. 10-trials by default 5-folds: `python step1_preprocessing.py -opt=SPLIT --dataset=ml-1m --n_trials=10`  
+1.2. 3-folds by default 7-trials: `python step1_preprocessing.py -opt=SPLIT --dataset=ml-1m --n_folds=3`  
+1.3. 3-folds by 10-trials: `python step1_preprocessing.py -opt=SPLIT --dataset=ml-1m --n_trials=10 --n_folds=3`  
+1.4. Default (5-fold 7-trials): `python step1_preprocessing.py -opt=SPLIT --dataset=ml-1m`  
 2. Yahoo Movies  
-2.1. 5-trials by default 5-folds: `python step1_preprocessing.py --dataset=yahoo-movies --n_trials=5`  
-2.2. 7-folds by default 7-trials: `python step1_preprocessing.py --dataset=yahoo-movies --n_folds=7`  
-2.3. 5-folds by 5-trials: `python step1_preprocessing.py --dataset=yahoo-movies --n_trials=5 --n_folds=5`  
-2.4. Default (5-fold 7-trials): `python step1_preprocessing.py --dataset=yahoo-movies`  
+2.1. 5-trials by default 5-folds: `python step1_preprocessing.py -opt=SPLIT --dataset=yahoo-movies --n_trials=5`  
+2.2. 7-folds by default 7-trials: `python step1_preprocessing.py -opt=SPLIT --dataset=yahoo-movies --n_folds=7`  
+2.3. 5-folds by 5-trials: `python step1_preprocessing.py -opt=SPLIT --dataset=yahoo-movies --n_trials=5 --n_folds=5`  
+2.4. Default (5-fold 7-trials): `python step1_preprocessing.py -opt=SPLIT --dataset=yahoo-movies`  
 
 ### Step 2: Best Parameter Search
 In this step, the Random Search method is applied to find the best set of hyperparameters.
