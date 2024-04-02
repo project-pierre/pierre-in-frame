@@ -99,7 +99,9 @@ class SaveAndLoad:
     # ########################################################################################### #
 
     @staticmethod
-    def save_hyperparameters_recommender(best_params: dict, dataset: str, trial: int, fold: int, algorithm: str):
+    def save_hyperparameters_recommender(
+            best_params: dict, dataset: str, trial: int, fold: int, algorithm: str
+    ):
         """
         TODO: Docstring
         """
@@ -134,12 +136,16 @@ class SaveAndLoad:
             json.dump(best_params, fp)
 
     @staticmethod
-    def load_hyperparameters_conformity(dataset: str, recommender: str, cluster: str, distribution: str):
+    def load_hyperparameters_conformity(
+            dataset: str, recommender: str, cluster: str, distribution: str
+    ):
         """
         TODO: Docstring
         """
         path_to_open = PathDirFile.get_conformity_hyperparameter_file(
-            opt=Label.CONFORMITY, dataset=dataset, recommender=recommender, cluster=cluster, distribution=distribution)
+            opt=Label.CONFORMITY, dataset=dataset, recommender=recommender,
+            cluster=cluster, distribution=distribution
+        )
         with open(path_to_open) as json_file:
             params = json.load(json_file)
 
@@ -159,7 +165,9 @@ class SaveAndLoad:
         )
 
     @staticmethod
-    def save_search_conformity_time(data: DataFrame, dataset: str, algorithm: str, distribution: str):
+    def save_search_conformity_time(
+            data: DataFrame, dataset: str, algorithm: str, distribution: str
+    ):
         """
         TODO: Docstring
         """
@@ -279,7 +287,8 @@ class SaveAndLoad:
     def save_conformity_metric_time(
             data: DataFrame,
             cluster: str, recommender: str, dataset: str, trial: int, fold: int,
-            distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str
+            distribution: str, fairness: str, relevance: str, weight: str,
+            tradeoff: str, selector: str
     ):
         """
         TODO: Docstring
