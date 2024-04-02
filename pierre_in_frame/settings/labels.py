@@ -150,9 +150,12 @@ class Label:
     MRMC = 'MRMC'
     MAMC = 'MAMC'
     MC = 'MC'
-    EXP_MC = 'EXP_MC'
-    INC_MC = 'INC_MC'
-    DEC_MC = 'DEC_MC'
+    EXPLAIN_MC = 'EXPLAIN_MC'
+    NUMBER_INC_MC = 'NUMBER_INC_MC'
+    NUMBER_DEC_MC = 'NUMBER_DEC_MC'
+    VALUE_INC_MC = 'VALUE_INC_MC'
+    VALUE_DEC_MC = 'VALUE_DEC_MC'
+
     CALIBRATION = [MACE, MRMC, MAMC]
     # # Time Metrics
     RUN_TIME = 'TIME'

@@ -3,7 +3,12 @@
   "n_jobs": 31,
   "checkpoint": "YES",
   "opt": "EVALUATION_METRICS",
-  "metric": ["MACE", "INC_MC", "DEC_MC"],
+  "metric": [
+    "NUMBER_INC_MC",
+    "NUMBER_DEC_MC",
+    "VALUE_INC_MC",
+    "VALUE_DEC_MC"
+  ],
   "recommender": ["ALS", "BPR", "DAE"],
   "cluster": [],
   "dataset": ["food", "ml-20m", "lfm-2b-subset"],

@@ -60,15 +60,21 @@ def applying_evaluation_metrics(
         elif m == Label.SERENDIPITY:
             instance.load_rec_baseline()
             instance.load_serendipity()
-        elif m == Label.EXP_MC:
+        elif m == Label.EXPLAIN_MC:
             instance.load_rec_baseline()
             instance.load_exp_mc()
-        elif m == Label.INC_MC:
+
+        elif m == Label.NUMBER_INC_MC:
             instance.load_rec_baseline()
-            instance.load_inc_dec_mc(choice=True)
-        elif m == Label.DEC_MC:
+            instance.load_inc_dec_mc(increase=True)
+        elif m == Label.NUMBER_DEC_MC:
             instance.load_rec_baseline()
-            instance.load_inc_dec_mc(choice=False)
+            instance.load_inc_dec_mc(increase=False)
+        elif m == Label.VALUE_INC_MC:
+            instance.load_user_inc_dec_mc(increase=True)
+        elif m == Label.VALUE_DEC_MC:
+            instance.load_user_inc_dec_mc(increase=False)
+
         elif m == Label.NOVELTY:
             load_monitoring.append(
                 evaluation_interface.applying_novelty(

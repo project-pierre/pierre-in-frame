@@ -10,7 +10,7 @@ from scikit_pierre.metrics.evaluation import (
     Miscalibration, MeanAbsoluteCalibrationError,
     MeanAveragePrecision, MeanReciprocalRank, MeanAverageMiscalibration,
     AverageNumberOfOItemsChanges, AverageNumberOfGenreChanges, Unexpectedness, Serendipity,
-    ExplainingMiscalibration, IncreaseAndDecreaseMiscalibration
+    ExplainingMiscalibration, NumberOfUserIncreaseAndDecreaseMiscalibration, UserIDMiscalibration
 )
 from settings.constants import Constants
 from settings.labels import Label
@@ -192,8 +192,8 @@ class ApplyingMetric:
             distance_func_name=self.fairness
         )
 
-    def load_inc_dec_mc(self, choice: bool):
-        self.metric_instance = IncreaseAndDecreaseMiscalibration(
+    def load_inc_dec_mc(self, increase: bool):
+        self.metric_instance = NumberOfUserIncreaseAndDecreaseMiscalibration(
             users_profile_df=self.users_prof_df,
             users_rec_list_df=self.users_rec_list_df,
             users_baseline_df=self.users_baseline_df,
@@ -201,7 +201,18 @@ class ApplyingMetric:
             distribution_name=self.distribution,
             distance_func_name=self.fairness
         )
-        self.metric_instance.set_choice(choice)
+        self.metric_instance.set_choice(choice=increase)
+
+    def load_user_inc_dec_mc(self, increase: bool):
+        self.metric_instance = UserIDMiscalibration(
+            users_profile_df=self.users_prof_df,
+            users_rec_list_df=self.users_rec_list_df,
+            users_baseline_df=self.users_baseline_df,
+            items_df=self.items_set,
+            distribution_name=self.distribution,
+            distance_func_name=self.fairness
+        )
+        self.metric_instance.set_choice(choice=increase)
 
     def compute(self):
         _value = self.metric_instance.compute()
