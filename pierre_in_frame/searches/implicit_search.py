@@ -11,7 +11,7 @@ from statistics import mean
 from datasets.registred_datasets import RegisteredDataset
 from datasets.utils import split
 from datasets.utils.split import SequentialTimeSplit
-from scikit_pierre.metrics.evaluation import mean_average_precision
+from scikit_pierre.metrics.evaluation import MeanAveragePrecision
 from searches.parameters import ImplicitParams
 from settings.labels import Label
 from settings.save_and_load import SaveAndLoad
@@ -93,7 +93,11 @@ class ImplicitGridSearch:
                 random_state=random_state, num_threads=1
             )
             rec_lists_df = self.__run__(recommender=recommender, users_preferences=train)
-            map_value.append(mean_average_precision(rec_lists_df, test))
+            metric_instance = MeanAveragePrecision(
+                users_rec_list_df=rec_lists_df,
+                users_test_set_df=test
+            )
+            map_value.append(metric_instance.compute())
 
         return {
             "map": mean(map_value),
@@ -114,11 +118,15 @@ class ImplicitGridSearch:
 
         for train, test in zip(train_list, test_list):
             recommender = implicit.bpr.BayesianPersonalizedRanking(
-                factors=factors, regularization=regularization, learning_rate=learning_rate, iterations=iterations,
-                random_state=random_state, num_threads=1
+                factors=factors, regularization=regularization, learning_rate=learning_rate,
+                iterations=iterations, random_state=random_state, num_threads=1
             )
             rec_lists_df = self.__run__(recommender=recommender, users_preferences=train)
-            map_value.append(mean_average_precision(rec_lists_df, test))
+            metric_instance = MeanAveragePrecision(
+                users_rec_list_df=rec_lists_df,
+                users_test_set_df=test
+            )
+            map_value.append(metric_instance.compute())
 
         return {
             "map": mean(map_value),
@@ -139,15 +147,21 @@ class ImplicitGridSearch:
         print(self.dataset.system_name)
         train_list = []
         test_list = []
-        self.users_preferences = self.dataset.get_train_transactions(fold=self.fold, trial=self.trial)
+        self.users_preferences = self.dataset.get_train_transactions(
+            fold=self.fold, trial=self.trial
+        )
         if self.based_on == Label.TIME:
             cv_folds = []
-            instance = SequentialTimeSplit(transactions_df=self.users_preferences, n_folds=self.n_splits)
+            instance = SequentialTimeSplit(
+                transactions_df=self.users_preferences, n_folds=self.n_splits
+            )
             train_df, test_df = instance.main()
             train_list.append(train_df)
             test_list.append(test_df)
         else:
-            cv_folds = split.split_with_joblib(transactions_df=self.users_preferences, trial=1, n_folds=self.n_splits)
+            cv_folds = split.split_with_joblib(
+                transactions_df=self.users_preferences, trial=1, n_folds=self.n_splits
+            )
 
             for train, test in cv_folds:
                 train_list.append(train)

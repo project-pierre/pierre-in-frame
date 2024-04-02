@@ -7,7 +7,7 @@ import recommender_pierre
 from datasets.registred_datasets import RegisteredDataset
 from datasets.utils import split
 from datasets.utils.split import SequentialTimeSplit
-from scikit_pierre.metrics.evaluation import mean_average_precision
+from scikit_pierre.metrics.evaluation import MeanAveragePrecision
 from searches.parameters import PierreParams
 from settings.labels import Label
 from settings.save_and_load import SaveAndLoad
@@ -53,7 +53,11 @@ class PierreGridSearch:
                     batch=8
                 )
             rec_lists_df = recommender.train_and_produce_rec_list(user_transactions_df=train)
-            map_value.append(mean_average_precision(rec_lists_df, test))
+            metric_instance = MeanAveragePrecision(
+                users_rec_list_df=rec_lists_df,
+                users_test_set_df=test
+            )
+            map_value.append(metric_instance.compute())
 
         return {
             "map": mean(map_value),
