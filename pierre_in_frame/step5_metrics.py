@@ -45,6 +45,8 @@ def applying_evaluation_metrics(
             instance.load_mrr()
         elif m == Label.UNEXPECTEDNESS:
             instance.load_unexpectedness()
+        elif m == Label.ILS:
+            instance.load_ils()
         elif m == Label.ANIC:
             instance.load_rec_baseline()
             instance.load_anc()

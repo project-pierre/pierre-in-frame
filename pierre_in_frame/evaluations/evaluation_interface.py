@@ -10,7 +10,8 @@ from scikit_pierre.metrics.evaluation import (
     Miscalibration, MeanAbsoluteCalibrationError,
     MeanAveragePrecision, MeanReciprocalRank, MeanAverageMiscalibration,
     AverageNumberOfOItemsChanges, AverageNumberOfGenreChanges, Unexpectedness, Serendipity,
-    ExplainingMiscalibration, NumberOfUserIncreaseAndDecreaseMiscalibration, UserIDMiscalibration
+    ExplainingMiscalibration, NumberOfUserIncreaseAndDecreaseMiscalibration, UserIDMiscalibration,
+    IntraListSimilarity
 )
 from settings.constants import Constants
 from settings.labels import Label
@@ -147,6 +148,12 @@ class ApplyingMetric:
         self.metric_instance = Unexpectedness(
             users_rec_list_df=self.users_rec_list_df,
             users_test_df=self.users_test_set_df
+        )
+
+    def load_ils(self):
+        self.metric_instance = IntraListSimilarity(
+            users_rec_list_df=self.users_rec_list_df,
+            items_df=self.items_set
         )
 
     def load_serendipity(self):
