@@ -71,8 +71,10 @@ def applying_evaluation_metrics(
             instance.load_rec_baseline()
             instance.load_inc_dec_mc(increase=False)
         elif m == Label.VALUE_INC_MC:
+            instance.load_rec_baseline()
             instance.load_user_inc_dec_mc(increase=True)
         elif m == Label.VALUE_DEC_MC:
+            instance.load_rec_baseline()
             instance.load_user_inc_dec_mc(increase=False)
 
         elif m == Label.NOVELTY:
