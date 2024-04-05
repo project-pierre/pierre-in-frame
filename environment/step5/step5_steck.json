@@ -1,10 +1,14 @@
 {
   "multiprocessing": "joblib",
   "n_jobs": 31,
-  "checkpoint": "NO",
+  "checkpoint": "YES",
   "opt": "EVALUATION_METRICS",
   "metric": [
-    "ILS"
+    "ILS",
+    "NUMBER_INC_MC",
+    "NUMBER_DEC_MC",
+    "VALUE_INC_MC",
+    "VALUE_DEC_MC"
   ],
   "recommender": ["ALS", "BPR", "DAE"],
   "cluster": [],

@@ -3,6 +3,7 @@
   "n_jobs": 31,
   "opt": "EVALUATION_METRICS",
   "metric": [
+    "ILS",
     "NUMBER_INC_MC",
     "NUMBER_DEC_MC",
     "VALUE_INC_MC",
