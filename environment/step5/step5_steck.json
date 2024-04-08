@@ -1,7 +1,7 @@
 {
   "multiprocessing": "joblib",
-  "n_jobs": 1,
-  "checkpoint": "NO",
+  "n_jobs": 3,
+  "checkpoint": "YES",
   "opt": "EVALUATION_METRICS",
   "metric": [
     "ILS"
