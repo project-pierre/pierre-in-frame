@@ -5,7 +5,6 @@
   "type": ["LINE", "HEAT_WELCH"],
   "goal": ["DISTRIBUTION_LABEL"],
   "metric": [
-    "ILS",
     "NUMBER_INC_MC",
     "NUMBER_DEC_MC",
     "VALUE_INC_MC",
