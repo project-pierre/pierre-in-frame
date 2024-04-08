@@ -78,6 +78,33 @@ class SaveAndLoad:
     # ########################################################################################### #
 
     @staticmethod
+    def save_item_class_one_hot_encode(
+            data: DataFrame, dataset: str, ext: str = 'csv'
+    ):
+        """
+        This method is to save the item one hot encode file.
+        """
+        data.to_csv(
+            PathDirFile.item_class_one_hot_encode_file(
+                dataset=dataset, filename="item_one_hot_encode" + '.' + ext
+            ), mode='w+'
+        )
+
+    @staticmethod
+    def load_item_class_one_hot_encode(
+            dataset: str, ext: str = 'csv'
+    ) -> DataFrame:
+        """
+        This method is to load the one hot encode file.
+        """
+        preference_distribution_path = PathDirFile.item_class_one_hot_encode_file(
+                dataset=dataset, filename="item_one_hot_encode" + '.' + ext
+        )
+        return read_csv(preference_distribution_path, index_col=0)
+
+    # ########################################################################################### #
+
+    @staticmethod
     def save_dataset_analyze(
             data: DataFrame, dataset: str, ext: str = 'csv'
     ):

@@ -6,6 +6,7 @@ from joblib import Parallel, delayed
 from datasets.registred_datasets import RegisteredDataset
 from graphics.dataset_chart import DatasetChart
 from scikit_pierre.distributions.compute_distribution import computer_users_distribution
+from scikit_pierre.models.item import ItemsInMemory
 from settings.labels import Label
 from settings.path_dir_file import PathDirFile
 from settings.save_and_load import SaveAndLoad
@@ -48,7 +49,7 @@ class PierreStep1(Step):
         # Logging the experiment setup
         logger.info(f"> DATASET (PREPROCESSING STEP) - {self.experimental_settings['opt']}")
         logger.info(" ".join(['>>', 'Option:', self.experimental_settings['opt']]))
-        logger.info(" ".join(['>>', 'Dataset:', self.experimental_settings['dataset']]))
+        logger.info(" ".join(['>>', 'Dataset:', str(self.experimental_settings['dataset'])]))
         if self.experimental_settings['opt'] == Label.DATASET_SPLIT:
             logger.info(" ".join(['>>', 'Number of Folds:', str(self.experimental_settings['n_folds'])]))
             logger.info(" ".join(['>>', 'Number of Trials:', str(self.experimental_settings['n_trials'])]))
@@ -121,6 +122,23 @@ class PierreStep1(Step):
             data=dataset_info_df, dataset=self.experimental_settings['dataset']
         )
 
+    def compute_class_one_hot_encode(self, dataset):
+        dataset_instance = RegisteredDataset.load_dataset(dataset)
+        _items = ItemsInMemory(data=dataset_instance.get_items())
+        _items.one_hot_encode()
+        encoded = _items.get_encoded()
+        SaveAndLoad.save_item_class_one_hot_encode(
+            data=encoded, dataset=dataset
+        )
+
+    def create_class_one_hot_encode(self):
+        self.compute_class_one_hot_encode(dataset=self.experimental_settings['dataset'])
+        # # Start the processes in parallel using joblib
+        # Parallel(n_jobs=self.experimental_settings['n_jobs'])(
+        #     delayed(self.compute_class_one_hot_encode)(dataset=dataset)
+        #     for dataset in self.experimental_settings['dataset']
+        # )
+
     def create_distribution(self):
         """
         This method is to lead with the distribution file.
@@ -155,7 +173,8 @@ class PierreStep1(Step):
         )
 
         data = computer_users_distribution(
-            users_preference_set=users_preference_set, items_df=dataset_instance.get_items(), distribution=distribution
+            users_preference_set=users_preference_set, items_df=dataset_instance.get_items(),
+            distribution=distribution
         )
 
         # Save the distributions
@@ -164,7 +183,8 @@ class PierreStep1(Step):
         )
 
         logger.info(" ... ".join([
-            '->> ', 'Compute Distribution Finished to: ', dataset, distribution, str(trial), str(fold)
+            '->> ', 'Compute Distribution Finished to: ', dataset, distribution,
+            str(trial), str(fold)
         ]))
 
     def main(self):
@@ -177,6 +197,8 @@ class PierreStep1(Step):
             self.create_analyzes()
         elif self.experimental_settings['opt'] == Label.DATASET_DISTRIBUTION:
             self.create_distribution()
+        elif self.experimental_settings['opt'] == Label.DATASET_CLASS_ONE_HOT_ENCODE:
+            self.create_class_one_hot_encode()
         elif self.experimental_settings['opt'] == Label.DATASET_SPLIT:
             self.create_folds()
         else:

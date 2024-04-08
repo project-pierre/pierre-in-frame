@@ -109,6 +109,23 @@ class PathDirFile:
         return "/".join([save_in_dir, filename])
 
     @staticmethod
+    def item_class_one_hot_encode_file(dataset: str, filename: str) -> str:
+        """
+        This method is to lead with the distribution file directory.
+
+        :param dataset: A string that's representing the dataset name.
+        :param filename: The distribution filename.
+
+        :return: A string like data/datasets/clean/{dataset}/{filename}
+        """
+        save_in_dir = "/".join([
+            PathDirFile.CLEAN_DATASETS_DIR, dataset
+        ])
+        if not os.path.exists(save_in_dir):
+            os.makedirs(save_in_dir)
+        return "/".join([save_in_dir, filename])
+
+    @staticmethod
     def dataset_analyze_file(dataset: str, filename: str) -> str:
         """
         This method is to lead with the distribution file directory.

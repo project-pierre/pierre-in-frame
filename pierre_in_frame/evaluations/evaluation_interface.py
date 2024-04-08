@@ -56,6 +56,7 @@ class ApplyingMetric:
         self.dataset_instance = None
         self.metric_instance = None
         self.items_set = None
+        self.items_one_hot_encoded = None
 
     def set_metric(self, metric: str):
         """
@@ -91,6 +92,15 @@ class ApplyingMetric:
 
     def load_items_set(self):
         self.items_set = self.dataset_instance.get_items()
+
+    def load_item_class_one_hot_encode(self):
+        """
+
+        """
+        if self.items_one_hot_encoded is None:
+            self.items_one_hot_encoded = SaveAndLoad.load_item_class_one_hot_encode(
+                dataset=self.dataset
+            )
 
     def load_candidate_items(self):
         """
@@ -151,9 +161,11 @@ class ApplyingMetric:
         )
 
     def load_ils(self):
+        self.load_item_class_one_hot_encode()
         self.metric_instance = IntraListSimilarity(
             users_rec_list_df=self.users_rec_list_df,
-            items_df=self.items_set
+            items_df=self.items_set,
+            encoded_df=self.items_one_hot_encoded
         )
 
     def load_serendipity(self):
