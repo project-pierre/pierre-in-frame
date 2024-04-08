@@ -4,10 +4,7 @@
   "checkpoint": "YES",
   "opt": "EVALUATION_METRICS",
   "metric": [
-    "NUMBER_INC_MC",
-    "NUMBER_DEC_MC",
-    "VALUE_INC_MC",
-    "VALUE_DEC_MC"
+    "ILS"
   ],
   "recommender": ["ALS", "BPR", "DAE"],
   "cluster": [],

@@ -5,10 +5,7 @@
   "type": ["LINE", "HEAT_WELCH"],
   "goal": ["DISTRIBUTION_LABEL"],
   "metric": [
-    "NUMBER_INC_MC",
-    "NUMBER_DEC_MC",
-    "VALUE_INC_MC",
-    "VALUE_DEC_MC"
+    "ILS"
   ],
   "recommender": ["ALS", "BPR", "DAE"],
   "tradeoff": ["LIN"],
