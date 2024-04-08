@@ -8,7 +8,7 @@
   ],
   "recommender": ["ALS", "BPR", "DAE"],
   "cluster": [],
-  "dataset": ["food", "ml-20m", "lfm-2b-subset"],
+  "dataset": ["food", "ml-20m"],
   "fold": [1],
   "trial": [1],
   "tradeoff": ["LIN"],
