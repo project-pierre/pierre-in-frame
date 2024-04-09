@@ -1,3 +1,5 @@
+import multiprocessing
+
 import itertools
 import logging
 import pandas as pd
@@ -5,7 +7,7 @@ from joblib import Parallel, delayed
 
 from datasets.registred_datasets import RegisteredDataset
 from graphics.dataset_chart import DatasetChart
-from scikit_pierre.distributions.compute_distribution import computer_users_distribution
+from scikit_pierre.distributions.compute_distribution import computer_users_distribution_pandas
 from scikit_pierre.models.item import ItemsInMemory
 from settings.labels import Label
 from settings.path_dir_file import PathDirFile
@@ -150,20 +152,30 @@ class PierreStep1(Step):
             self.experimental_settings['fold'], self.experimental_settings['distribution']
         ]
 
-        # Start the processes in parallel using joblib
-        Parallel(n_jobs=self.experimental_settings['n_jobs'])(
-            delayed(self.compute_distribution)(
-                dataset=dataset, trial=trial, fold=fold, distribution=distribution
-            ) for dataset, trial, fold, distribution
-            in list(itertools.product(*combination))
-        )
+        if self.experimental_settings['multiprocessing'] == "joblib":
+            # Start the processes in parallel using joblib
+            Parallel(
+                n_jobs=self.experimental_settings['n_jobs'], verbose=10
+            )(
+                delayed(self.compute_distribution)(
+                    dataset=dataset, trial=trial, fold=fold, distribution=distribution
+                ) for dataset, trial, fold, distribution
+                in list(itertools.product(*combination))
+            )
+        elif self.experimental_settings['multiprocessing'] == "starmap":
+            process_args = []
+            for dataset, fold, trial, distribution in list(itertools.product(*combination)):
+                process_args.append((dataset, trial, fold, distribution))
+            pool = multiprocessing.Pool(processes=self.experimental_settings["n_jobs"])
+            pool.starmap(self.compute_distribution, process_args)
+            pool.close()
+            pool.join()
 
     @staticmethod
     def compute_distribution(dataset: str, trial: int, fold: int, distribution: str) -> None:
         """
         This method is to compute the preference distribution.
         """
-
         # Load the dataset
         dataset_instance = RegisteredDataset.load_dataset(dataset)
 
@@ -172,7 +184,7 @@ class PierreStep1(Step):
             trial=trial, fold=fold
         )
 
-        data = computer_users_distribution(
+        data = computer_users_distribution_pandas(
             users_preference_set=users_preference_set, items_df=dataset_instance.get_items(),
             distribution=distribution
         )
@@ -182,10 +194,10 @@ class PierreStep1(Step):
             data=data, dataset=dataset, fold=fold, trial=trial, distribution=distribution
         )
 
-        logger.info(" ... ".join([
-            '->> ', 'Compute Distribution Finished to: ', dataset, distribution,
-            str(trial), str(fold)
-        ]))
+        # logger.info(" ... ".join([
+        #     '->> ', 'Compute Distribution Finished to: ', dataset, distribution,
+        #     str(trial), str(fold)
+        # ]))
 
     def main(self):
         """
@@ -212,7 +224,7 @@ if __name__ == '__main__':
     logger.info(" ".join(['+' * 10, 'System Starting', '+' * 10]))
     step = PierreStep1()
     step.read_the_entries()
-    step.set_the_logfile()
-    step.print_basic_info()
+    # step.set_the_logfile()
+    # step.print_basic_info()
     step.main()
     logger.info(" ".join(['+' * 10, 'System Shutdown', '+' * 10]))

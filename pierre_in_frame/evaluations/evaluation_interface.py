@@ -49,6 +49,7 @@ class ApplyingMetric:
         self.checkpoint = checkpoint
         self.metric = None
         self.users_prof_df = None
+        self.target_dist = None
         self.users_rec_list_df = None
         self.users_test_set_df = None
         self.users_cand_items_df = None
@@ -121,6 +122,18 @@ class ApplyingMetric:
         """
         self.dataset_instance = RegisteredDataset.load_dataset(self.dataset)
 
+    def load_user_prof_distribution(self):
+        try:
+            if self.target_dist is None:
+                target_dist = SaveAndLoad.load_user_preference_distribution(
+                    dataset=self.dataset, fold=self.fold, trial=self.trial,
+                    distribution=self.distribution
+                )
+                self.target_dist = target_dist.to_dict('index')
+        except IOError:
+            self.target_dist = None
+            print(IOError)
+
     def load(self):
         self.load_dataset()
         self.load_rec_list()
@@ -176,6 +189,7 @@ class ApplyingMetric:
         )
 
     def load_mace(self):
+        self.load_user_prof_distribution()
         self.metric_instance = MeanAbsoluteCalibrationError(
             users_profile_df=self.users_prof_df,
             users_rec_list_df=self.users_rec_list_df,
@@ -184,6 +198,7 @@ class ApplyingMetric:
         )
 
     def load_mc(self):
+        self.load_user_prof_distribution()
         self.metric_instance = Miscalibration(
             users_profile_df=self.users_prof_df,
             users_rec_list_df=self.users_rec_list_df,
@@ -193,6 +208,7 @@ class ApplyingMetric:
         )
 
     def load_mamc(self):
+        self.load_user_prof_distribution()
         self.metric_instance = MeanAverageMiscalibration(
             users_profile_df=self.users_prof_df,
             users_rec_list_df=self.users_rec_list_df,

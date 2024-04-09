@@ -62,13 +62,18 @@ class PierreParams:
         "dropout": uniform(0.01, 0.9).rvs(size=size),
         "epochs": randint(10, 150).rvs(size=size)
     }
+    EASE_PARAMS = {
+        "lambda_": uniform(0.1, 1.0).rvs(size=size),
+        "implicit": [True, False]
+    }
 
 
 class ConformityParams:
     # Cluster Params
     CLUSTER_PARAMS = {
         'n_clusters': [
-            2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97
+            2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59,
+            61, 67, 71, 73, 79, 83, 89, 97
         ],
     }
 

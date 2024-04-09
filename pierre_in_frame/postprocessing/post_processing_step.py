@@ -38,12 +38,13 @@ class PostProcessingStep:
         # Load candidate items set
         self.users_distribution = None
         self.candidate_items = CandidateItems(recommender=recommender, dataset=dataset_name, trial=trial, fold=fold)
-        # try:
-        #     self.users_distribution = SaveAndLoad.load_user_preference_distribution(
-        #         dataset=dataset_name, fold=fold, trial=trial, distribution=distribution_component
-        #     )
-        # except Exception as e:
-        #     self.users_distribution = None
+        try:
+            self.users_distribution = SaveAndLoad.load_user_preference_distribution(
+                dataset=dataset_name, fold=fold, trial=trial, distribution=distribution_component
+            )
+        except IOError:
+            self.users_distribution = None
+            print(IOError)
         # Choice the tradeoff
         if self.tradeoff_component == 'LIN':
             self.tradeoff_instance = LinearCalibration(
