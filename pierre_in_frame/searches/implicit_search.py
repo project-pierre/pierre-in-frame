@@ -179,8 +179,10 @@ class ImplicitGridSearch:
             # Starting the recommender algorithm
             output = Parallel(n_jobs=self.n_jobs)(
                 delayed(self.fit_als)(
-                    factors=factors, regularization=regularization, alpha=alpha, iterations=iterations,
-                    random_state=random_state, num_threads=num_threads, train_list=train_list, test_list=test_list
+                    factors=factors, regularization=regularization, alpha=alpha,
+                    iterations=iterations,
+                    random_state=random_state, num_threads=num_threads, train_list=train_list,
+                    test_list=test_list
                 ) for factors, regularization, alpha, iterations, random_state, num_threads in params_to_use
             )
         elif self.algorithm == Label.BPR:
