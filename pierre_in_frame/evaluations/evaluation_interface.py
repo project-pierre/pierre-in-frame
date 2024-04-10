@@ -6,11 +6,12 @@ import recmetrics
 
 from checkpoint_verification import CheckpointVerification
 from datasets.registred_datasets import RegisteredDataset
+from scikit_pierre.metrics.explaining import ExplainingMiscalibration
 from scikit_pierre.metrics.evaluation import (
     Miscalibration, MeanAbsoluteCalibrationError,
     MeanAveragePrecision, MeanReciprocalRank, MeanAverageMiscalibration,
     AverageNumberOfOItemsChanges, AverageNumberOfGenreChanges, Unexpectedness, Serendipity,
-    ExplainingMiscalibration, NumberOfUserIncreaseAndDecreaseMiscalibration, UserIDMiscalibration,
+    NumberOfUserIncreaseAndDecreaseMiscalibration, UserIDMiscalibration,
     IntraListSimilarity
 )
 from settings.constants import Constants
