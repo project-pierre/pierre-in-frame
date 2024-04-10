@@ -112,9 +112,14 @@ class MovielensOneMillion(Dataset):
         })
         self.transactions.to_csv(
             os.path.join(self.dataset_clean_path, PathDirFile.TRANSACTIONS_FILE),
-            index=False
+            index=False,
+            mode='w+'
         )
-        self.items.to_csv(os.path.join(self.dataset_clean_path, PathDirFile.ITEMS_FILE), index=False)
+        self.items.to_csv(
+            os.path.join(self.dataset_clean_path, PathDirFile.ITEMS_FILE),
+            index=False,
+            mode='w+'
+        )
 
     # ######################################### #
     # ################# Items ################# #
@@ -145,4 +150,8 @@ class MovielensOneMillion(Dataset):
         self.items.drop_duplicates(subset=[Label.ITEM_ID], inplace=True)
 
         # Save the clean transactions as CSV.
-        self.items.to_csv(os.path.join(self.dataset_clean_path, PathDirFile.ITEMS_FILE), index=False)
+        self.items.to_csv(
+            os.path.join(self.dataset_clean_path, PathDirFile.ITEMS_FILE),
+            index=False,
+            mode='w+'
+        )

@@ -1,4 +1,6 @@
 from collections import Counter
+from copy import deepcopy
+
 from statistics import median
 
 import itertools
@@ -427,6 +429,11 @@ class Dataset:
         self.transactions.to_csv(
             str(os.path.join(self.dataset_clean_path, PathDirFile.TRANSACTIONS_FILE)), index=False, mode='w+'
         )
+        self.items.to_csv(
+            os.path.join(self.dataset_clean_path, PathDirFile.ITEMS_FILE),
+            index=False,
+            mode='w+'
+        )
         train_df.to_csv(train_path, index=False, mode='w+')
         test_df.to_csv(test_path, index=False, mode='w+')
         print(self.transactions)
@@ -435,6 +442,14 @@ class Dataset:
         print(max(self.transactions[Label.USER_ID].tolist()))
         print(self.transactions[Label.USER_ID].min())
         print(len(self.transactions[Label.USER_ID].unique()))
+
+        set_1 = set({str(ix) for ix in self.transactions['ITEM_ID'].unique().tolist()})
+        set_2 = set({str(ix) for ix in self.items['ITEM_ID'].unique().tolist()})
+
+        if set_1 != set_2:
+            raise IndexError(
+                'There are a problem with the ITEM IDs. '
+            )
 
     @staticmethod
     def cut_users(
