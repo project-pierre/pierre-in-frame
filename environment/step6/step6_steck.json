@@ -3,7 +3,9 @@
   "n_jobs": 31,
   "opt": "EVALUATION_METRICS",
   "metric": [
-    "ILS"
+    "ILS",
+    "MC",
+    "MAP"
   ],
   "recommender": ["ALS", "BPR", "DAE"],
   "dataset": ["food", "ml-20m", "lfm-2b-subset"],
