@@ -1,9 +1,9 @@
 {
   "opt": "RECOMMENDER",
-  "n_jobs": 20,
-  "checkpoint": "YES",
+  "n_jobs": 31,
+  "checkpoint": "NO",
   "dataset": ["food"],
-  "recommender": ["ALS", "BPR", "DAE"],
+  "recommender": ["ALS", "BPR", "SVD"],
   "fold": [1],
   "trial": [1],
   "list_size": 100,
