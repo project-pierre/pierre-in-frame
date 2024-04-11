@@ -100,9 +100,12 @@ class ApplyingMetric:
 
         """
         if self.items_one_hot_encoded is None:
-            self.items_one_hot_encoded = SaveAndLoad.load_item_class_one_hot_encode(
-                dataset=self.dataset
-            )
+            try:
+                self.items_one_hot_encoded = SaveAndLoad.load_item_class_one_hot_encode(
+                    dataset=self.dataset
+                )
+            except FileNotFoundError or IOError:
+                self.items_one_hot_encoded = None
 
     def load_candidate_items(self):
         """
