@@ -7,7 +7,9 @@
   "metric": [
     "ILS",
     "MC",
-    "MAP"
+    "MAP",
+    "MRR",
+    "SERENDIPITY"
   ],
   "recommender": ["ALS", "BPR", "DAE"],
   "tradeoff": ["LIN"],
