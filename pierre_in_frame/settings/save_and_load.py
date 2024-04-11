@@ -73,7 +73,7 @@ class SaveAndLoad:
         preference_distribution_path = PathDirFile.preference_distribution_file(
             dataset=dataset, fold=fold, trial=trial, filename=distribution + '.' + ext
         )
-        return read_csv(preference_distribution_path, index_col=0)
+        return read_csv(preference_distribution_path, index_col=0).fillna(0)
 
     # ########################################################################################### #
 
