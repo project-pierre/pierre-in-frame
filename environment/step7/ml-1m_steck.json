@@ -11,7 +11,7 @@
     "MRR",
     "SERENDIPITY"
   ],
-  "recommender": ["ALS", "BPR", "DAE"],
+  "recommender": ["ALS", "BPR", "SVD"],
   "tradeoff": ["LIN"],
   "fairness": ["KL"],
   "relevance": ["SUM"],
