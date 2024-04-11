@@ -134,9 +134,8 @@ class ApplyingMetric:
                     distribution=self.distribution
                 )
                 self.target_dist = target_dist.to_dict('index')
-        except IOError:
+        except IOError or FileNotFoundError as e:
             self.target_dist = None
-            print(IOError)
 
     def load(self):
         self.load_dataset()
@@ -208,7 +207,8 @@ class ApplyingMetric:
             users_rec_list_df=self.users_rec_list_df,
             items_set_df=self.items_set,
             distribution_name=self.distribution,
-            distance_func_name=self.fairness
+            distance_func_name=self.fairness,
+            target_dist=self.target_dist
         )
 
     def load_mamc(self):
