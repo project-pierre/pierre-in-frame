@@ -218,7 +218,8 @@ class ApplyingMetric:
             users_rec_list_df=self.users_rec_list_df,
             items_set_df=self.items_set,
             distribution_name=self.distribution,
-            distance_func_name=self.fairness
+            distance_func_name=self.fairness,
+            target_dist=self.target_dist
         )
 
     def load_exp_mc(self):
