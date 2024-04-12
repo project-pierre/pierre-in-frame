@@ -1,4 +1,5 @@
 #!/bin/bash
+cd ./pierre_in_frame &&
 python3 step1_preprocessing.py from_file=YES file_name=step1_ml-20m_distribution &&
 python3 step1_preprocessing.py from_file=YES file_name=step1_ohe_ml-20m &&
 python3 step2_searches.py from_file=YES file_name=ml-20m &&
