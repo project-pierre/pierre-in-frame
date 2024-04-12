@@ -35,8 +35,8 @@ class PierreRecommenderAlgorithm:
             dataset=self.dataset.system_name, algorithm=self.recommender_name,
             trial=self.trial, fold=self.fold
         )
-        if self.recommender_name == Label.AUTOENC:
-            self.recommender = recommender_pierre.AutoEncModel.AutoEncModel(
+        if self.recommender_name == Label.DEEP_AE:
+            self.recommender = recommender_pierre.DeppAutoEncModel.DeppAutoEncModel(
                 factors=int(full_params["params"]["factors"]), epochs=int(full_params["params"]["epochs"]),
                 dropout=int(full_params["params"]["dropout"]), lr=int(full_params["params"]["lr"]),
                 reg=int(full_params["params"]["reg"]), list_size=int(self.list_size)

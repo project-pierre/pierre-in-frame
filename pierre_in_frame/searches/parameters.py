@@ -55,7 +55,7 @@ class PierreParams:
         "dropout": uniform(0.01, 0.9).rvs(size=size),
         "epochs": randint(10, 150).rvs(size=size)
     }
-    AUTOENC_PARAMS = {
+    DEEPAE_PARAMS = {
         "factors": randint(10, 150).rvs(size=size),
         "reg": uniform(0.0003, 0.1).rvs(size=size),
         "lr": uniform(0.0003, 0.1).rvs(size=size),

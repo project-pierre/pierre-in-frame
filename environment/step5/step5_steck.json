@@ -1,14 +1,14 @@
 {
   "multiprocessing": "joblib",
   "n_jobs": 31,
-  "checkpoint": "NO",
+  "checkpoint": "YES",
   "opt": "EVALUATION_METRICS",
   "metric": [
     "ILS",
     "MC",
     "MAP"
   ],
-  "recommender": ["ALS", "BPR", "DAE", "SVD"],
+  "recommender": ["ALS", "BPR", "SVD"],
   "cluster": [],
   "dataset": ["ml-1m"],
   "fold": [1],

@@ -100,8 +100,8 @@ class PierreGridSearch:
         map_value = []
 
         for train, test in zip(train_list, test_list):
-            if self.algorithm == Label.AUTOENC:
-                recommender = recommender_pierre.AutoEncModel.AutoEncModel(
+            if self.algorithm == Label.DEEP_AE:
+                recommender = recommender_pierre.DeppAutoEncModel.DeppAutoEncModel(
                     factors=int(factors), epochs=int(epochs), dropout=int(dropout), lr=int(lr),
                     reg=int(reg),
                     batch=8
