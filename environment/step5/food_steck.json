@@ -10,7 +10,7 @@
     "MRR",
     "SERENDIPITY"
   ],
-  "recommender": ["ALS", "BPR"],
+  "recommender": ["ALS", "BPR", "SVD"],
   "cluster": [],
   "dataset": ["food"],
   "fold": [1],
