@@ -1,6 +1,6 @@
 {
   "multiprocessing": "joblib",
-  "n_jobs": 40,
+  "n_jobs": 61,
   "checkpoint": "YES",
   "opt": "EVALUATION_METRICS",
   "metric": [
