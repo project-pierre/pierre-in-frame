@@ -8,11 +8,7 @@
     "MC",
     "MAMC",
     "MAP",
-    "MRR",
-    "SERENDIPITY",
-    "COVERAGE",
-    "PERSONALIZATION",
-    "UNEXPECTEDNESS"
+    "MRR"
   ],
   "recommender": ["DEEP_AE", "BPR", "SVD", "ALS"],
   "cluster": [],
