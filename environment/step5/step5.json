@@ -9,7 +9,8 @@
     "MAMC",
     "MAP",
     "MRR",
-    "SERENDIPITY"
+    "SERENDIPITY",
+    "UNEXPECTEDNESS"
   ],
   "recommender": ["DEEP_AE", "BPR", "SVD", "ALS"],
   "cluster": [],
