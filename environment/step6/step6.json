@@ -11,7 +11,7 @@
     "SERENDIPITY",
     "UNEXPECTEDNESS",
     "COVERAGE",
-    "NOVELTY"
+    "PERSONALIZATION"
   ],
   "recommender": ["DEEP_AE", "BPR", "SVD", "ALS"],
   "dataset": ["ml-20m", "food", "ml-1m"],
