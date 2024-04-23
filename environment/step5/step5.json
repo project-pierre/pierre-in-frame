@@ -1,10 +1,10 @@
 {
   "multiprocessing": "joblib",
-  "n_jobs": 63,
-  "checkpoint": "NO",
+  "n_jobs": 10,
+  "checkpoint": "YES",
   "opt": "EVALUATION_METRICS",
   "metric": [
-    "NOVELTY"
+    "PERSONALIZATION"
   ],
   "recommender": ["DEEP_AE", "BPR", "SVD", "ALS"],
   "cluster": [],
