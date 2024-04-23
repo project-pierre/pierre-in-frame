@@ -8,7 +8,7 @@
   ],
   "recommender": ["DEEP_AE", "BPR", "SVD", "ALS"],
   "cluster": [],
-  "dataset": ["ml-1m"],
+  "dataset": ["food"],
   "fold": [1],
   "trial": [1],
   "tradeoff": ["LIN"],
