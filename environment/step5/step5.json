@@ -10,7 +10,9 @@
     "MAP",
     "MRR",
     "SERENDIPITY",
-    "UNEXPECTEDNESS"
+    "UNEXPECTEDNESS",
+    "COVERAGE",
+    "PERSONALIZATION"
   ],
   "recommender": ["DEEP_AE", "BPR", "SVD", "ALS"],
   "cluster": [],
