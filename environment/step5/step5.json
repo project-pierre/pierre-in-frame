@@ -1,17 +1,9 @@
 {
   "multiprocessing": "joblib",
   "n_jobs": 63,
-  "checkpoint": "YES",
+  "checkpoint": "NO",
   "opt": "EVALUATION_METRICS",
   "metric": [
-    "ILS",
-    "MC",
-    "MAMC",
-    "MAP",
-    "MRR",
-    "SERENDIPITY",
-    "UNEXPECTEDNESS",
-    "COVERAGE",
     "NOVELTY"
   ],
   "recommender": ["DEEP_AE", "BPR", "SVD", "ALS"],
