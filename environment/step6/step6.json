@@ -7,7 +7,11 @@
     "MC",
     "MAMC",
     "MAP",
-    "MRR"
+    "MRR",
+    "SERENDIPITY",
+    "UNEXPECTEDNESS",
+    "COVERAGE",
+    "NOVELTY"
   ],
   "recommender": ["DEEP_AE", "BPR", "SVD", "ALS"],
   "dataset": ["ml-20m", "food", "ml-1m"],
