@@ -1,6 +1,6 @@
 {
   "multiprocessing": "joblib",
-  "n_jobs": 61,
+  "n_jobs": 10,
   "checkpoint": "YES",
   "opt": "EVALUATION_METRICS",
   "metric": [
@@ -12,7 +12,7 @@
     "SERENDIPITY",
     "UNEXPECTEDNESS",
     "COVERAGE",
-    "NOVELTY"
+    "PERSONALIZATION"
   ],
   "recommender": ["DEEP_AE", "BPR", "SVD", "ALS"],
   "cluster": [],
