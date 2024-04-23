@@ -11,6 +11,7 @@
     "SERENDIPITY",
     "UNEXPECTEDNESS",
     "COVERAGE",
+    "NOVELTY",
     "PERSONALIZATION"
   ],
   "recommender": ["DEEP_AE", "BPR", "SVD", "ALS"],
