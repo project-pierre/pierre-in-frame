@@ -4,7 +4,7 @@
   "checkpoint": "YES",
   "opt": "EVALUATION_METRICS",
   "metric": [
-    "PERSONALIZATION"
+    "NOVELTY"
   ],
   "recommender": ["DEEP_AE", "BPR", "SVD", "ALS"],
   "cluster": [],
