@@ -1,6 +1,6 @@
 {
   "multiprocessing": "joblib",
-  "n_jobs": 63,
+  "n_jobs": 62,
   "checkpoint": "YES",
   "dataset": ["lfm-2b-subset"],
   "recommender": ["BPR", "ALS"],
