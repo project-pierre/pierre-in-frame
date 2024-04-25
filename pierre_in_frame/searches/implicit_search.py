@@ -78,7 +78,7 @@ class ImplicitGridSearch(BaseSearch):
 
     @staticmethod
     def fit_als(
-            factors, regularization, alpha, iterations, random_state, num_threads,
+            factors, regularization, alpha, iterations, random_state,
             train_list, valid_list, list_size
     ):
         map_value = []
@@ -110,7 +110,7 @@ class ImplicitGridSearch(BaseSearch):
 
     @staticmethod
     def fit_bpr(
-            factors, regularization, learning_rate, iterations, random_state, num_threads,
+            factors, regularization, learning_rate, iterations, random_state,
             train_list, valid_list, list_size
     ):
         map_value = []
@@ -174,10 +174,10 @@ class ImplicitGridSearch(BaseSearch):
 
             # Starting the recommender algorithm
             self.output = list(Parallel(n_jobs=self.n_jobs)(
-                delayed(self.fit_als)(
+                delayed(ImplicitGridSearch.fit_als)(
                     factors=factors, regularization=regularization, alpha=alpha,
                     iterations=iterations,
-                    random_state=random_state, num_threads=num_threads,
+                    random_state=random_state,
                     train_list=deepcopy(self.train_list),
                     valid_list=deepcopy(self.valid_list),
                     list_size=self.list_size
@@ -189,10 +189,10 @@ class ImplicitGridSearch(BaseSearch):
 
             # Starting the recommender algorithm
             self.output = list(Parallel(n_jobs=self.n_jobs)(
-                delayed(self.fit_bpr)(
+                delayed(ImplicitGridSearch.fit_bpr)(
                     factors=factors, regularization=regularization,
                     learning_rate=learning_rate, iterations=iterations,
-                    random_state=random_state, num_threads=num_threads,
+                    random_state=random_state,
                     train_list=deepcopy(self.train_list),
                     valid_list=deepcopy(self.valid_list),
                     list_size=self.list_size
