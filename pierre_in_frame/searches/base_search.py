@@ -5,6 +5,9 @@ from settings.save_and_load import SaveAndLoad
 
 
 class BaseSearch:
+    """
+    Base class for all search algorithms.
+    """
 
     def __init__(
             self,
@@ -58,11 +61,14 @@ class BaseSearch:
         )
 
     def preparing_recommenders(self):
+        """
+        This method is to be overridden by subclasses.
+        """
         pass
 
     def fit(self):
         """
-        TODO: Docstring
+        This method fits the random search algorithm to a dataset.
         """
         print("*" * 100)
         print("Algorithm: ", self.algorithm)

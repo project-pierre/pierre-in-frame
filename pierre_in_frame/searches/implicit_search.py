@@ -8,7 +8,7 @@ from scipy import sparse
 from statistics import mean
 
 from scikit_pierre.metrics.evaluation import MeanAveragePrecision
-from searches.BaseSearch import BaseSearch
+from searches.base_search import BaseSearch
 from searches.parameters import ImplicitParams
 from settings.labels import Label
 

@@ -7,7 +7,7 @@ from statistics import mean
 
 import recommender_pierre
 from scikit_pierre.metrics.evaluation import MeanAveragePrecision
-from searches.BaseSearch import BaseSearch
+from searches.base_search import BaseSearch
 from searches.parameters import PierreParams
 from settings.labels import Label
 
