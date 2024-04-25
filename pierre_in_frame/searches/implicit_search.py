@@ -4,41 +4,31 @@ import pandas as pd
 import random
 import threadpoolctl
 from joblib import Parallel, delayed
-from pprint import pprint
 from scipy import sparse
 from statistics import mean
 
-from datasets.registred_datasets import RegisteredDataset
-from datasets.utils import split
-from datasets.utils.split import SequentialTimeSplit
 from scikit_pierre.metrics.evaluation import MeanAveragePrecision
+from searches.BaseSearch import BaseSearch
 from searches.parameters import ImplicitParams
 from settings.labels import Label
-from settings.save_and_load import SaveAndLoad
 
 
-class ImplicitGridSearch:
+class ImplicitGridSearch(BaseSearch):
 
     def __init__(
             self,
             algorithm: str,
-            dataset_name: str, n_splits: int = 3, trial: int = 1, fold: int = 3,
+            dataset_name: str, trial: int = 1, fold: int = 1,
             n_jobs: int = 1, list_size: int = 10, n_inter: int = 50,
             based_on: str = "RANDOM"
     ):
         global OPENBLAS_NUM_THREADS
         OPENBLAS_NUM_THREADS = 1
         threadpoolctl.threadpool_limits(1, "blas")
-        self.dataset = RegisteredDataset.load_dataset(dataset_name)
-        self.algorithm = algorithm
-        self.trial = trial
-        self.fold = fold
-        self.n_splits = n_splits
-        self.n_inter = n_inter
-        self.n_jobs = n_jobs
-        self.list_size = list_size
-        self.users_preferences = None
-        self.based_on = based_on
+        super().__init__(
+            algorithm=algorithm, dataset_name=dataset_name, trial=trial, fold=fold,
+            n_jobs=n_jobs, list_size=list_size, n_inter=n_inter, based_on=based_on
+        )
 
     def __predict(self, user_preferences: pd.DataFrame, user_id, recommender) -> pd.DataFrame:
         """
@@ -83,11 +73,11 @@ class ImplicitGridSearch:
 
     def fit_als(
             self, factors, regularization, alpha, iterations, random_state, num_threads,
-            train_list, test_list
+            train_list, valid_list
     ):
         map_value = []
 
-        for train, test in zip(train_list, test_list):
+        for train, validation in zip(train_list, valid_list):
             recommender = implicit.als.AlternatingLeastSquares(
                 factors=factors, regularization=regularization, alpha=alpha, iterations=iterations,
                 random_state=random_state, num_threads=1
@@ -95,7 +85,7 @@ class ImplicitGridSearch:
             rec_lists_df = self.__run__(recommender=recommender, users_preferences=train)
             metric_instance = MeanAveragePrecision(
                 users_rec_list_df=rec_lists_df,
-                users_test_set_df=test
+                users_test_set_df=validation
             )
             map_value.append(metric_instance.compute())
 
@@ -112,11 +102,11 @@ class ImplicitGridSearch:
 
     def fit_bpr(
             self, factors, regularization, learning_rate, iterations, random_state, num_threads,
-            train_list, test_list
+            train_list, valid_list
     ):
         map_value = []
 
-        for train, test in zip(train_list, test_list):
+        for train, validation in zip(train_list, valid_list):
             recommender = implicit.bpr.BayesianPersonalizedRanking(
                 factors=factors, regularization=regularization, learning_rate=learning_rate,
                 iterations=iterations, random_state=random_state, num_threads=1
@@ -124,7 +114,7 @@ class ImplicitGridSearch:
             rec_lists_df = self.__run__(recommender=recommender, users_preferences=train)
             metric_instance = MeanAveragePrecision(
                 users_rec_list_df=rec_lists_df,
-                users_test_set_df=test
+                users_test_set_df=validation
             )
             map_value.append(metric_instance.compute())
 
@@ -139,81 +129,60 @@ class ImplicitGridSearch:
             }
         }
 
-    def fit(self):
-        """
-        TODO: Docstring
-        """
-        print(self.algorithm)
-        print(self.dataset.system_name)
-        train_list = []
-        test_list = []
-        self.users_preferences = self.dataset.get_train_transactions(
-            fold=self.fold, trial=self.trial
-        )
-        if self.based_on == Label.TIME:
-            cv_folds = []
-            instance = SequentialTimeSplit(
-                transactions_df=self.users_preferences, n_folds=self.n_splits
-            )
-            train_df, test_df = instance.main()
-            train_list.append(train_df)
-            test_list.append(test_df)
-        else:
-            cv_folds = split.split_with_joblib(
-                transactions_df=self.users_preferences, trial=1, n_folds=self.n_splits
-            )
+    def get_als_params(self):
+        param_distributions = ImplicitParams.ALS_PARAMS
 
-            for train, test in cv_folds:
-                train_list.append(train)
-                test_list.append(test)
-
-        output = []
-        if self.algorithm == Label.ALS:
-            param_distributions = ImplicitParams.ALS_PARAMS
-            combination = [
-                param_distributions['factors'], param_distributions['regularization'],
-                param_distributions['alpha'], param_distributions['iterations'],
-                param_distributions['random_state'], param_distributions['num_threads'],
-            ]
+        combination = [
+            param_distributions['factors'], param_distributions['regularization'],
+            param_distributions['alpha'], param_distributions['iterations'],
+            param_distributions['random_state'], param_distributions['num_threads'],
+        ]
+        if self.n_inter < len(combination):
             params_to_use = random.sample(list(itertools.product(*combination)), self.n_inter)
+        else:
+            params_to_use = list(itertools.product(*combination))
+        return params_to_use
+
+    def get_bpr_params(self):
+        param_distributions = ImplicitParams.BPR_PARAMS
+
+        combination = [
+            param_distributions['factors'], param_distributions['regularization'],
+            param_distributions['learning_rate'], param_distributions['iterations'],
+            param_distributions['random_state'], param_distributions['num_threads'],
+        ]
+        if self.n_inter < len(combination):
+            params_to_use = random.sample(list(itertools.product(*combination)), self.n_inter)
+        else:
+            params_to_use = list(itertools.product(*combination))
+        return params_to_use
+
+    def preparing_recommenders(self):
+        if self.algorithm == Label.ALS:
+            params_to_use = self.get_als_params()
+
             # Starting the recommender algorithm
-            output = Parallel(n_jobs=self.n_jobs)(
+            self.output = list(Parallel(n_jobs=self.n_jobs)(
                 delayed(self.fit_als)(
                     factors=factors, regularization=regularization, alpha=alpha,
                     iterations=iterations,
-                    random_state=random_state, num_threads=num_threads, train_list=train_list,
-                    test_list=test_list
-                ) for factors, regularization, alpha, iterations, random_state, num_threads in params_to_use
-            )
+                    random_state=random_state, num_threads=num_threads, train_list=self.train_list,
+                    valid_list=self.valid_list
+                ) for factors, regularization, alpha, iterations, random_state, num_threads in
+                params_to_use
+            ))
         elif self.algorithm == Label.BPR:
-            param_distributions = ImplicitParams.BPR_PARAMS
-            combination = [
-                param_distributions['factors'], param_distributions['regularization'],
-                param_distributions['learning_rate'], param_distributions['iterations'],
-                param_distributions['random_state'], param_distributions['num_threads'],
-            ]
+            params_to_use = self.get_bpr_params()
 
-            params_to_use = random.sample(list(itertools.product(*combination)), self.n_inter)
             # Starting the recommender algorithm
-            output = Parallel(n_jobs=self.n_jobs)(
+            self.output = list(Parallel(n_jobs=self.n_jobs)(
                 delayed(self.fit_bpr)(
-                    factors=factors, regularization=regularization, learning_rate=learning_rate, iterations=iterations,
-                    random_state=random_state, num_threads=num_threads, train_list=train_list, test_list=test_list
-                ) for factors, regularization, learning_rate, iterations, random_state, num_threads in params_to_use
-            )
-        elif self.algorithm == Label.LMF:
-            pass
+                    factors=factors, regularization=regularization,
+                    learning_rate=learning_rate, iterations=iterations,
+                    random_state=random_state, num_threads=num_threads,
+                    train_list=self.train_list, valid_list=self.valid_list
+                ) for factors, regularization, learning_rate, iterations, random_state, num_threads
+                in params_to_use
+            ))
         else:
             pass
-        best_params = {
-            "map": 0.0
-        }
-        for item in output:
-            if float(best_params["map"]) < float(item["map"]):
-                best_params = item
-        pprint(best_params)
-        # Saving
-        SaveAndLoad.save_hyperparameters_recommender(
-            best_params=best_params, dataset=self.dataset.system_name, algorithm=self.algorithm,
-            trial=self.trial, fold=self.fold
-        )

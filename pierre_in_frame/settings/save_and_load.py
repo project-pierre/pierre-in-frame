@@ -126,24 +126,22 @@ class SaveAndLoad:
     # ########################################################################################### #
 
     @staticmethod
-    def save_hyperparameters_recommender(
-            best_params: dict, dataset: str, trial: int, fold: int, algorithm: str
-    ):
+    def save_hyperparameters_recommender(best_params: dict, dataset: str, algorithm: str):
         """
         TODO: Docstring
         """
         with open(PathDirFile.set_recommender_hyperparameter_file(
-                opt=Label.RECOMMENDER, dataset=dataset, algorithm=algorithm, trial=trial, fold=fold
+                opt=Label.RECOMMENDER, dataset=dataset, algorithm=algorithm
         ), 'w') as fp:
             json.dump(best_params, fp, cls=NpEncoder)
 
     @staticmethod
-    def load_hyperparameters_recommender(dataset: str, algorithm: str, trial: int, fold: int):
+    def load_hyperparameters_recommender(dataset: str, algorithm: str):
         """
         TODO: Docstring
         """
         path_to_open = PathDirFile.get_recommender_hyperparameter_file(
-            opt=Label.RECOMMENDER, dataset=dataset, algorithm=algorithm, trial=trial, fold=fold
+            opt=Label.RECOMMENDER, dataset=dataset, algorithm=algorithm
         )
         with open(path_to_open) as json_file:
             params = json.load(json_file)

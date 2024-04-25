@@ -36,7 +36,9 @@ class PierreStep1(Step):
         """
         # Setup Log configuration
         setup_logging(
-            save_path=PathDirFile.log_preprocessing_path(dataset=self.experimental_settings['dataset'])
+            save_path=PathDirFile.log_preprocessing_path(
+                dataset=self.experimental_settings['dataset']
+            )
         )
 
     def print_basic_info(self):
@@ -164,7 +166,7 @@ class PierreStep1(Step):
             )
         elif self.experimental_settings['multiprocessing'] == "starmap":
             process_args = []
-            for dataset, fold, trial, distribution in list(itertools.product(*combination)):
+            for dataset, trial, fold, distribution in list(itertools.product(*combination)):
                 process_args.append((dataset, trial, fold, distribution))
             pool = multiprocessing.Pool(processes=self.experimental_settings["n_jobs"])
             pool.starmap(self.compute_distribution, process_args)

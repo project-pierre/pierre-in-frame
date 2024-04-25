@@ -107,7 +107,7 @@ class PierreStep2(Step):
 
         combination = [
             self.experimental_settings['recommender'], self.experimental_settings['dataset'],
-            self.experimental_settings['trial'], self.experimental_settings['fold']
+            [self.experimental_settings['trial']], [self.experimental_settings['fold']]
         ]
 
         system_combination = list(itertools.product(*combination))
@@ -154,12 +154,12 @@ class PierreStep2(Step):
         elif recommender in Label.IMPLICIT_RECOMMENDERS:
             search_instance = ImplicitGridSearch(
                 algorithm=recommender, dataset_name=dataset, trial=trial, fold=fold,
-                n_jobs=n_jobs, n_splits=n_cv, n_inter=n_inter, based_on=based_on
+                n_jobs=n_jobs, n_inter=n_inter, based_on=based_on
             )
         elif recommender in Label.PIERRE_RECOMMENDERS:
             search_instance = PierreGridSearch(
                 algorithm=recommender, dataset_name=dataset, trial=trial, fold=fold,
-                n_jobs=n_jobs, n_splits=n_cv, n_inter=n_inter, based_on=based_on
+                n_jobs=n_jobs, n_inter=n_inter, based_on=based_on
             )
         else:
             exit(0)

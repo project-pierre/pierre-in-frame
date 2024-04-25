@@ -91,6 +91,8 @@ class RegisteredDataset:
             )
             if based_on == Label.TIME:
                 instance.mining_data_and_create_fold_based_on_time(n_trials=n_trials, n_folds=n_folds)
+            elif based_on == Label.CVTT:
+                instance.mining_data_and_create_fold_based_on_cvtt(n_folds=n_folds)
             else:
                 instance.mining_data_and_create_fold(n_trials=n_trials, n_folds=n_folds)
         # Movielens Twenty Millions Movies
@@ -103,6 +105,8 @@ class RegisteredDataset:
             )
             if based_on == Label.TIME:
                 instance.mining_data_and_create_fold_based_on_time(n_trials=n_trials, n_folds=n_folds)
+            elif based_on == Label.CVTT:
+                instance.mining_data_and_create_fold_based_on_cvtt(n_folds=n_folds)
             else:
                 instance.mining_data_and_create_fold(n_trials=n_trials, n_folds=n_folds)
         # Food.com Recipe
@@ -115,6 +119,8 @@ class RegisteredDataset:
             )
             if based_on == Label.TIME:
                 instance.mining_data_and_create_fold_based_on_time(n_trials=n_trials, n_folds=n_folds)
+            elif based_on == Label.CVTT:
+                instance.mining_data_and_create_fold_based_on_cvtt(n_folds=n_folds)
             else:
                 instance.mining_data_and_create_fold(n_trials=n_trials, n_folds=n_folds)
         # Yahoo Movies
@@ -127,6 +133,8 @@ class RegisteredDataset:
             )
             if based_on == Label.TIME:
                 instance.mining_data_and_create_fold_based_on_time(n_trials=n_trials, n_folds=n_folds)
+            elif based_on == Label.CVTT:
+                instance.mining_data_and_create_fold_based_on_cvtt(n_folds=n_folds)
             else:
                 instance.mining_data_and_create_fold(n_trials=n_trials, n_folds=n_folds)
         # Taste Profile
@@ -139,6 +147,8 @@ class RegisteredDataset:
             )
             if based_on == Label.TIME:
                 instance.mining_data_and_create_fold_based_on_time(n_trials=n_trials, n_folds=n_folds)
+            elif based_on == Label.CVTT:
+                instance.mining_data_and_create_fold_based_on_cvtt(n_folds=n_folds)
             else:
                 instance.mining_data_and_create_fold(n_trials=n_trials, n_folds=n_folds)
         # My Anime List
@@ -151,6 +161,8 @@ class RegisteredDataset:
             )
             if based_on == Label.TIME:
                 instance.mining_data_and_create_fold_based_on_time(n_trials=n_trials, n_folds=n_folds)
+            elif based_on == Label.CVTT:
+                instance.mining_data_and_create_fold_based_on_cvtt(n_folds=n_folds)
             else:
                 instance.mining_data_and_create_fold(n_trials=n_trials, n_folds=n_folds)
         # Twitter Movies
@@ -163,6 +175,8 @@ class RegisteredDataset:
             )
             if based_on == Label.TIME:
                 instance.mining_data_and_create_fold_based_on_time(n_trials=n_trials, n_folds=n_folds)
+            elif based_on == Label.CVTT:
+                instance.mining_data_and_create_fold_based_on_cvtt(n_folds=n_folds)
             else:
                 instance.mining_data_and_create_fold(n_trials=n_trials, n_folds=n_folds)
         # Last FM Two Billion
@@ -175,6 +189,8 @@ class RegisteredDataset:
             )
             if based_on == Label.TIME:
                 instance.mining_data_and_create_fold_based_on_time(n_trials=n_trials, n_folds=n_folds)
+            elif based_on == Label.CVTT:
+                instance.mining_data_and_create_fold_based_on_cvtt(n_folds=n_folds)
             else:
                 instance.mining_data_and_create_fold(n_trials=n_trials, n_folds=n_folds)
         else:

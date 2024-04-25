@@ -35,8 +35,7 @@ class ImplicitRecommenderAlgorithm:
 
         # Load the surprise recommender algorithm
         full_params = SaveAndLoad.load_hyperparameters_recommender(
-            dataset=self.dataset.system_name, algorithm=self.recommender_name,
-            trial=self.trial, fold=self.fold
+            dataset=self.dataset.system_name, algorithm=self.recommender_name
         )
         if self.recommender_name == Label.ALS:
             self.recommender = implicit.als.AlternatingLeastSquares(

@@ -1,8 +1,8 @@
 {
   "multiprocessing": "starmap",
-  "n_jobs": 31,
+  "n_jobs": 6,
   "opt": "DISTRIBUTION",
-  "dataset": "food",
+  "dataset": "ml-1m",
   "distribution": [
     "CWS",
     "WPS",
@@ -14,6 +14,6 @@
     "TSW_TWB_GLEB",
     "TSW_TWB_GLEB_P"
   ],
-  "fold": [1],
+  "fold": [1, 2, 3],
   "trial": [1]
 }

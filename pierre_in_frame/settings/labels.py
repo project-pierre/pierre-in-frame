@@ -19,6 +19,8 @@ class Label:
     ALBUM = 'ALBUM'
     YEAR = 'YEAR'
 
+    CVTT = "CVTT"
+
     ########################################################
     # Preprocessing OPTION labels
     DATASET_SPLIT = 'SPLIT'

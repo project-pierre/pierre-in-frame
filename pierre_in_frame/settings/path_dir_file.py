@@ -30,6 +30,7 @@ class PathDirFile:
 
     # File
     TRAIN_FILE = 'train.csv'
+    VALIDATION_FILE = 'validation.csv'
     TEST_FILE = 'test.csv'
     TRANSACTIONS_FILE = 'transactions.csv'
     ITEMS_FILE = 'items.csv'
@@ -144,37 +145,33 @@ class PathDirFile:
     # [STEP 2] Search step methods - Hyperparameters
     # ########################################################################################### #
     @staticmethod
-    def set_recommender_hyperparameter_file(opt: str, dataset: str, algorithm: str, trial: int, fold: int) -> str:
+    def set_recommender_hyperparameter_file(opt: str, dataset: str, algorithm: str) -> str:
         """
         Method to set the file path, which deal with the hyperparameter values founded in the Search Step.
 
         :param opt: TODO.
         :param dataset: A string that's representing the dataset name.
         :param algorithm: A string that's representing the recommender algorithm name.
-        :param trial: The trial number.
-        :param fold: The fold number.
 
-        :return: A string like data/hyperparameters/{dataset}/{opt}/trial-{trial}/fold-{fold}/{algorithm}.json.
+        :return: A string like data/hyperparameters/{dataset}/{opt}/{algorithm}.json.
         """
-        save_in_dir = "/".join([PathDirFile.HYPERPARAMETERS_DIR, dataset, opt, 'trial-' + str(trial), 'fold-' + str(fold)])
+        save_in_dir = "/".join([PathDirFile.HYPERPARAMETERS_DIR, dataset, opt])
         if not os.path.exists(save_in_dir):
             os.makedirs(save_in_dir)
         return "/".join([save_in_dir, algorithm + ".json"])
 
     @staticmethod
-    def get_recommender_hyperparameter_file(opt: str, dataset: str, algorithm: str, trial: int, fold: int) -> str:
+    def get_recommender_hyperparameter_file(opt: str, dataset: str, algorithm: str) -> str:
         """
         Method to get the file path, which deal with the hyperparameter values founded in the Search Step.
 
         :param opt: TODO.
         :param dataset: A string that's representing the dataset name.
         :param algorithm: A string that's representing the recommender algorithm name.
-        :param trial: The trial number.
-        :param fold: The fold number.
 
-        :return: A string like data/hyperparameters/{dataset}/{opt}/trial-{trial}/fold-{fold}/{algorithm}.json.
+        :return: A string like data/hyperparameters/{dataset}/{opt}/{algorithm}.json.
         """
-        save_in_dir = "/".join([PathDirFile.HYPERPARAMETERS_DIR, dataset, opt, 'trial-' + str(trial), 'fold-' + str(fold)])
+        save_in_dir = "/".join([PathDirFile.HYPERPARAMETERS_DIR, dataset, opt])
         return "/".join([save_in_dir, algorithm + ".json"])
 
     @staticmethod

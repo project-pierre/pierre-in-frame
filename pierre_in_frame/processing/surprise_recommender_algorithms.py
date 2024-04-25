@@ -42,8 +42,7 @@ class SurpriseRecommenderAlgorithm:
             self.recommender = SlopeOne()
         else:
             full_params = SaveAndLoad.load_hyperparameters_recommender(
-                dataset=self.dataset.system_name, algorithm=self.recommender_name,
-                trial=self.trial, fold=self.fold
+                dataset=self.dataset.system_name, algorithm=self.recommender_name
             )
             params = full_params[metric]
             if self.recommender_name == Label.SVD:
