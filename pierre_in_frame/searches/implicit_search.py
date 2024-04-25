@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 import implicit
 import itertools
 import pandas as pd
@@ -30,7 +32,8 @@ class ImplicitGridSearch(BaseSearch):
             n_jobs=n_jobs, list_size=list_size, n_inter=n_inter, based_on=based_on
         )
 
-    def __predict(self, user_preferences: pd.DataFrame, user_id, recommender) -> pd.DataFrame:
+    @staticmethod
+    def __predict(user_preferences: pd.DataFrame, user_id, recommender, list_size) -> pd.DataFrame:
         """
         Method to predict the rating to a user.
 
@@ -39,7 +42,7 @@ class ImplicitGridSearch(BaseSearch):
         """
 
         ids, scores = recommender.recommend(
-            user_id, user_preferences, N=self.list_size, filter_already_liked_items=True
+            user_id, user_preferences, N=list_size, filter_already_liked_items=True
         )
         df = pd.DataFrame([], columns=[Label.USER_ID, Label.ITEM_ID, Label.TRANSACTION_VALUE])
         df[Label.ITEM_ID] = ids.tolist()
@@ -47,7 +50,8 @@ class ImplicitGridSearch(BaseSearch):
         df[Label.USER_ID] = user_id
         return df
 
-    def __run__(self, recommender, users_preferences):
+    @staticmethod
+    def __run__(recommender, users_preferences, list_size):
         """
         Method to run the recommender algorithm, made and save the recommendation list
         """
@@ -64,16 +68,18 @@ class ImplicitGridSearch(BaseSearch):
         user_list = users_preferences[Label.USER_ID].unique()
 
         # Predict the recommendation list
-        result_list = [self.__predict(
+        result_list = [ImplicitGridSearch.__predict(
             user_preferences=sparse_customer_item[user_id],
             user_id=user_id,
-            recommender=recommender
+            recommender=recommender,
+            list_size=list_size
         ) for user_id in user_list]
         return pd.concat(result_list)
 
+    @staticmethod
     def fit_als(
-            self, factors, regularization, alpha, iterations, random_state, num_threads,
-            train_list, valid_list
+            factors, regularization, alpha, iterations, random_state, num_threads,
+            train_list, valid_list, list_size
     ):
         map_value = []
 
@@ -82,7 +88,9 @@ class ImplicitGridSearch(BaseSearch):
                 factors=factors, regularization=regularization, alpha=alpha, iterations=iterations,
                 random_state=random_state, num_threads=1
             )
-            rec_lists_df = self.__run__(recommender=recommender, users_preferences=train)
+            rec_lists_df = ImplicitGridSearch.__run__(
+                recommender=recommender, users_preferences=train, list_size=list_size
+            )
             metric_instance = MeanAveragePrecision(
                 users_rec_list_df=rec_lists_df,
                 users_test_set_df=validation
@@ -100,9 +108,10 @@ class ImplicitGridSearch(BaseSearch):
             }
         }
 
+    @staticmethod
     def fit_bpr(
-            self, factors, regularization, learning_rate, iterations, random_state, num_threads,
-            train_list, valid_list
+            factors, regularization, learning_rate, iterations, random_state, num_threads,
+            train_list, valid_list, list_size
     ):
         map_value = []
 
@@ -111,7 +120,9 @@ class ImplicitGridSearch(BaseSearch):
                 factors=factors, regularization=regularization, learning_rate=learning_rate,
                 iterations=iterations, random_state=random_state, num_threads=1
             )
-            rec_lists_df = self.__run__(recommender=recommender, users_preferences=train)
+            rec_lists_df = ImplicitGridSearch.__run__(
+                recommender=recommender, users_preferences=train, list_size=list_size
+            )
             metric_instance = MeanAveragePrecision(
                 users_rec_list_df=rec_lists_df,
                 users_test_set_df=validation
@@ -166,8 +177,10 @@ class ImplicitGridSearch(BaseSearch):
                 delayed(self.fit_als)(
                     factors=factors, regularization=regularization, alpha=alpha,
                     iterations=iterations,
-                    random_state=random_state, num_threads=num_threads, train_list=self.train_list,
-                    valid_list=self.valid_list
+                    random_state=random_state, num_threads=num_threads,
+                    train_list=deepcopy(self.train_list),
+                    valid_list=deepcopy(self.valid_list),
+                    list_size=self.list_size
                 ) for factors, regularization, alpha, iterations, random_state, num_threads in
                 params_to_use
             ))
@@ -180,7 +193,9 @@ class ImplicitGridSearch(BaseSearch):
                     factors=factors, regularization=regularization,
                     learning_rate=learning_rate, iterations=iterations,
                     random_state=random_state, num_threads=num_threads,
-                    train_list=self.train_list, valid_list=self.valid_list
+                    train_list=deepcopy(self.train_list),
+                    valid_list=deepcopy(self.valid_list),
+                    list_size=self.list_size
                 ) for factors, regularization, learning_rate, iterations, random_state, num_threads
                 in params_to_use
             ))

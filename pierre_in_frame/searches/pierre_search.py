@@ -1,6 +1,8 @@
 """
 Pierre in frame searches
 """
+from copy import deepcopy
+
 import itertools
 import random
 from statistics import mean
@@ -32,7 +34,8 @@ class PierreGridSearch(BaseSearch):
             n_jobs=n_jobs, list_size=list_size, n_inter=n_inter, based_on=based_on
         )
 
-    def fit_ease(self, lambda_: float, implicit: bool, train_list: list, valid_list: list):
+    @staticmethod
+    def fit_ease(lambda_: float, implicit: bool, train_list: list, valid_list: list):
         """
         Fits the pierre grid search algorithm to the training set and testing set.
         """
@@ -42,7 +45,7 @@ class PierreGridSearch(BaseSearch):
             recommender = recommender_pierre.EASEModel.EASEModel(
                 lambda_=lambda_, implicit=implicit
             )
-            map_value.append(self.__fit_and_metric(recommender, train, test))
+            map_value.append(PierreGridSearch.__fit_and_metric(recommender, train, test))
 
         return {
             "map": mean(map_value),
@@ -65,15 +68,15 @@ class PierreGridSearch(BaseSearch):
                 recommender = recommender_pierre.DeppAutoEncModel.DeppAutoEncModel(
                     factors=int(factors), epochs=int(epochs), dropout=int(dropout), lr=int(lr),
                     reg=int(reg),
-                    batch=8
+                    batch=64
                 )
             else:
                 recommender = recommender_pierre.CDAEModel.CDAEModel(
                     factors=int(factors), epochs=int(epochs), dropout=int(dropout), lr=int(lr),
                     reg=int(reg),
-                    batch=8
+                    batch=64
                 )
-            map_value.append(self.__fit_and_metric(recommender, train, test))
+            map_value.append(PierreGridSearch.__fit_and_metric(recommender, train, test))
 
         return {
             "map": mean(map_value),
@@ -91,7 +94,9 @@ class PierreGridSearch(BaseSearch):
         """
         Fits the pierre grid search algorithm to the training set and testing set.
         """
-        rec_lists_df = recommender.train_and_produce_rec_list(user_transactions_df=train)
+        rec_lists_df = recommender.train_and_produce_rec_list(
+            user_transactions_df=train
+        )
         metric_instance = MeanAveragePrecision(
             users_rec_list_df=rec_lists_df,
             users_test_set_df=test
@@ -136,8 +141,9 @@ class PierreGridSearch(BaseSearch):
             params_to_use = self.get_params_dae()
             self.output = [
                 self.fit_autoencoders(
-                    factors=factors, epochs=epochs, dropout=dropout, lr=lr,
-                    reg=reg, train_list=self.train_list, valid_list=self.valid_list
+                    factors=factors, epochs=epochs, dropout=dropout, lr=lr, reg=reg,
+                    train_list=deepcopy(self.train_list),
+                    valid_list=deepcopy(self.valid_list)
                 ) for factors, epochs, dropout, lr, reg in params_to_use
             ]
         else:
@@ -145,6 +151,7 @@ class PierreGridSearch(BaseSearch):
             self.output = [
                 self.fit_ease(
                     lambda_=lambda_, implicit=implicit,
-                    train_list=self.train_list, valid_list=self.valid_list
+                    train_list=deepcopy(self.train_list),
+                    valid_list=deepcopy(self.valid_list)
                 ) for lambda_, implicit in params_to_use
             ]
