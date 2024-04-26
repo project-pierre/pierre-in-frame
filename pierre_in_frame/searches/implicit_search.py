@@ -148,7 +148,7 @@ class ImplicitGridSearch(BaseSearch):
             param_distributions['alpha'], param_distributions['iterations'],
             param_distributions['random_state'], param_distributions['num_threads'],
         ]
-        if self.n_inter < len(combination):
+        if self.n_inter > len(combination):
             params_to_use = random.sample(list(itertools.product(*combination)), self.n_inter)
         else:
             params_to_use = list(itertools.product(*combination))
@@ -162,7 +162,7 @@ class ImplicitGridSearch(BaseSearch):
             param_distributions['learning_rate'], param_distributions['iterations'],
             param_distributions['random_state'], param_distributions['num_threads'],
         ]
-        if self.n_inter < len(combination):
+        if self.n_inter > len(combination):
             params_to_use = random.sample(list(itertools.product(*combination)), self.n_inter)
         else:
             params_to_use = list(itertools.product(*combination))
@@ -171,9 +171,10 @@ class ImplicitGridSearch(BaseSearch):
     def preparing_recommenders(self):
         if self.algorithm == Label.ALS:
             params_to_use = self.get_als_params()
+            print("Total of combinations: ", str(len(params_to_use)))
 
             # Starting the recommender algorithm
-            self.output = list(Parallel(n_jobs=self.n_jobs)(
+            self.output = list(Parallel(n_jobs=self.n_jobs, verbose=100)(
                 delayed(ImplicitGridSearch.fit_als)(
                     factors=factors, regularization=regularization, alpha=alpha,
                     iterations=iterations,
@@ -186,9 +187,10 @@ class ImplicitGridSearch(BaseSearch):
             ))
         elif self.algorithm == Label.BPR:
             params_to_use = self.get_bpr_params()
+            print("Total of combinations: ", str(len(params_to_use)))
 
             # Starting the recommender algorithm
-            self.output = list(Parallel(n_jobs=self.n_jobs)(
+            self.output = list(Parallel(n_jobs=self.n_jobs, verbose=100)(
                 delayed(ImplicitGridSearch.fit_bpr)(
                     factors=factors, regularization=regularization,
                     learning_rate=learning_rate, iterations=iterations,

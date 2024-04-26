@@ -73,6 +73,8 @@ class BaseSearch:
         print("*" * 100)
         print("Algorithm: ", self.algorithm)
         print("Dataset: ", self.dataset.system_name)
+        print("Fold: ", self.fold)
+        print("Trial: ", self.trial)
         print("*" * 100)
 
         self.preparing_data()

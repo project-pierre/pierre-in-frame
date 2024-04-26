@@ -129,7 +129,7 @@ class PierreGridSearch(BaseSearch):
         combination = [
             param_distributions['lambda_'], param_distributions['implicit'],
         ]
-        if self.n_inter < len(combination):
+        if self.n_inter > len(combination):
             params_to_use = random.sample(list(itertools.product(*combination)), self.n_inter)
         else:
             params_to_use = list(itertools.product(*combination))
