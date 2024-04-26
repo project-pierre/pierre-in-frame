@@ -176,20 +176,20 @@ class PathDirFile:
 
     @staticmethod
     def set_conformity_hyperparameter_file(
-            opt: str, dataset: str, recommender: str, cluster: str, distribution: str) -> str:
+            opt: str, dataset: str, cluster: str, distribution: str) -> str:
         """
-        Method to set the file path, which deal with the hyperparameter values founded in the Search Step.
+        Method to set the file path,
+            which deal with the hyperparameter values founded in the Search Step.
 
         :param opt: TODO.
         :param distribution: TODO.
-        :param recommender: A string that's representing the recommender algorithm name.
         :param dataset: A string that's representing the dataset name.
         :param cluster: TODO.
 
-        :return: A string like data/hyperparameters/{dataset}/{opt}/{recommeder}/{distribution}/{cluster}.json.
+        :return: A string like data/hyperparameters/{dataset}/{opt}/{distribution}/{cluster}.json.
         """
         save_in_dir = "/".join([
-            PathDirFile.HYPERPARAMETERS_DIR, dataset, opt, recommender, distribution
+            PathDirFile.HYPERPARAMETERS_DIR, dataset, opt, distribution
         ])
         if not os.path.exists(save_in_dir):
             os.makedirs(save_in_dir)
@@ -197,20 +197,20 @@ class PathDirFile:
 
     @staticmethod
     def get_conformity_hyperparameter_file(
-            opt: str, dataset: str, recommender: str, cluster: str, distribution: str) -> str:
+            opt: str, dataset: str, cluster: str, distribution: str) -> str:
         """
-        Method to get the file path, which deal with the hyperparameter values founded in the Search Step.
+        Method to get the file path,
+            which deal with the hyperparameter values founded in the Search Step.
 
         :param opt: TODO.
         :param distribution: TODO.
-        :param recommender: A string that's representing the recommender algorithm name.
         :param dataset: A string that's representing the dataset name.
         :param cluster: TODO.
 
-        :return: A string like data/hyperparameters/{dataset}/{opt}/{recommeder}/{distribution}/{cluster}.json.
+        :return: A string like data/hyperparameters/{dataset}/{opt}/{distribution}/{cluster}.json.
         """
         save_in_dir = "/".join([
-            PathDirFile.HYPERPARAMETERS_DIR, dataset, opt, recommender, distribution
+            PathDirFile.HYPERPARAMETERS_DIR, dataset, opt, distribution
         ])
         return "/".join([save_in_dir, cluster + ".json"])
 

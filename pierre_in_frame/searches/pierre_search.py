@@ -126,19 +126,21 @@ class PierreGridSearch(BaseSearch):
         Returns the parameters of the pierre grid search algorithm.
         """
         param_distributions = PierreParams.EASE_PARAMS
-        combination = [
+        combination = list(itertools.product(*[
             param_distributions['lambda_'], param_distributions['implicit'],
-        ]
-        if self.n_inter > len(combination):
-            params_to_use = random.sample(list(itertools.product(*combination)), self.n_inter)
+        ]))
+        if self.n_inter < len(combination):
+            params_to_use = random.sample(combination, self.n_inter)
         else:
-            params_to_use = list(itertools.product(*combination))
+            params_to_use = combination
 
         return params_to_use
 
     def preparing_recommenders(self):
         if self.algorithm in Label.ENCODERS_RECOMMENDERS:
             params_to_use = self.get_params_dae()
+            print("Total of combinations: ", str(len(params_to_use)))
+
             self.output = [
                 self.fit_autoencoders(
                     factors=factors, epochs=epochs, dropout=dropout, lr=lr, reg=reg,
@@ -148,6 +150,8 @@ class PierreGridSearch(BaseSearch):
             ]
         else:
             params_to_use = self.get_params_ease()
+            print("Total of combinations: ", str(len(params_to_use)))
+
             self.output = [
                 self.fit_ease(
                     lambda_=lambda_, implicit=implicit,

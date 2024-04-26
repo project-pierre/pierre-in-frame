@@ -79,11 +79,18 @@ class PierreStep2(Step):
 
         # # Executing the Random Search
         search_instance = ManualConformityAlgorithmSearch(
-            experimental_settings=self.experimental_settings
+            dataset_name=self.experimental_settings["dataset"],
+            distribution_list=self.experimental_settings["distribution"],
+            n_jobs=self.experimental_settings["n_jobs"],
+            fold=self.experimental_settings["fold"],
+            trial=self.experimental_settings["trial"],
+            n_inter=self.experimental_settings["n_inter"],
         )
         for algorithm in self.experimental_settings['cluster']:
             logger.info(f"Starting Algorithm: {algorithm}")
-            search_instance.run(conformity_str=algorithm, recommender=self.experimental_settings['recommender'])
+            search_instance.run(
+                conformity_str=algorithm
+            )
         #
         # Finishing the counter
         clock.finish_count()
@@ -174,17 +181,16 @@ class PierreStep2(Step):
             dataset=dataset, algorithm=dataset
         )
 
-    # ############################################################################################# #
-    #  ################################# Main Method and Step Starts #############################  #
-    # ############################################################################################# #
+    # ############################################################################################ #
+    #  ################################ Main Method and Step Starts #############################  #
+    # ############################################################################################ #
 
     def main(self) -> None:
         """
         Main method used to choice the run option.
         """
         if self.experimental_settings['opt'] == Label.CONFORMITY:
-            # self.starting_cluster()
-            pass
+            self.starting_cluster()
         elif self.experimental_settings['opt'] == Label.RECOMMENDER:
             self.preparing_to_batch_recommender_search()
         else:

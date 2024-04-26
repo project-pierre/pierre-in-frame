@@ -143,29 +143,29 @@ class ImplicitGridSearch(BaseSearch):
     def get_als_params(self):
         param_distributions = ImplicitParams.ALS_PARAMS
 
-        combination = [
+        combination = list(itertools.product(*[
             param_distributions['factors'], param_distributions['regularization'],
             param_distributions['alpha'], param_distributions['iterations'],
             param_distributions['random_state'], param_distributions['num_threads'],
-        ]
-        if self.n_inter > len(combination):
-            params_to_use = random.sample(list(itertools.product(*combination)), self.n_inter)
+        ]))
+        if self.n_inter < len(combination):
+            params_to_use = random.sample(combination, self.n_inter)
         else:
-            params_to_use = list(itertools.product(*combination))
+            params_to_use = combination
         return params_to_use
 
     def get_bpr_params(self):
         param_distributions = ImplicitParams.BPR_PARAMS
 
-        combination = [
+        combination = list(itertools.product(*[
             param_distributions['factors'], param_distributions['regularization'],
             param_distributions['learning_rate'], param_distributions['iterations'],
             param_distributions['random_state'], param_distributions['num_threads'],
-        ]
-        if self.n_inter > len(combination):
-            params_to_use = random.sample(list(itertools.product(*combination)), self.n_inter)
+        ]))
+        if self.n_inter < int(len(combination)):
+            params_to_use = random.sample(combination, self.n_inter)
         else:
-            params_to_use = list(itertools.product(*combination))
+            params_to_use = combination
         return params_to_use
 
     def preparing_recommenders(self):

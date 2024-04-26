@@ -150,25 +150,25 @@ class SaveAndLoad:
 
     @staticmethod
     def save_hyperparameters_conformity(
-            best_params: dict, dataset: str, recommender: str, cluster: str, distribution: str):
+            best_params: dict, dataset: str, cluster: str, distribution: str):
         """
         TODO: Docstring
         """
         with open(PathDirFile.set_conformity_hyperparameter_file(
-                opt=Label.CONFORMITY, dataset=dataset, recommender=recommender, cluster=cluster,
+                opt=Label.CONFORMITY, dataset=dataset, cluster=cluster,
                 distribution=distribution
         ), 'w') as fp:
             json.dump(best_params, fp)
 
     @staticmethod
     def load_hyperparameters_conformity(
-            dataset: str, recommender: str, cluster: str, distribution: str
+            dataset: str, cluster: str, distribution: str
     ):
         """
         TODO: Docstring
         """
         path_to_open = PathDirFile.get_conformity_hyperparameter_file(
-            opt=Label.CONFORMITY, dataset=dataset, recommender=recommender,
+            opt=Label.CONFORMITY, dataset=dataset,
             cluster=cluster, distribution=distribution
         )
         with open(path_to_open) as json_file:
