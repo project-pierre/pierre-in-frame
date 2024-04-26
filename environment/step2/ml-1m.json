@@ -5,7 +5,7 @@
   "n_jobs": 63,
   "n_cv": 3,
   "dataset": ["ml-1m"],
-  "recommender": ["BPR", "ALS", "DEEP_AE"],
+  "recommender": ["ALS"],
   "fold": 3,
   "trial": 1
 }

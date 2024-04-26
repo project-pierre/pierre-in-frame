@@ -19,7 +19,7 @@ class PathDirFile:
     RAW_DATASETS_DIR = BASE_DIR + "/data/datasets/raw"
     CLEAN_DATASETS_DIR = BASE_DIR + "/data/datasets/clean"
     EXPERIMENT_DIR = BASE_DIR + '/data/experiment'
-    HYPERPARAMETERS_DIR = BASE_DIR + '/data/hyperparameters'
+    HYPERPARAMETERS_DIR = BASE_DIR + '/data/experiment/hyperparameters'
 
     # Results Path
     RESULTS_METRICS_DIR = RESULTS_DIR + "/metrics"
@@ -153,7 +153,7 @@ class PathDirFile:
         :param dataset: A string that's representing the dataset name.
         :param algorithm: A string that's representing the recommender algorithm name.
 
-        :return: A string like data/hyperparameters/{dataset}/{opt}/{algorithm}.json.
+        :return: A string like data/experiment/hyperparameters/{dataset}/{opt}/{algorithm}.json.
         """
         save_in_dir = "/".join([PathDirFile.HYPERPARAMETERS_DIR, dataset, opt])
         if not os.path.exists(save_in_dir):
@@ -169,7 +169,7 @@ class PathDirFile:
         :param dataset: A string that's representing the dataset name.
         :param algorithm: A string that's representing the recommender algorithm name.
 
-        :return: A string like data/hyperparameters/{dataset}/{opt}/{algorithm}.json.
+        :return: A string like data/experiment/hyperparameters/{dataset}/{opt}/{algorithm}.json.
         """
         save_in_dir = "/".join([PathDirFile.HYPERPARAMETERS_DIR, dataset, opt])
         return "/".join([save_in_dir, algorithm + ".json"])

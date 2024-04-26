@@ -182,7 +182,7 @@ class PierreStep1(Step):
         dataset_instance = RegisteredDataset.load_dataset(dataset)
 
         # Get the users' preferences set
-        users_preference_set = dataset_instance.get_train_transactions(
+        users_preference_set = dataset_instance.get_full_train_transactions(
             trial=trial, fold=fold
         )
 

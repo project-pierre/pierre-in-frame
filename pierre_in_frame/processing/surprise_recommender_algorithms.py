@@ -109,7 +109,7 @@ class SurpriseRecommenderAlgorithm:
         """
         # fit the recommender algorithm
         logger.info(">>> Fit the recommender algorithm")
-        users_preferences = self.dataset.get_train_transactions(fold=self.fold, trial=self.trial)
+        users_preferences = self.dataset.get_full_train_transactions(fold=self.fold, trial=self.trial)
         self.recommender.fit(PandasSurprise.pandas_transform_trainset_to_surprise(users_preferences))
 
         # Load test data

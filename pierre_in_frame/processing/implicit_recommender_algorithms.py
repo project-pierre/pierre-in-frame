@@ -77,7 +77,7 @@ class ImplicitRecommenderAlgorithm:
         """
         # fit the recommender algorithm
         logger.info(">>> Fit the recommender algorithm")
-        users_preferences = self.dataset.get_train_transactions(fold=self.fold, trial=self.trial)
+        users_preferences = self.dataset.get_full_train_transactions(fold=self.fold, trial=self.trial)
 
         sparse_customer_item = sparse.csr_matrix(
             (

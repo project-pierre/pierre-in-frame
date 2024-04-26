@@ -63,7 +63,7 @@ class ApplyingMetric:
         self.metric = metric
 
     def load_user_profile(self):
-        self.users_prof_df = self.dataset_instance.get_train_transactions(
+        self.users_prof_df = self.dataset_instance.get_full_train_transactions(
             trial=self.trial, fold=self.fold
         )
 

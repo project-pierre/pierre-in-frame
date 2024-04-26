@@ -48,14 +48,14 @@ class PostProcessingStep:
         # Choice the tradeoff
         if self.tradeoff_component == 'LIN':
             self.tradeoff_instance = LinearCalibration(
-                users_preferences=self.dataset.get_train_transactions(fold=fold, trial=trial),
+                users_preferences=self.dataset.get_full_train_transactions(fold=fold, trial=trial),
                 candidate_items=self.candidate_items.get_candidate_items(),
                 item_set=self.dataset.get_items(),
                 users_distribution=self.users_distribution
             )
         elif self.tradeoff_component == 'LOG':
             self.tradeoff_instance = LogarithmBias(
-                users_preferences=self.dataset.get_train_transactions(fold=fold, trial=trial),
+                users_preferences=self.dataset.get_full_train_transactions(fold=fold, trial=trial),
                 candidate_items=self.candidate_items.get_candidate_items(),
                 item_set=self.dataset.get_items(),
                 users_distribution=self.users_distribution

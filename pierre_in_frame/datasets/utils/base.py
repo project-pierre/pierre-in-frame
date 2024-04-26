@@ -55,6 +55,7 @@ class Dataset:
         self.items = None
 
         # Fold
+        self.full_train_transaction = None
         self.train_transaction = None
         self.validation_transaction = None
         self.test_transaction = None
@@ -145,7 +146,29 @@ class Dataset:
         """
         self.transactions = new_transactions
 
-    # TRAIN AND TEST DATA
+    # ############################################################################################ #
+    # ################################ Train, Validation and Test Data ########################### #
+    # ############################################################################################ #
+    def get_full_train_transactions(self, trial: int, fold: int) -> pd.DataFrame:
+        """
+        Get the train transaction set.
+        :param trial: An int that represents a number of an experimental trial.
+        :param fold: An int that represents a number of a fold.
+        :return: A pandas Dataframe with the train transactions.
+        """
+        # If it is the first requisition, load from the file
+        if self.full_train_transaction is None:
+            if self.train_transaction is None:
+                self.load_train_transactions(trial=trial, fold=fold)
+
+            if self.validation_transaction is None:
+                self.load_validation_transactions(trial=trial, fold=fold)
+
+            self.full_train_transaction = pd.concat(
+                [self.train_transaction, self.validation_transaction]
+            )
+        return self.full_train_transaction
+
     def load_train_transactions(self, trial: int, fold: int):
         """
         Load a train transaction set.

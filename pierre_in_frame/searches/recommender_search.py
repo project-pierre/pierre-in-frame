@@ -65,7 +65,7 @@ class RecommenderSearch:
         )
         gs.fit(
             PandasSurprise.pandas_transform_all_dataset_to_surprise(
-                self.dataset.get_train_transactions(trial=self.trial, fold=self.fold)
+                self.dataset.get_full_train_transactions(trial=self.trial, fold=self.fold)
             )
         )
         return gs

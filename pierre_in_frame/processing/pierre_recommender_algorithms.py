@@ -53,7 +53,7 @@ class PierreRecommenderAlgorithm:
         """
         # fit the recommender algorithm
         logger.info(">>> Fit the recommender algorithm")
-        users_preferences = self.dataset.get_train_transactions(fold=self.fold, trial=self.trial)
+        users_preferences = self.dataset.get_full_train_transactions(fold=self.fold, trial=self.trial)
 
         rec_lists_df = self.recommender.train_and_produce_rec_list(user_transactions_df=users_preferences)
 
