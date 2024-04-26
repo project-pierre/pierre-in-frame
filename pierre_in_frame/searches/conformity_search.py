@@ -74,7 +74,7 @@ class ManualConformityAlgorithmSearch:
 
         # # K-Means Variations
         if conformity_str == Label.KMEANS:
-            return KMeans(n_clusters=params['n_clusters'], init='k-means++')
+            return KMeans(n_clusters=params['n_clusters'], init='k-means++', n_init="auto")
         elif conformity_str == Label.FCM:
             return FCM(n_clusters=params['n_clusters'])
         elif conformity_str == Label.BISECTING:
@@ -192,12 +192,10 @@ class ManualConformityAlgorithmSearch:
 
         params_list = list(ParameterGrid(selected_params_list))
 
-        if self.n_inter > len(params_list):
-            params_to_use = list(random.sample(
-                list(itertools.product(*params_list)), self.n_inter
-            ))
+        if self.n_inter < len(params_list):
+            params_to_use = list(random.sample(params_list, self.n_inter))
         else:
-            params_to_use = list(itertools.product(*params_list))
+            params_to_use = params_list
 
         return params_to_use
 
@@ -223,7 +221,7 @@ class ManualConformityAlgorithmSearch:
             for params in payload:
                 if abs(params["silhouette"]) > abs(best_silhouette):
                     best_silhouette = abs(params["silhouette"])
-                    best_param = params["params"]
+                    best_param = params
 
             # Saving the best
             SaveAndLoad.save_hyperparameters_conformity(

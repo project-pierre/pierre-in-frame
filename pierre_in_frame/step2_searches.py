@@ -54,7 +54,7 @@ class PierreStep2(Step):
         logger.info("[Search Step] SEARCH FOR THE BEST PARAMETER VALUES")
         logger.info(" ".join(['>>', 'Option:', self.experimental_settings['opt']]))
         if self.experimental_settings['opt'] == Label.CONFORMITY:
-            logger.info(" ".join(['>>', 'Cluster:', self.experimental_settings['cluster']]))
+            logger.info(" ".join(['>>', 'Cluster:', str(self.experimental_settings['cluster'])]))
         elif self.experimental_settings['opt'] == Label.RECOMMENDER:
             logger.info(" ".join(['>>', 'Recommender:', str(self.experimental_settings['recommender'])]))
 
@@ -74,34 +74,34 @@ class PierreStep2(Step):
         """
 
         # Starting the counter
-        clock = Clocker()
-        clock.start_count()
-
-        # # Executing the Random Search
-        search_instance = ManualConformityAlgorithmSearch(
-            dataset_name=self.experimental_settings["dataset"],
-            distribution_list=self.experimental_settings["distribution"],
-            n_jobs=self.experimental_settings["n_jobs"],
-            fold=self.experimental_settings["fold"],
-            trial=self.experimental_settings["trial"],
-            n_inter=self.experimental_settings["n_inter"],
-        )
-        for algorithm in self.experimental_settings['cluster']:
-            logger.info(f"Starting Algorithm: {algorithm}")
-            search_instance.run(
-                conformity_str=algorithm
+        # clock = Clocker()
+        # clock.start_count()
+        for dataset in self.experimental_settings['dataset']:
+            # # Executing the Random Search
+            search_instance = ManualConformityAlgorithmSearch(
+                dataset_name=dataset,
+                distribution_list=self.experimental_settings["distribution"],
+                n_jobs=self.experimental_settings["n_jobs"],
+                fold=self.experimental_settings["fold"],
+                trial=self.experimental_settings["trial"],
+                n_inter=self.experimental_settings["n_inter"],
             )
+            for algorithm in self.experimental_settings['cluster']:
+                logger.info(f"Starting Algorithm: {algorithm}")
+                search_instance.run(
+                    conformity_str=algorithm
+                )
         #
         # Finishing the counter
-        clock.finish_count()
-        #
-        # Saving execution time
-        SaveAndLoad.save_search_conformity_time(
-            data=clock.clock_data(),
-            dataset=self.experimental_settings['dataset'],
-            algorithm=self.experimental_settings['cluster'],
-            distribution=self.experimental_settings['distribution']
-        )
+        # clock.finish_count()
+        # #
+        # # Saving execution time
+        # SaveAndLoad.save_search_conformity_time(
+        #     data=clock.clock_data(),
+        #     dataset=self.experimental_settings['dataset'],
+        #     algorithm=self.experimental_settings['cluster'],
+        #     distribution=self.experimental_settings['distribution']
+        # )
 
     # ############################################################################################ #
     #  ############################ Recommender Algorithm Optimization ########################### #
