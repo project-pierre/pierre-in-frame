@@ -2,10 +2,6 @@
   "opt": "CONFORMITY",
   "dataset": ["ml-1m"],
   "cluster": [
-    "KMEANS",
-    "FCM",
-    "BISECTING",
-    "AGGLOMERATIVE",
     "SPECTRAL",
     "DBSCAN",
     "OPTICS",

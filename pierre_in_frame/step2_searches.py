@@ -87,7 +87,8 @@ class PierreStep2(Step):
                 n_inter=self.experimental_settings["n_inter"],
             )
             for algorithm in self.experimental_settings['cluster']:
-                logger.info(f"Starting Algorithm: {algorithm}")
+                # logger.info(f"Starting Algorithm: {algorithm}")
+                print(f"Starting Algorithm: {algorithm}")
                 search_instance.run(
                     conformity_str=algorithm
                 )

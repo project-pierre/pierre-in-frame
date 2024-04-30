@@ -1,10 +1,23 @@
 {
   "multiprocessing": "joblib",
-  "n_jobs": 30,
-  "checkpoint": "YES",
+  "n_jobs": 63,
+  "checkpoint": "NO",
+  "opt": "EVALUATION_METRICS",
+  "metric": [
+    "ILS",
+    "MC",
+    "MAMC",
+    "MAP",
+    "MRR",
+    "SERENDIPITY",
+    "COVERAGE",
+    "PERSONALIZATION",
+    "UNEXPECTEDNESS"
+  ],
+  "recommender": ["ALS", "BPR"],
+  "cluster": [],
   "dataset": ["food"],
-  "recommender": ["BPR", "ALS", "SVD"],
-  "fold": [1],
+  "fold": [1, 2, 3],
   "trial": [1],
   "tradeoff": ["LIN"],
   "fairness": ["KL"],
@@ -26,8 +39,5 @@
     "TSW_TWB_GLEB",
     "TSW_TWB_GLEB_P"
   ],
-  "selector": ["SURROGATE"],
-  "list_size": [10],
-  "alpha": [0.01],
-  "d": [3]
+  "selector": ["SURROGATE"]
 }

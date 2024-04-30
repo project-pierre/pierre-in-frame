@@ -33,6 +33,7 @@ class PierreGridSearch(BaseSearch):
             algorithm=algorithm, dataset_name=dataset_name, trial=trial, fold=fold,
             n_jobs=n_jobs, list_size=list_size, n_inter=n_inter, based_on=based_on
         )
+        self.count = 0
 
     @staticmethod
     def fit_ease(lambda_: float, implicit: bool, train_list: list, valid_list: list):
@@ -55,6 +56,12 @@ class PierreGridSearch(BaseSearch):
             }
         }
 
+    def print_run(self):
+        self.count += 1
+        print("*" * 50)
+        print(self.count)
+        print("*" * 50)
+
     def fit_autoencoders(
             self, factors, epochs, dropout, lr, reg, train_list, valid_list
     ):
@@ -62,7 +69,7 @@ class PierreGridSearch(BaseSearch):
         Fits the pierre grid search algorithm to the training set and testing set.
         """
         map_value = []
-
+        self.print_run()
         for train, test in zip(train_list, valid_list):
             if self.algorithm == Label.DEEP_AE:
                 recommender = recommender_pierre.DeppAutoEncModel.DeppAutoEncModel(

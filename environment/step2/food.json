@@ -2,10 +2,10 @@
   "opt": "RECOMMENDER",
   "based_on": "TIMESTAMP",
   "n_inter": 50,
-  "n_jobs": 30,
+  "n_jobs": 63,
   "n_cv": 3,
   "dataset": ["food"],
-  "recommender": ["DEEP_AE"],
+  "recommender": ["BPR", "ALS"],
   "fold": [1],
   "trial": [1]
 }
