@@ -1,10 +1,12 @@
 """
 Pierre in frame searches
 """
+import threadpoolctl
 from copy import deepcopy
 
 import itertools
 import random
+from joblib import Parallel, delayed
 from statistics import mean
 
 import recommender_pierre
@@ -23,12 +25,15 @@ class PierreGridSearch(BaseSearch):
             self,
             algorithm: str,
             dataset_name: str, trial: int = 1, fold: int = 3,
-            n_jobs: int = 1, list_size: int = 10, n_inter: int = 50,
+            n_jobs: int = 1, n_threads: int = 1, list_size: int = 10, n_inter: int = 50,
             based_on: str = "RANDOM"
     ):
         """
         Parameters
         """
+        global OPENBLAS_NUM_THREADS
+        OPENBLAS_NUM_THREADS = 1
+        threadpoolctl.threadpool_limits(n_threads, "blas")
         super().__init__(
             algorithm=algorithm, dataset_name=dataset_name, trial=trial, fold=fold,
             n_jobs=n_jobs, list_size=list_size, n_inter=n_inter, based_on=based_on
@@ -62,16 +67,17 @@ class PierreGridSearch(BaseSearch):
         print(self.count)
         print("*" * 50)
 
+    @staticmethod
     def fit_autoencoders(
-            self, factors, epochs, dropout, lr, reg, train_list, valid_list
+            algorithm, factors, epochs, dropout, lr, reg, train_list, valid_list
     ):
         """
         Fits the pierre grid search algorithm to the training set and testing set.
         """
         map_value = []
-        self.print_run()
+
         for train, test in zip(train_list, valid_list):
-            if self.algorithm == Label.DEEP_AE:
+            if algorithm == Label.DEEP_AE:
                 recommender = recommender_pierre.DeppAutoEncModel.DeppAutoEncModel(
                     factors=int(factors), epochs=int(epochs), dropout=int(dropout), lr=int(lr),
                     reg=int(reg),
@@ -115,16 +121,16 @@ class PierreGridSearch(BaseSearch):
         Returns the parameters of the pierre grid search algorithm.
         """
         param_distributions = PierreParams.DAE_PARAMS
-        combination = [
+        combination = list(itertools.product(*[
             param_distributions['factors'], param_distributions['epochs'],
             param_distributions['dropout'], param_distributions['lr'],
             param_distributions['reg']
-        ]
+        ]))
 
         if self.n_inter < len(combination):
-            params_to_use = random.sample(list(itertools.product(*combination)), self.n_inter)
+            params_to_use = random.sample(combination, self.n_inter)
         else:
-            params_to_use = list(itertools.product(*combination))
+            params_to_use = combination
 
         return params_to_use
 
@@ -148,21 +154,39 @@ class PierreGridSearch(BaseSearch):
             params_to_use = self.get_params_dae()
             print("Total of combinations: ", str(len(params_to_use)))
 
-            self.output = [
-                self.fit_autoencoders(
-                    factors=factors, epochs=epochs, dropout=dropout, lr=lr, reg=reg,
+            # self.output = [
+            #     self.fit_autoencoders(
+            #         algorithm=self.algorithm, factors=factors, epochs=epochs,
+            #         dropout=dropout, lr=lr, reg=reg,
+            #         train_list=deepcopy(self.train_list),
+            #         valid_list=deepcopy(self.valid_list)
+            #     ) for factors, epochs, dropout, lr, reg in params_to_use
+            # ]
+
+            # Starting the recommender algorithm
+            self.output = list(Parallel(n_jobs=self.n_jobs, verbose=100)(
+                delayed(PierreGridSearch.fit_autoencoders)(
+                    algorithm=self.algorithm, factors=factors, epochs=epochs,
+                    dropout=dropout, lr=lr, reg=reg,
                     train_list=deepcopy(self.train_list),
                     valid_list=deepcopy(self.valid_list)
                 ) for factors, epochs, dropout, lr, reg in params_to_use
-            ]
+            ))
         else:
             params_to_use = self.get_params_ease()
             print("Total of combinations: ", str(len(params_to_use)))
 
-            self.output = [
-                self.fit_ease(
+            # self.output = [
+            #     PierreGridSearch.fit_ease(
+            #         lambda_=lambda_, implicit=implicit,
+            #         train_list=deepcopy(self.train_list),
+            #         valid_list=deepcopy(self.valid_list)
+            #     ) for lambda_, implicit in params_to_use
+            # ]
+            self.output = list(Parallel(n_jobs=self.n_jobs, verbose=100)(
+                delayed(PierreGridSearch.fit_ease)(
                     lambda_=lambda_, implicit=implicit,
                     train_list=deepcopy(self.train_list),
                     valid_list=deepcopy(self.valid_list)
                 ) for lambda_, implicit in params_to_use
-            ]
+            ))

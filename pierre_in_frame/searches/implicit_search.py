@@ -21,12 +21,12 @@ class ImplicitGridSearch(BaseSearch):
             self,
             algorithm: str,
             dataset_name: str, trial: int = 1, fold: int = 1,
-            n_jobs: int = 1, list_size: int = 10, n_inter: int = 50,
+            n_jobs: int = 1, n_threads: int = 1, list_size: int = 10, n_inter: int = 50,
             based_on: str = "RANDOM"
     ):
         global OPENBLAS_NUM_THREADS
         OPENBLAS_NUM_THREADS = 1
-        threadpoolctl.threadpool_limits(1, "blas")
+        threadpoolctl.threadpool_limits(n_threads, "blas")
         super().__init__(
             algorithm=algorithm, dataset_name=dataset_name, trial=trial, fold=fold,
             n_jobs=n_jobs, list_size=list_size, n_inter=n_inter, based_on=based_on
