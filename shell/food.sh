@@ -1,8 +1,5 @@
 #!/bin/bash
 cd ./pierre_in_frame &&
-python3 step1_preprocessing.py from_file=YES file_name=food &&
-python3 step1_preprocessing.py from_file=YES file_name=food_distribution &&
-python3 step1_preprocessing.py from_file=YES file_name=food_ohe &&
 python3 step2_searches.py from_file=YES file_name=food &&
 python3 step3_processing.py from_file=YES file_name=food &&
 python3 step4_postprocessing.py from_file=YES file_name=food &&
