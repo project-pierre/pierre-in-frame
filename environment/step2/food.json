@@ -1,6 +1,6 @@
 {
   "opt": "RECOMMENDER",
-  "based_on": "TIMESTAMP",
+  "based_on": "CVTT",
   "n_inter": 50,
   "n_jobs": 63,
   "n_cv": 3,
