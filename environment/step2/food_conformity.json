@@ -1,0 +1,33 @@
+{
+  "opt": "CONFORMITY",
+  "dataset": ["food"],
+  "cluster": [
+    "KMEANS",
+    "SPECTRAL",
+    "DBSCAN",
+    "OPTICS",
+    "BIRCH",
+    "GAUSSIAN",
+    "BAYESIAN",
+    "IF",
+    "OSVM",
+    "ENVELOPE",
+    "SGD",
+    "LOF"
+  ],
+  "distribution": [
+    "CWS",
+    "WPS",
+    "GLEB",
+    "TWB",
+    "TSW",
+    "TWB_GLEB",
+    "TSW_GLEB",
+    "TSW_TWB_GLEB",
+    "TSW_TWB_GLEB_P"
+  ],
+  "n_inter": 50,
+  "n_jobs": 4,
+  "fold": 3,
+  "trial": 1
+}
