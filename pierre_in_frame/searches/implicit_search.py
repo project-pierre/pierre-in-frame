@@ -25,7 +25,7 @@ class ImplicitGridSearch(BaseSearch):
             based_on: str = "RANDOM"
     ):
         global OPENBLAS_NUM_THREADS
-        OPENBLAS_NUM_THREADS = 1
+        OPENBLAS_NUM_THREADS = n_threads
         threadpoolctl.threadpool_limits(n_threads, "blas")
         super().__init__(
             algorithm=algorithm, dataset_name=dataset_name, trial=trial, fold=fold,

@@ -1,10 +1,10 @@
 {
   "opt": "RECOMMENDER",
-  "n_jobs": 20,
-  "checkpoint": "YES",
+  "n_jobs": 63,
+  "checkpoint": "NO",
   "dataset": ["ml-20m"],
-  "recommender": ["DEEP_AE", "BPR", "SVD", "ALS"],
-  "fold": [1],
+  "recommender": ["BPR", "ALS"],
+  "fold": [1, 2, 3],
   "trial": [1],
   "list_size": 100,
   "metric": "rmse"
