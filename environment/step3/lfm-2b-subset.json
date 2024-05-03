@@ -1,9 +1,9 @@
 {
   "opt": "RECOMMENDER",
-  "n_jobs": 20,
-  "checkpoint": "YES",
+  "n_jobs": 63,
+  "checkpoint": "NO",
   "dataset": ["lfm-2b-subset"],
-  "recommender": ["SVD"],
+  "recommender": ["ALS", "BPR"],
   "fold": [1],
   "trial": [1],
   "list_size": 100,
