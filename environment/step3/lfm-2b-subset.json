@@ -4,7 +4,7 @@
   "checkpoint": "NO",
   "dataset": ["lfm-2b-subset"],
   "recommender": ["ALS", "BPR"],
-  "fold": [1],
+  "fold": [1, 2, 3],
   "trial": [1],
   "list_size": 100,
   "metric": "rmse"
