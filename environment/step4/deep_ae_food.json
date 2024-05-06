@@ -1,7 +1,7 @@
 {
   "multiprocessing": "joblib",
   "n_jobs": 63,
-  "checkpoint": "NO",
+  "checkpoint": "YES",
   "dataset": ["food"],
   "recommender": ["DEEP_AE"],
   "fold": [1, 2, 3],
