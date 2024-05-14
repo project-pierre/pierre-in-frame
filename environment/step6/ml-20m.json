@@ -1,20 +1,21 @@
 {
+  "multiprocessing": "joblib",
+  "n_jobs": 60,
   "opt": "EVALUATION_METRICS",
-  "view": "CHART",
-  "dataset": ["ml-20m"],
-  "type": ["LINE", "HEAT_WELCH"],
-  "goal": ["DISTRIBUTION_LABEL"],
   "metric": [
     "ILS",
     "MC",
+    "MAMC",
     "MAP",
     "MRR",
     "SERENDIPITY",
     "COVERAGE",
-    "PERSONALIZATION",
-    "MAMC"
+    "UNEXPECTEDNESS"
   ],
-  "recommender": ["ALS", "BPR", "SVD"],
+  "recommender": ["BPR", "ALS"],
+  "dataset": ["ml-20m"],
+  "fold": [1, 2, 3],
+  "trial": [1],
   "tradeoff": ["LIN"],
   "fairness": ["KL"],
   "relevance": ["SUM"],

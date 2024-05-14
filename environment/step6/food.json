@@ -1,6 +1,6 @@
 {
   "multiprocessing": "joblib",
-  "n_jobs": 63,
+  "n_jobs": 60,
   "opt": "EVALUATION_METRICS",
   "metric": [
     "ILS",
@@ -13,7 +13,7 @@
     "PERSONALIZATION",
     "UNEXPECTEDNESS"
   ],
-  "recommender": ["ALS", "BPR"],
+  "recommender": ["ALS", "BPR", "DEEP_AE"],
   "dataset": ["food"],
   "fold": [1, 2, 3],
   "trial": [1],
