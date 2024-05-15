@@ -1,10 +1,10 @@
 {
   "multiprocessing": "joblib",
   "n_jobs": 5,
-  "checkpoint": "YES",
+  "checkpoint": "NO",
   "opt": "EVALUATION_METRICS",
   "metric": [
-    "ILS"
+    "PERSONALIZATION"
   ],
   "recommender": ["BPR", "ALS"],
   "dataset": ["lfm-2b-subset"],
