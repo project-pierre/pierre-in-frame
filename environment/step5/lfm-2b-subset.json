@@ -1,16 +1,10 @@
 {
   "multiprocessing": "joblib",
-  "n_jobs": 63,
-  "checkpoint": "NO",
+  "n_jobs": 30,
+  "checkpoint": "YES",
   "opt": "EVALUATION_METRICS",
   "metric": [
-    "MC",
-    "MAMC",
-    "MAP",
-    "MRR",
-    "SERENDIPITY",
-    "COVERAGE",
-    "UNEXPECTEDNESS"
+    "ILS"
   ],
   "recommender": ["BPR", "ALS"],
   "dataset": ["lfm-2b-subset"],

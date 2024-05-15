@@ -10,7 +10,6 @@
     "MRR",
     "SERENDIPITY",
     "COVERAGE",
-    "PERSONALIZATION",
     "UNEXPECTEDNESS"
   ],
   "recommender": ["ALS", "BPR"],
