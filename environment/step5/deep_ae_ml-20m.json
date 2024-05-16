@@ -4,7 +4,6 @@
   "checkpoint": "NO",
   "opt": "EVALUATION_METRICS",
   "metric": [
-    "ILS",
     "MC",
     "MAMC",
     "MAP",
