@@ -9,13 +9,12 @@
     "MAP",
     "MRR",
     "SERENDIPITY",
-    "UNEXPECTEDNESS",
     "COVERAGE",
-    "NOVELTY",
-    "PERSONALIZATION"
+    "PERSONALIZATION",
+    "UNEXPECTEDNESS"
   ],
-  "recommender": ["DEEP_AE", "BPR", "SVD", "ALS"],
-  "dataset": ["ml-20m", "food", "ml-1m"],
+  "recommender": ["BPR", "ALS", "DEEP_AE"],
+  "dataset": ["ml-20m", "lfm-2b-subset", "food"],
   "fold": [1],
   "trial": [1],
   "tradeoff": ["LIN"],

@@ -1,15 +1,15 @@
 {
   "multiprocessing": "joblib",
-  "n_jobs": 63,
-  "checkpoint": "NO",
+  "n_jobs": 7,
+  "checkpoint": "YES",
   "opt": "EVALUATION_METRICS",
   "metric": [
-    "NOVELTY"
+    "ILS",
+    "PERSONALIZATION"
   ],
-  "recommender": ["DEEP_AE", "BPR", "SVD", "ALS"],
-  "cluster": [],
-  "dataset": ["ml-20m", "food", "ml-1m"],
-  "fold": [1],
+  "recommender": ["BPR", "ALS", "DEEP_AE"],
+  "dataset": ["ml-20m", "lfm-2b-subset", "food"],
+  "fold": [1, 2, 3],
   "trial": [1],
   "tradeoff": ["LIN"],
   "fairness": ["KL"],

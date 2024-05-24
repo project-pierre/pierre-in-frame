@@ -1,8 +1,8 @@
 {
   "opt": "EVALUATION_METRICS",
   "view": "CHART",
-  "dataset": ["ml-20m", "food", "ml-1m"],
-  "type": ["LINE", "HEAT_WELCH"],
+  "dataset": ["ml-20m", "lfm-2b-subset", "food"],
+  "type": ["LINE"],
   "goal": ["DISTRIBUTION_LABEL"],
   "metric": [
     "ILS",
@@ -11,12 +11,11 @@
     "MAP",
     "MRR",
     "SERENDIPITY",
-    "UNEXPECTEDNESS",
     "COVERAGE",
-    "NOVELTY",
-    "PERSONALIZATION"
+    "PERSONALIZATION",
+    "UNEXPECTEDNESS"
   ],
-  "recommender": ["DEEP_AE", "BPR", "SVD", "ALS"],
+  "recommender": ["BPR", "ALS", "DEEP_AE"],
   "tradeoff": ["LIN"],
   "fairness": ["KL"],
   "relevance": ["SUM"],
