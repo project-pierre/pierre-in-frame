@@ -1,3 +1,7 @@
+import random
+
+import itertools
+
 import logging
 
 from fcmeans import FCM
@@ -5,19 +9,17 @@ from joblib import Parallel, delayed
 from numpy import mean
 from sklearn.covariance import EllipticEnvelope
 from sklearn.ensemble import IsolationForest
-from sklearn.cluster import DBSCAN, OPTICS, Birch, AgglomerativeClustering, KMeans, SpectralClustering, BisectingKMeans
+from sklearn.cluster import (DBSCAN, OPTICS, Birch, AgglomerativeClustering, KMeans,
+                             SpectralClustering, BisectingKMeans)
 from sklearn.linear_model import SGDOneClassSVM
 from sklearn.mixture import GaussianMixture, BayesianGaussianMixture
 from sklearn.model_selection import ParameterGrid
 from sklearn.neighbors import LocalOutlierFactor
 from sklearn.svm import OneClassSVM
 
-from scikit_pierre.measures.accessible import calibration_measures_funcs
 from sklearn.metrics import silhouette_score
 
-from datasets.registred_datasets import RegisteredDataset
 from searches.parameters import ConformityParams
-from settings.constants import Constants
 from settings.labels import Label
 from settings.save_and_load import SaveAndLoad
 
@@ -29,24 +31,38 @@ class ManualConformityAlgorithmSearch:
     Class used to lead with the Manual Search of Unsupervised Algorithms
     """
 
-    def __init__(self, experimental_settings: dict):
-        self.experimental_settings = experimental_settings
-        self.dataset = RegisteredDataset.load_dataset(self.experimental_settings['dataset'])
+    def __init__(
+        self,
+        dataset_name: str, distribution_list: list,
+        n_jobs: int, fold: int, trial: int, n_inter: int
+    ):
+        self.dataset_name = dataset_name
+        self.n_jobs = n_jobs
+        self.fold = fold
+        self.trial = trial
+        self.n_inter = n_inter
 
-        self.distribution_name = self.experimental_settings['distribution']
-        self.distribution_instance = calibration_measures_funcs(measure=self.experimental_settings['distribution'])
+        self.distribution_list = distribution_list
 
         self.param_grid = ConformityParams.CLUSTER_PARAMS_GRID
-
         self.cluster_params = ConformityParams.CLUSTER_PARAMS
-
         self.component_params = ConformityParams.COMPONENT_PARAMS_GRID
-
         self.estimators_params = ConformityParams.ESTIMATORS_PARAMS_GRID
-
         self.neighbor_params = ConformityParams.NEIGHBOR_PARAMS_GRID
-
         self.outlier_params = ConformityParams.OUTLIEAR_PARAMS_GRID
+
+    def preparing_data(self, distribution):
+        """
+        Prepares the dataset for pierre search.
+        """
+        users_distribution_list = []
+        for trial in range(1, self.trial + 1):
+            for fold in range(1, self.fold + 1):
+                users_distribution_list.append(SaveAndLoad.load_user_preference_distribution(
+                    dataset=self.dataset_name, trial=trial, fold=fold,
+                    distribution=distribution
+                ))
+        return users_distribution_list
 
     @staticmethod
     def load_conformity_algorithm_instance(conformity_str, params):
@@ -58,7 +74,7 @@ class ManualConformityAlgorithmSearch:
 
         # # K-Means Variations
         if conformity_str == Label.KMEANS:
-            return KMeans(n_clusters=params['n_clusters'], init='k-means++')
+            return KMeans(n_clusters=params['n_clusters'], init='k-means++', n_init="auto")
         elif conformity_str == Label.FCM:
             return FCM(n_clusters=params['n_clusters'])
         elif conformity_str == Label.BISECTING:
@@ -132,71 +148,83 @@ class ManualConformityAlgorithmSearch:
                 X=users_pref_dist_df.to_numpy()
             )
 
-    def search(self, params, conformity_str):
+    @staticmethod
+    def search(params, conformity_str, users_distribution_list):
         """
         It inits the search for the value.
         """
         silhouette_list = []
 
-        for trial in range(1, Constants.N_TRIAL_VALUE + 1):
-            for fold in range(1, Constants.K_FOLDS_VALUE + 1):
-                # Load users' preferences distributions
-                users_pref_dist_df = SaveAndLoad.load_user_preference_distribution(
-                    dataset=self.dataset.system_name, trial=trial, fold=fold,
-                    distribution=self.distribution_name
-                )
-                users_preferences_instance = ManualConformityAlgorithmSearch.load_conformity_algorithm_instance(
-                    conformity_str=conformity_str, params=params
-                )
-                clusters = ManualConformityAlgorithmSearch.fit(
-                    conformity_str=conformity_str, users_pref_dist_df=users_pref_dist_df,
-                    users_preferences_instance=users_preferences_instance
-                )
+        for users_dist in users_distribution_list:
+            users_preferences_instance = ManualConformityAlgorithmSearch.load_conformity_algorithm_instance(
+                conformity_str=conformity_str, params=params
+            )
+            clusters = ManualConformityAlgorithmSearch.fit(
+                conformity_str=conformity_str, users_pref_dist_df=users_dist,
+                users_preferences_instance=users_preferences_instance
+            )
 
-                if len(set(clusters)) == 1:
-                    silhouette_list.append(0)
-                else:
-                    silhouette_list.append(abs(silhouette_score(users_pref_dist_df, clusters)))
+            if len(set(clusters)) == 1:
+                silhouette_list.append(0)
+            else:
+                silhouette_list.append(abs(silhouette_score(users_dist, clusters)))
 
         return {
             "silhouette": mean(silhouette_list) if len(silhouette_list) else 0,
             "params": params
         }
 
-    def run(self, conformity_str: str, recommender: str):
-        """
-        Start to run the Manual Grid Search for Unsupervised Learning Clustering Algorithms.
-        """
-        best_silhouette = 0
-        best_param = None
+    def get_params_to_use(self, conformity_str: str):
 
         # Chosen the parameter structure
         if conformity_str in Label.CLUSTERING_LABEL_ALGORITHMS:
-            params_list = self.cluster_params
+            selected_params_list = self.cluster_params
         elif conformity_str in Label.MIXTURE_LABEL_ALGORITHMS:
-            params_list = self.component_params
+            selected_params_list = self.component_params
         elif conformity_str in Label.ENSEMBLE_LABEL_ALGORITHMS:
-            params_list = self.estimators_params
+            selected_params_list = self.estimators_params
         elif conformity_str in Label.NEIGHBOR_LABEL_ALGORITHMS:
-            params_list = self.neighbor_params
+            selected_params_list = self.neighbor_params
         elif conformity_str in Label.OUTLIEAR_LABEL_ALGORITHMS:
-            params_list = self.outlier_params
+            selected_params_list = self.outlier_params
         else:
-            params_list = self.param_grid
+            selected_params_list = self.param_grid
 
-        # Performing manual gridsearch
-        payload = Parallel(n_jobs=Constants.N_CORES, verbose=10)(
-            delayed(self.search)(
-                params=params, conformity_str=conformity_str
-            ) for params in list(ParameterGrid(params_list)))
+        params_list = list(ParameterGrid(selected_params_list))
 
-        for params in payload:
-            if abs(params["silhouette"]) > abs(best_silhouette):
-                best_silhouette = abs(params["silhouette"])
-                best_param = params["params"]
+        if self.n_inter < len(params_list):
+            params_to_use = list(random.sample(params_list, self.n_inter))
+        else:
+            params_to_use = params_list
 
-        # Saving the best
-        SaveAndLoad.save_hyperparameters_conformity(
-            best_params=best_param, dataset=self.dataset.system_name, recommender=recommender,
-            cluster=conformity_str, distribution=self.distribution_name
-        )
+        return params_to_use
+
+    def run(self, conformity_str: str):
+        """
+        Start to run the Manual Grid Search for Unsupervised Learning Clustering Algorithms.
+        """
+
+        params_to_use = self.get_params_to_use(conformity_str=conformity_str)
+
+        for distribution in self.distribution_list:
+            users_distribution_list = self.preparing_data(distribution=distribution)
+            # Performing manual gridsearch
+            payload = Parallel(n_jobs=self.n_jobs, verbose=10)(
+                delayed(ManualConformityAlgorithmSearch.search)(
+                    params=params, conformity_str=conformity_str,
+                    users_distribution_list=users_distribution_list
+                ) for params in params_to_use
+            )
+
+            best_silhouette = 0
+            best_param = None
+            for params in payload:
+                if abs(params["silhouette"]) > abs(best_silhouette):
+                    best_silhouette = abs(params["silhouette"])
+                    best_param = params
+
+            # Saving the best
+            SaveAndLoad.save_hyperparameters_conformity(
+                best_params=best_param, dataset=self.dataset_name,
+                cluster=conformity_str, distribution=distribution
+            )

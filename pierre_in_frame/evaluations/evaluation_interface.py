@@ -1,19 +1,17 @@
-from collections import Counter
-
 import logging
 import pandas as pd
-import recmetrics
 
 from checkpoint_verification import CheckpointVerification
 from datasets.registred_datasets import RegisteredDataset
+from scikit_pierre.metrics.explaining import ExplainingMiscalibration
 from scikit_pierre.metrics.evaluation import (
     Miscalibration, MeanAbsoluteCalibrationError,
     MeanAveragePrecision, MeanReciprocalRank, MeanAverageMiscalibration,
     AverageNumberOfOItemsChanges, AverageNumberOfGenreChanges, Unexpectedness, Serendipity,
-    ExplainingMiscalibration, IncreaseAndDecreaseMiscalibration
+    NumberOfUserIncreaseAndDecreaseMiscalibration, UserIDMiscalibration,
+    IntraListSimilarity, Personalization, Coverage, Novelty
 )
-from settings.constants import Constants
-from settings.labels import Label
+
 from settings.path_dir_file import PathDirFile
 from settings.save_and_load import SaveAndLoad
 
@@ -48,6 +46,7 @@ class ApplyingMetric:
         self.checkpoint = checkpoint
         self.metric = None
         self.users_prof_df = None
+        self.target_dist = None
         self.users_rec_list_df = None
         self.users_test_set_df = None
         self.users_cand_items_df = None
@@ -55,6 +54,7 @@ class ApplyingMetric:
         self.dataset_instance = None
         self.metric_instance = None
         self.items_set = None
+        self.items_one_hot_encoded = None
 
     def set_metric(self, metric: str):
         """
@@ -63,7 +63,7 @@ class ApplyingMetric:
         self.metric = metric
 
     def load_user_profile(self):
-        self.users_prof_df = self.dataset_instance.get_train_transactions(
+        self.users_prof_df = self.dataset_instance.get_full_train_transactions(
             trial=self.trial, fold=self.fold
         )
 
@@ -91,6 +91,18 @@ class ApplyingMetric:
     def load_items_set(self):
         self.items_set = self.dataset_instance.get_items()
 
+    def load_item_class_one_hot_encode(self):
+        """
+
+        """
+        if self.items_one_hot_encoded is None:
+            try:
+                self.items_one_hot_encoded = SaveAndLoad.load_item_class_one_hot_encode(
+                    dataset=self.dataset
+                )
+            except FileNotFoundError or IOError:
+                self.items_one_hot_encoded = None
+
     def load_candidate_items(self):
         """
 
@@ -109,6 +121,17 @@ class ApplyingMetric:
 
         """
         self.dataset_instance = RegisteredDataset.load_dataset(self.dataset)
+
+    def load_user_prof_distribution(self):
+        try:
+            if self.target_dist is None:
+                target_dist = SaveAndLoad.load_user_preference_distribution(
+                    dataset=self.dataset, fold=self.fold, trial=self.trial,
+                    distribution=self.distribution
+                )
+                self.target_dist = target_dist.to_dict('index')
+        except IOError or FileNotFoundError as e:
+            self.target_dist = None
 
     def load(self):
         self.load_dataset()
@@ -143,10 +166,36 @@ class ApplyingMetric:
             users_test_set_df=self.users_test_set_df
         )
 
+    def load_personalization(self):
+        self.metric_instance = Personalization(
+            users_rec_list_df=self.users_rec_list_df
+        )
+
     def load_unexpectedness(self):
         self.metric_instance = Unexpectedness(
             users_rec_list_df=self.users_rec_list_df,
             users_test_df=self.users_test_set_df
+        )
+
+    def load_coverage(self):
+        self.metric_instance = Coverage(
+            users_rec_list_df=self.users_rec_list_df,
+            items_df=self.items_set
+        )
+
+    def load_novelty(self):
+        self.metric_instance = Novelty(
+            users_profile_df=self.users_prof_df,
+            users_rec_list_df=self.users_rec_list_df,
+            items_df=self.items_set
+        )
+
+    def load_ils(self):
+        self.load_item_class_one_hot_encode()
+        self.metric_instance = IntraListSimilarity(
+            users_rec_list_df=self.users_rec_list_df,
+            items_df=self.items_set,
+            encoded_df=self.items_one_hot_encoded
         )
 
     def load_serendipity(self):
@@ -157,6 +206,7 @@ class ApplyingMetric:
         )
 
     def load_mace(self):
+        self.load_user_prof_distribution()
         self.metric_instance = MeanAbsoluteCalibrationError(
             users_profile_df=self.users_prof_df,
             users_rec_list_df=self.users_rec_list_df,
@@ -165,21 +215,25 @@ class ApplyingMetric:
         )
 
     def load_mc(self):
+        self.load_user_prof_distribution()
         self.metric_instance = Miscalibration(
             users_profile_df=self.users_prof_df,
             users_rec_list_df=self.users_rec_list_df,
             items_set_df=self.items_set,
             distribution_name=self.distribution,
-            distance_func_name=self.fairness
+            distance_func_name=self.fairness,
+            target_dist=self.target_dist
         )
 
     def load_mamc(self):
+        self.load_user_prof_distribution()
         self.metric_instance = MeanAverageMiscalibration(
             users_profile_df=self.users_prof_df,
             users_rec_list_df=self.users_rec_list_df,
             items_set_df=self.items_set,
             distribution_name=self.distribution,
-            distance_func_name=self.fairness
+            distance_func_name=self.fairness,
+            target_dist=self.target_dist
         )
 
     def load_exp_mc(self):
@@ -192,8 +246,8 @@ class ApplyingMetric:
             distance_func_name=self.fairness
         )
 
-    def load_inc_dec_mc(self, choice: bool):
-        self.metric_instance = IncreaseAndDecreaseMiscalibration(
+    def load_inc_dec_mc(self, increase: bool):
+        self.metric_instance = NumberOfUserIncreaseAndDecreaseMiscalibration(
             users_profile_df=self.users_prof_df,
             users_rec_list_df=self.users_rec_list_df,
             users_baseline_df=self.users_baseline_df,
@@ -201,7 +255,18 @@ class ApplyingMetric:
             distribution_name=self.distribution,
             distance_func_name=self.fairness
         )
-        self.metric_instance.set_choice(choice)
+        self.metric_instance.set_choice(choice=increase)
+
+    def load_user_inc_dec_mc(self, increase: bool):
+        self.metric_instance = UserIDMiscalibration(
+            users_profile_df=self.users_prof_df,
+            users_rec_list_df=self.users_rec_list_df,
+            users_baseline_df=self.users_baseline_df,
+            items_df=self.items_set,
+            distribution_name=self.distribution,
+            distance_func_name=self.fairness
+        )
+        self.metric_instance.set_choice(choice=increase)
 
     def compute(self):
         _value = self.metric_instance.compute()
@@ -233,172 +298,6 @@ class ApplyingMetric:
         ):
             return True
         return False
-
-
-def applying_novelty(
-        recommender: str, dataset: str, trial: int, fold: int,
-        distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str,
-        checkpoint: str
-):
-    """
-    Function that apply the evaluation metrics.
-    """
-
-    system_name = "-".join([
-        dataset, 'trial-' + str(trial), 'fold-' + str(fold), recommender,
-        tradeoff, distribution, relevance, selector, fairness, tradeoff, "-->", Label.NOVELTY
-    ])
-
-    if checkpoint == "YES" and CheckpointVerification.unit_step5_recommendation_verification(
-            dataset=dataset, trial=trial, fold=fold,
-            metric=Label.NOVELTY, recommender=recommender,
-            distribution=distribution, fairness=fairness, relevance=relevance,
-            weight=weight, tradeoff=tradeoff, selector=selector
-    ):
-        logger.info(">> Already Done... " + system_name)
-        return "Already Done"
-
-    dataset_instance = RegisteredDataset.load_dataset(dataset)
-    train_df = dataset_instance.get_transactions()
-
-    path = PathDirFile.get_recommendation_list_file(
-        dataset=dataset, recommender=recommender, trial=trial, fold=fold,
-        tradeoff=tradeoff, distribution=distribution, fairness=fairness,
-        relevance=relevance, tradeoff_weight=weight, select_item=selector
-    )
-    users_recommendation_lists = pd.read_csv(path)
-
-    # Executing
-
-    rec_set = [row[Label.ITEM_ID].tolist() for ix, row in
-               users_recommendation_lists.groupby(by=[Label.USER_ID])]
-    pop = Counter(train_df[Label.ITEM_ID].tolist())
-    u = train_df[Label.USER_ID].nunique()
-    metric_value, _ = recmetrics.novelty(
-        predicted=rec_set, pop=pop, u=u, n=Constants.RECOMMENDATION_LIST_SIZE
-    )
-
-    results = pd.DataFrame([[
-        metric_value
-    ]], columns=[Label.NOVELTY])
-
-    SaveAndLoad.save_recommender_metric(
-        data=results,
-        recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-        distribution=distribution, fairness=fairness, relevance=relevance,
-        weight=weight, tradeoff=tradeoff, selector=selector,
-        metric=Label.NOVELTY
-    )
-
-    return "Finished"
-
-
-def applying_coverage(
-        recommender: str, dataset: str, trial: int, fold: int,
-        distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str,
-        checkpoint: str
-):
-    """
-    Function that apply the evaluation metrics.
-    """
-
-    system_name = "-".join([
-        dataset, 'trial-' + str(trial), 'fold-' + str(fold), recommender,
-        tradeoff, distribution, relevance, selector, fairness, tradeoff, "-->", Label.COVERAGE
-    ])
-
-    if checkpoint == "YES" and CheckpointVerification.unit_step5_recommendation_verification(
-            dataset=dataset, trial=trial, fold=fold,
-            metric=Label.COVERAGE, recommender=recommender,
-            distribution=distribution, fairness=fairness, relevance=relevance,
-            weight=weight, tradeoff=tradeoff, selector=selector
-    ):
-        logger.info(">> Already Done... " + system_name)
-        return "Already Done"
-
-    dataset_instance = RegisteredDataset.load_dataset(dataset)
-    items_df = dataset_instance.get_items()
-
-    path = PathDirFile.get_recommendation_list_file(
-        dataset=dataset, recommender=recommender, trial=trial, fold=fold,
-        tradeoff=tradeoff, distribution=distribution, fairness=fairness,
-        relevance=relevance, tradeoff_weight=weight, select_item=selector
-    )
-    users_recommendation_lists = pd.read_csv(path)
-    rec_set = [row[Label.ITEM_ID].tolist() for ix, row in
-               users_recommendation_lists.groupby(by=[Label.USER_ID])]
-
-    # Executing
-    metric_value = recmetrics.prediction_coverage(
-        predicted=rec_set, catalog=items_df[Label.ITEM_ID].tolist()
-    )
-
-    results = pd.DataFrame([[
-        metric_value
-    ]], columns=[Label.COVERAGE])
-
-    SaveAndLoad.save_recommender_metric(
-        data=results,
-        recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-        distribution=distribution, fairness=fairness, relevance=relevance,
-        weight=weight, tradeoff=tradeoff, selector=selector,
-        metric=Label.COVERAGE
-    )
-
-    return "Finished"
-
-
-def applying_personalization(
-        recommender: str, dataset: str, trial: int, fold: int,
-        distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str,
-        checkpoint: str
-):
-    """
-    Function that apply the evaluation metrics.
-    """
-
-    system_name = "-".join([
-        dataset, 'trial-' + str(trial), 'fold-' + str(fold), recommender,
-        tradeoff, distribution, relevance, selector, fairness, tradeoff, "-->",
-        Label.PERSONALIZATION
-    ])
-
-    if checkpoint == "YES" and CheckpointVerification.unit_step5_recommendation_verification(
-            dataset=dataset, trial=trial, fold=fold,
-            metric=Label.PERSONALIZATION, recommender=recommender,
-            distribution=distribution, fairness=fairness, relevance=relevance,
-            weight=weight, tradeoff=tradeoff, selector=selector
-    ):
-        logger.info(">> Already Done... " + system_name)
-        return "Already Done"
-
-    path = PathDirFile.get_recommendation_list_file(
-        dataset=dataset, recommender=recommender, trial=trial, fold=fold,
-        tradeoff=tradeoff, distribution=distribution, fairness=fairness,
-        relevance=relevance, tradeoff_weight=weight, select_item=selector
-    )
-    users_recommendation_lists = pd.read_csv(path)
-    rec_set = [row[Label.ITEM_ID].tolist() for ix, row in
-               users_recommendation_lists.groupby(by=[Label.USER_ID])]
-
-    # Executing
-    metric_value = recmetrics.personalization(
-        predicted=rec_set
-    )
-
-    results = pd.DataFrame([[
-        metric_value
-    ]], columns=[Label.PERSONALIZATION])
-
-    SaveAndLoad.save_recommender_metric(
-        data=results,
-        recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-        distribution=distribution, fairness=fairness, relevance=relevance,
-        weight=weight, tradeoff=tradeoff, selector=selector,
-        metric=Label.PERSONALIZATION
-    )
-
-    return "Finished"
 
 
 def execution_time_fold(

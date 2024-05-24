@@ -13,10 +13,15 @@ logger = logging.getLogger(__name__)
 
 class ImplicitRecommenderAlgorithm:
     """
-    Class to lead with the surprise recommender algorithms, generating the recommendation and saving in the results path
+    Class to lead with the surprise recommender algorithms,
+        generating the recommendation and saving in the results path
     """
 
-    def __init__(self, recommender_name: str, dataset_name: str, fold: int, trial: int, list_size: int, metric: str = "map"):
+    def __init__(
+            self,
+            recommender_name: str, dataset_name: str, fold: int, trial: int,
+            list_size: int, metric: str = "map"
+    ):
         """
         Class constructor.
 
@@ -35,19 +40,22 @@ class ImplicitRecommenderAlgorithm:
 
         # Load the surprise recommender algorithm
         full_params = SaveAndLoad.load_hyperparameters_recommender(
-            dataset=self.dataset.system_name, algorithm=self.recommender_name,
-            trial=self.trial, fold=self.fold
+            dataset=self.dataset.system_name, algorithm=self.recommender_name
         )
         if self.recommender_name == Label.ALS:
             self.recommender = implicit.als.AlternatingLeastSquares(
-                factors=int(full_params["params"]["factors"]), regularization=float(full_params["params"]["regularization"]),
-                alpha=float(full_params["params"]["alpha"]), iterations=int(full_params["params"]["iterations"]),
+                factors=int(full_params["params"]["factors"]),
+                regularization=float(full_params["params"]["regularization"]),
+                alpha=float(full_params["params"]["alpha"]),
+                iterations=int(full_params["params"]["iterations"]),
                 random_state=int(full_params["params"]["random_state"]), num_threads=1
             )
         elif self.recommender_name == Label.BPR:
             self.recommender = implicit.bpr.BayesianPersonalizedRanking(
-                factors=full_params["params"]["factors"], regularization=full_params["params"]["regularization"],
-                learning_rate=full_params["params"]["learning_rate"], iterations=full_params["params"]["iterations"],
+                factors=full_params["params"]["factors"],
+                regularization=full_params["params"]["regularization"],
+                learning_rate=full_params["params"]["learning_rate"],
+                iterations=full_params["params"]["iterations"],
                 random_state=full_params["params"]["random_state"], num_threads=1
             )
         elif self.recommender_name == Label.LMF:
@@ -78,7 +86,9 @@ class ImplicitRecommenderAlgorithm:
         """
         # fit the recommender algorithm
         logger.info(">>> Fit the recommender algorithm")
-        users_preferences = self.dataset.get_train_transactions(fold=self.fold, trial=self.trial)
+        users_preferences = self.dataset.get_full_train_transactions(
+            fold=self.fold, trial=self.trial
+        )
 
         sparse_customer_item = sparse.csr_matrix(
             (

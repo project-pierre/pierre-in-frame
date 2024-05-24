@@ -1,6 +1,6 @@
 {
   "opt": "SPLIT",
-  "based_on": "TIMESTAMP",
+  "based_on": "CVTT",
   "dataset": "food",
   "n_folds": 3,
   "n_trials": 1,

@@ -1,59 +1,95 @@
+"""
+Pierre in frame searches
+"""
+import threadpoolctl
+from copy import deepcopy
+
 import itertools
 import random
-from pprint import pprint
+from joblib import Parallel, delayed
 from statistics import mean
 
 import recommender_pierre
-from datasets.registred_datasets import RegisteredDataset
-from datasets.utils import split
-from datasets.utils.split import SequentialTimeSplit
-from scikit_pierre.metrics.evaluation import mean_average_precision
+from scikit_pierre.metrics.evaluation import MeanAveragePrecision
+from searches.base_search import BaseSearch
 from searches.parameters import PierreParams
 from settings.labels import Label
-from settings.save_and_load import SaveAndLoad
 
 
-class PierreGridSearch:
+class PierreGridSearch(BaseSearch):
+    """
+    Class for performing pierre grid search
+    """
 
     def __init__(
             self,
             algorithm: str,
-            dataset_name: str, n_splits: int = 3, trial: int = 1, fold: int = 3,
-            n_jobs: int = 1, list_size: int = 10, n_inter: int = 50,
+            dataset_name: str, trial: int = 1, fold: int = 3,
+            n_jobs: int = 1, n_threads: int = 1, list_size: int = 10, n_inter: int = 50,
             based_on: str = "RANDOM"
     ):
-        # global OPENBLAS_NUM_THREADS
-        # OPENBLAS_NUM_THREADS = 1
-        # threadpoolctl.threadpool_limits(1, "blas")
-        self.dataset = RegisteredDataset.load_dataset(dataset_name)
-        self.algorithm = algorithm
-        self.trial = trial
-        self.fold = fold
-        self.n_splits = n_splits
-        self.n_inter = n_inter
-        self.n_jobs = n_jobs
-        self.list_size = list_size
-        self.users_preferences = None
-        self.based_on = based_on
+        """
+        Parameters
+        """
+        global OPENBLAS_NUM_THREADS
+        OPENBLAS_NUM_THREADS = n_threads
+        threadpoolctl.threadpool_limits(n_threads, "blas")
+        super().__init__(
+            algorithm=algorithm, dataset_name=dataset_name, trial=trial, fold=fold,
+            n_jobs=n_jobs, list_size=list_size, n_inter=n_inter, based_on=based_on
+        )
+        self.count = 0
 
-    def fit_autoencoders(
-            self, factors, epochs, dropout, lr, reg, train_list, test_list
-    ):
+    @staticmethod
+    def fit_ease(lambda_: float, implicit: bool, train_list: list, valid_list: list):
+        """
+        Fits the pierre grid search algorithm to the training set and testing set.
+        """
         map_value = []
 
-        for train, test in zip(train_list, test_list):
-            if self.algorithm == Label.AUTOENC:
-                recommender = recommender_pierre.AutoEncModel.AutoEncModel(
-                    factors=int(factors), epochs=int(epochs), dropout=int(dropout), lr=int(lr), reg=int(reg),
-                    batch=8
+        for train, test in zip(train_list, valid_list):
+            recommender = recommender_pierre.EASEModel.EASEModel(
+                lambda_=lambda_, implicit=implicit
+            )
+            map_value.append(PierreGridSearch.__fit_and_metric(recommender, train, test))
+
+        return {
+            "map": mean(map_value),
+            "params": {
+                "lambda_": lambda_,
+                "implicit": implicit
+            }
+        }
+
+    def print_run(self):
+        self.count += 1
+        print("*" * 50)
+        print(self.count)
+        print("*" * 50)
+
+    @staticmethod
+    def fit_autoencoders(
+            algorithm, factors, epochs, dropout, lr, reg, train_list, valid_list
+    ):
+        """
+        Fits the pierre grid search algorithm to the training set and testing set.
+        """
+        map_value = []
+
+        for train, test in zip(train_list, valid_list):
+            if algorithm == Label.DEEP_AE:
+                recommender = recommender_pierre.DeppAutoEncModel.DeppAutoEncModel(
+                    factors=int(factors), epochs=int(epochs), dropout=int(dropout), lr=int(lr),
+                    reg=int(reg),
+                    batch=64
                 )
             else:
                 recommender = recommender_pierre.CDAEModel.CDAEModel(
-                    factors=int(factors), epochs=int(epochs), dropout=int(dropout), lr=int(lr), reg=int(reg),
-                    batch=8
+                    factors=int(factors), epochs=int(epochs), dropout=int(dropout), lr=int(lr),
+                    reg=int(reg),
+                    batch=64
                 )
-            rec_lists_df = recommender.train_and_produce_rec_list(user_transactions_df=train)
-            map_value.append(mean_average_precision(rec_lists_df, test))
+            map_value.append(PierreGridSearch.__fit_and_metric(recommender, train, test))
 
         return {
             "map": mean(map_value),
@@ -66,59 +102,91 @@ class PierreGridSearch:
             }
         }
 
-    def fit(self):
+    @staticmethod
+    def __fit_and_metric(recommender, train, test):
         """
-        TODO: Docstring
+        Fits the pierre grid search algorithm to the training set and testing set.
         """
-        print(self.algorithm)
-        print(self.dataset.system_name)
-        train_list = []
-        test_list = []
-        self.users_preferences = self.dataset.get_train_transactions(fold=self.fold, trial=self.trial)
-        if self.based_on == Label.TIME:
-            instance = SequentialTimeSplit(transactions_df=self.users_preferences, n_folds=self.n_splits)
-            train_df, test_df = instance.main()
-            train_list.append(train_df)
-            test_list.append(test_df)
-        else:
-            cv_folds = split.split_with_joblib(transactions_df=self.users_preferences, trial=1, n_folds=self.n_splits)
+        rec_lists_df = recommender.train_and_produce_rec_list(
+            user_transactions_df=train
+        )
+        metric_instance = MeanAveragePrecision(
+            users_rec_list_df=rec_lists_df,
+            users_test_set_df=test
+        )
+        return metric_instance.compute()
 
-            for train, test in cv_folds:
-                train_list.append(train)
-                test_list.append(test)
-
-        output = []
+    def get_params_dae(self):
+        """
+        Returns the parameters of the pierre grid search algorithm.
+        """
         param_distributions = PierreParams.DAE_PARAMS
-        combination = [
+        combination = list(itertools.product(*[
             param_distributions['factors'], param_distributions['epochs'],
             param_distributions['dropout'], param_distributions['lr'],
             param_distributions['reg']
-        ]
-        params_to_use = random.sample(list(itertools.product(*combination)), self.n_inter)
-        # Starting the recommender algorithm
-        # output = Parallel(n_jobs=self.n_jobs)(
-        #     delayed(self.fit_autoencoders)(
-        #         factors=factors, epochs=epochs, dropout=dropout, lr=lr,
-        #         reg=reg, train_list=train_list, test_list=test_list
-        #     ) for factors, epochs, dropout, lr, reg in params_to_use
-        # )
+        ]))
 
-        output = [
-            self.fit_autoencoders(
-                factors=factors, epochs=epochs, dropout=dropout, lr=lr,
-                reg=reg, train_list=train_list, test_list=test_list
-            ) for factors, epochs, dropout, lr, reg in params_to_use
-        ]
+        if self.n_inter < len(combination):
+            params_to_use = random.sample(combination, self.n_inter)
+        else:
+            params_to_use = combination
 
-        best_params = {
-            "map": 0.0
-        }
-        for item in output:
-            if float(best_params["map"]) < float(item["map"]):
-                best_params = item
-        pprint(best_params)
-        # Saving
-        SaveAndLoad.save_hyperparameters_recommender(
-            best_params=best_params, dataset=self.dataset.system_name, algorithm=self.algorithm,
-            trial=self.trial, fold=self.fold
-        )
+        return params_to_use
+
+    def get_params_ease(self):
+        """
+        Returns the parameters of the pierre grid search algorithm.
+        """
+        param_distributions = PierreParams.EASE_PARAMS
+        combination = list(itertools.product(*[
+            param_distributions['lambda_'], param_distributions['implicit'],
+        ]))
+        if self.n_inter < len(combination):
+            params_to_use = random.sample(combination, self.n_inter)
+        else:
+            params_to_use = combination
+
+        return params_to_use
+
+    def preparing_recommenders(self):
+        if self.algorithm in Label.ENCODERS_RECOMMENDERS:
+            params_to_use = self.get_params_dae()
+            print("Total of combinations: ", str(len(params_to_use)))
+
+            # self.output = [
+            #     self.fit_autoencoders(
+            #         algorithm=self.algorithm, factors=factors, epochs=epochs,
+            #         dropout=dropout, lr=lr, reg=reg,
+            #         train_list=deepcopy(self.train_list),
+            #         valid_list=deepcopy(self.valid_list)
+            #     ) for factors, epochs, dropout, lr, reg in params_to_use
+            # ]
+
+            # Starting the recommender algorithm
+            self.output = list(Parallel(n_jobs=self.n_jobs, verbose=100)(
+                delayed(PierreGridSearch.fit_autoencoders)(
+                    algorithm=self.algorithm, factors=factors, epochs=epochs,
+                    dropout=dropout, lr=lr, reg=reg,
+                    train_list=deepcopy(self.train_list),
+                    valid_list=deepcopy(self.valid_list)
+                ) for factors, epochs, dropout, lr, reg in params_to_use
+            ))
+        else:
+            params_to_use = self.get_params_ease()
+            print("Total of combinations: ", str(len(params_to_use)))
+
+            # self.output = [
+            #     PierreGridSearch.fit_ease(
+            #         lambda_=lambda_, implicit=implicit,
+            #         train_list=deepcopy(self.train_list),
+            #         valid_list=deepcopy(self.valid_list)
+            #     ) for lambda_, implicit in params_to_use
+            # ]
+            self.output = list(Parallel(n_jobs=self.n_jobs, verbose=100)(
+                delayed(PierreGridSearch.fit_ease)(
+                    lambda_=lambda_, implicit=implicit,
+                    train_list=deepcopy(self.train_list),
+                    valid_list=deepcopy(self.valid_list)
+                ) for lambda_, implicit in params_to_use
+            ))

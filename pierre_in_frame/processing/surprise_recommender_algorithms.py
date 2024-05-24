@@ -16,10 +16,15 @@ logger = logging.getLogger(__name__)
 
 class SurpriseRecommenderAlgorithm:
     """
-    Class to lead with the surprise recommender algorithms, generating the recommendation and saving in the results path
+    Class to lead with the surprise recommender algorithms,
+        generating the recommendation and saving in the results path
     """
 
-    def __init__(self, recommender_name: str, dataset_name: str, fold: int, trial: int, metric: str, list_size: int):
+    def __init__(
+            self,
+            recommender_name: str, dataset_name: str, fold: int, trial: int,
+            metric: str, list_size: int
+    ):
         """
         Class constructor.
 
@@ -42,8 +47,7 @@ class SurpriseRecommenderAlgorithm:
             self.recommender = SlopeOne()
         else:
             full_params = SaveAndLoad.load_hyperparameters_recommender(
-                dataset=self.dataset.system_name, algorithm=self.recommender_name,
-                trial=self.trial, fold=self.fold
+                dataset=self.dataset.system_name, algorithm=self.recommender_name
             )
             params = full_params[metric]
             if self.recommender_name == Label.SVD:
@@ -68,9 +72,13 @@ class SurpriseRecommenderAlgorithm:
                     verbose=True
                 )
             elif self.recommender_name == Label.ITEM_KNN_BASIC:
-                self.recommender = KNNBasic(k=params['k'], sim_options=params['sim_options'], verbose=True)
+                self.recommender = KNNBasic(
+                    k=params['k'], sim_options=params['sim_options'], verbose=True
+                )
             elif self.recommender_name == Label.USER_KNN_BASIC:
-                self.recommender = KNNBasic(k=params['k'], sim_options=params['sim_options'], verbose=True)
+                self.recommender = KNNBasic(
+                    k=params['k'], sim_options=params['sim_options'], verbose=True
+                )
             elif self.recommender_name == Label.SVDpp:
                 self.recommender = SVDpp(
                     n_factors=params['n_factors'], n_epochs=params['n_epochs'],
@@ -82,7 +90,8 @@ class SurpriseRecommenderAlgorithm:
         """
         TODO: Docstring
         """
-        user_unknown_items_ids = set(self.all_items_ids) - set(users_preferences['ITEM_ID'].unique().tolist())
+        user_unknown_items_ids = set(
+            self.all_items_ids) - set(users_preferences['ITEM_ID'].unique().tolist())
         unk_df = pd.DataFrame()
         unk_df[Label.ITEM_ID] = list(user_unknown_items_ids)
         unk_df[Label.USER_ID] = user_id
@@ -110,8 +119,12 @@ class SurpriseRecommenderAlgorithm:
         """
         # fit the recommender algorithm
         logger.info(">>> Fit the recommender algorithm")
-        users_preferences = self.dataset.get_train_transactions(fold=self.fold, trial=self.trial)
-        self.recommender.fit(PandasSurprise.pandas_transform_trainset_to_surprise(users_preferences))
+        users_preferences = self.dataset.get_full_train_transactions(
+            fold=self.fold, trial=self.trial
+        )
+        self.recommender.fit(
+            PandasSurprise.pandas_transform_trainset_to_surprise(users_preferences)
+        )
 
         # Load test data
         logger.info(">>> Get the test set")

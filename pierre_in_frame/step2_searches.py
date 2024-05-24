@@ -54,7 +54,7 @@ class PierreStep2(Step):
         logger.info("[Search Step] SEARCH FOR THE BEST PARAMETER VALUES")
         logger.info(" ".join(['>>', 'Option:', self.experimental_settings['opt']]))
         if self.experimental_settings['opt'] == Label.CONFORMITY:
-            logger.info(" ".join(['>>', 'Cluster:', self.experimental_settings['cluster']]))
+            logger.info(" ".join(['>>', 'Cluster:', str(self.experimental_settings['cluster'])]))
         elif self.experimental_settings['opt'] == Label.RECOMMENDER:
             logger.info(" ".join(['>>', 'Recommender:', str(self.experimental_settings['recommender'])]))
 
@@ -64,9 +64,9 @@ class PierreStep2(Step):
 
         logger.info("$" * 50)
 
-    # ############################################################################################# #
-    #  ############################# Clustering Algorithm Optimization ###########################  #
-    # ############################################################################################# #
+    # ############################################################################################ #
+    # ############################# Clustering Algorithm Optimization ###########################  #
+    # ############################################################################################ #
 
     def starting_cluster(self) -> None:
         """
@@ -74,31 +74,39 @@ class PierreStep2(Step):
         """
 
         # Starting the counter
-        clock = Clocker()
-        clock.start_count()
-
-        # # Executing the Random Search
-        search_instance = ManualConformityAlgorithmSearch(
-            experimental_settings=self.experimental_settings
-        )
-        for algorithm in self.experimental_settings['cluster']:
-            logger.info(f"Starting Algorithm: {algorithm}")
-            search_instance.run(conformity_str=algorithm, recommender=self.experimental_settings['recommender'])
+        # clock = Clocker()
+        # clock.start_count()
+        for dataset in self.experimental_settings['dataset']:
+            # # Executing the Random Search
+            search_instance = ManualConformityAlgorithmSearch(
+                dataset_name=dataset,
+                distribution_list=self.experimental_settings["distribution"],
+                n_jobs=self.experimental_settings["n_jobs"],
+                fold=self.experimental_settings["fold"],
+                trial=self.experimental_settings["trial"],
+                n_inter=self.experimental_settings["n_inter"],
+            )
+            for algorithm in self.experimental_settings['cluster']:
+                # logger.info(f"Starting Algorithm: {algorithm}")
+                print(f"Starting Algorithm: {algorithm}")
+                search_instance.run(
+                    conformity_str=algorithm
+                )
         #
         # Finishing the counter
-        clock.finish_count()
-        #
-        # Saving execution time
-        SaveAndLoad.save_search_conformity_time(
-            data=clock.clock_data(),
-            dataset=self.experimental_settings['dataset'],
-            algorithm=self.experimental_settings['cluster'],
-            distribution=self.experimental_settings['distribution']
-        )
+        # clock.finish_count()
+        # #
+        # # Saving execution time
+        # SaveAndLoad.save_search_conformity_time(
+        #     data=clock.clock_data(),
+        #     dataset=self.experimental_settings['dataset'],
+        #     algorithm=self.experimental_settings['cluster'],
+        #     distribution=self.experimental_settings['distribution']
+        # )
 
-    # ############################################################################################# #
+    # ############################################################################################ #
     #  ############################ Recommender Algorithm Optimization ########################### #
-    # ############################################################################################# #
+    # ############################################################################################ #
 
     def preparing_to_batch_recommender_search(self) -> None:
         """
@@ -107,7 +115,7 @@ class PierreStep2(Step):
 
         combination = [
             self.experimental_settings['recommender'], self.experimental_settings['dataset'],
-            self.experimental_settings['trial'], self.experimental_settings['fold']
+            [self.experimental_settings['trial']], [self.experimental_settings['fold']]
         ]
 
         system_combination = list(itertools.product(*combination))
@@ -118,6 +126,7 @@ class PierreStep2(Step):
                 recommender, dataset, trial, fold,
                 self.experimental_settings['n_inter'],
                 self.experimental_settings['n_jobs'],
+                self.experimental_settings['n_threads'],
                 self.experimental_settings['n_cv'],
                 self.experimental_settings['based_on']
             )
@@ -132,7 +141,7 @@ class PierreStep2(Step):
     @staticmethod
     def starting_recommender_search(
             recommender: str, dataset: str, trial: int, fold: int,
-            n_inter: int, n_jobs: int, n_cv: int, based_on: str
+            n_inter: int, n_jobs: int, n_threads: int, n_cv: int, based_on: str
     ) -> None:
         """
         Method to start the recommender algorithm hyperparameter search optimization.
@@ -154,12 +163,12 @@ class PierreStep2(Step):
         elif recommender in Label.IMPLICIT_RECOMMENDERS:
             search_instance = ImplicitGridSearch(
                 algorithm=recommender, dataset_name=dataset, trial=trial, fold=fold,
-                n_jobs=n_jobs, n_splits=n_cv, n_inter=n_inter, based_on=based_on
+                n_jobs=n_jobs, n_threads=n_threads, n_inter=n_inter, based_on=based_on
             )
         elif recommender in Label.PIERRE_RECOMMENDERS:
             search_instance = PierreGridSearch(
                 algorithm=recommender, dataset_name=dataset, trial=trial, fold=fold,
-                n_jobs=n_jobs, n_splits=n_cv, n_inter=n_inter, based_on=based_on
+                n_jobs=n_jobs, n_threads=n_threads, n_inter=n_inter, based_on=based_on
             )
         else:
             exit(0)
@@ -174,17 +183,16 @@ class PierreStep2(Step):
             dataset=dataset, algorithm=dataset
         )
 
-    # ############################################################################################# #
-    #  ################################# Main Method and Step Starts #############################  #
-    # ############################################################################################# #
+    # ############################################################################################ #
+    #  ################################ Main Method and Step Starts #############################  #
+    # ############################################################################################ #
 
     def main(self) -> None:
         """
         Main method used to choice the run option.
         """
         if self.experimental_settings['opt'] == Label.CONFORMITY:
-            # self.starting_cluster()
-            pass
+            self.starting_cluster()
         elif self.experimental_settings['opt'] == Label.RECOMMENDER:
             self.preparing_to_batch_recommender_search()
         else:

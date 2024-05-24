@@ -1,0 +1,24 @@
+{
+  "opt": "CONFORMITY",
+  "dataset": ["ml-20m"],
+  "cluster": [
+    "DBSCAN",
+    "OPTICS",
+    "OSVM"
+  ],
+  "distribution": [
+    "CWS",
+    "WPS",
+    "GLEB",
+    "TWB",
+    "TSW",
+    "TWB_GLEB",
+    "TSW_GLEB",
+    "TSW_TWB_GLEB",
+    "TSW_TWB_GLEB_P"
+  ],
+  "n_inter": 50,
+  "n_jobs": 25,
+  "fold": 3,
+  "trial": 1
+}

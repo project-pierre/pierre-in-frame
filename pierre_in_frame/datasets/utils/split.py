@@ -116,7 +116,7 @@ class SequentialTimeSplit:
         split_list = array_split(user_transactions, self.n_folds)
 
         for ix, fold in enumerate(split_list):
-            if ix == self.n_folds - 1:
+            if ix >= self.n_folds - 1:
                 self.test_list.append(pd.DataFrame(fold))
             else:
                 self.train_list.append(pd.DataFrame(fold))
@@ -152,3 +152,67 @@ class SequentialTimeSplit:
         train_df, test_df = self.compute_kfold()
 
         return train_df, test_df
+
+
+class CrossValidationThroughTime:
+
+    def __init__(self, transactions_df: pd.DataFrame, n_folds: int):
+        self.transactions_df = transactions_df
+
+        self.n_folds = n_folds
+
+        self.train_list = [[] for _ in range(self.n_folds)]
+        self.valid_list = [[] for _ in range(self.n_folds)]
+        self.test_list = [[] for _ in range(self.n_folds)]
+
+    def user_splitting(self, user_transactions: pd.DataFrame) -> None:
+        """
+        Split the user transaction in sequential way.
+
+        :param user_transactions: A Pandas DataFrame with user transactions.
+
+        """
+        user_transactions.reset_index(inplace=True)
+        user_transactions.sort_values(by=[Label.TIME], inplace=True)
+        split_list = list(array_split(user_transactions, (self.n_folds * 2) - 1))
+
+        for ix in range(self.n_folds):
+            self.train_list[ix].append(
+                pd.concat(
+                    [pd.DataFrame(split_list[i]) for i in range(0, ix + 1)],
+                )
+            )
+            self.valid_list[ix].append(pd.DataFrame(split_list[ix + 1]))
+            self.test_list[ix].append(pd.DataFrame(split_list[ix + 2]))
+
+    def compute_kfold(self) -> tuple:
+        """
+        Prepare the users to be processed in parallel with the joblib.
+
+        :return: A list composed of the fold in positions, each fold position has [0] as the k fold train transactions and [1] as the k fold test transactions.
+        """
+        # Preparing: users, results dataframe and shared queue over processes
+
+        grouped_transactions = self.transactions_df.groupby(by=[Label.USER_ID])
+
+        delayed_list = (
+            delayed(self.user_splitting)(
+                user_transactions=transactions
+            )
+            for user_id, transactions in grouped_transactions
+        )
+
+        Parallel(n_jobs=-1, verbose=10, batch_size=128, require='sharedmem')(delayed_list)
+
+        return self.train_list, self.valid_list, self.test_list
+
+    def main(self) -> tuple:
+        """
+        Prepare the users to be processed in parallel with the joblib.
+
+        :return: A list composed of the fold in positions, each fold position has [0] as the k fold train transactions and [1] as the k fold test transactions.
+        """
+
+        train_list, valid_list, test_list = self.compute_kfold()
+
+        return train_list, valid_list, test_list

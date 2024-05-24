@@ -1,17 +1,27 @@
 {
   "opt": "EVALUATION_METRICS",
   "view": "CHART",
-  "dataset": ["food", "ml-20m", "lfm-2b-subset"],
+  "dataset": ["ml-20m"],
   "type": ["LINE", "HEAT_WELCH"],
   "goal": ["DISTRIBUTION_LABEL"],
-  "metric": ["MC", "ANIC", "ANGC"],
-  "recommender": ["ALS", "BPR", "DAE"],
+  "metric": [
+    "MC",
+    "MAMC",
+    "MAP",
+    "MRR",
+    "SERENDIPITY",
+    "COVERAGE",
+    "UNEXPECTEDNESS"
+  ],
+  "recommender": ["ALS", "BPR", "DEEP_AE"],
   "tradeoff": ["LIN"],
   "fairness": ["KL"],
   "relevance": ["SUM"],
   "weight": [
-      "C@0.0", "C@0.1", "C@0.2", "C@0.3", "C@0.4", "C@0.5",
-      "C@0.6", "C@0.7", "C@0.8", "C@0.9", "C@1.0"
+    "C@0.0", "C@0.1", "C@0.2",
+    "C@0.3", "C@0.4", "C@0.5",
+    "C@0.6", "C@0.7", "C@0.8",
+    "C@0.9", "C@1.0"
   ],
   "distribution": [
     "CWS",

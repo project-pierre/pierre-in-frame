@@ -272,3 +272,5 @@ typings/
 /data.zip
 /data/app/
 /data/
+*.whl
+/results/*

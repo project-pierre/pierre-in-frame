@@ -1,4 +1,6 @@
 from collections import Counter
+from copy import deepcopy
+
 from statistics import median
 
 import itertools
@@ -9,7 +11,7 @@ import pandas as pd
 from numpy import mean, array_split
 
 from datasets.utils import split
-from datasets.utils.split import SequentialTimeSplit
+from datasets.utils.split import SequentialTimeSplit, CrossValidationThroughTime
 from settings.constants import Constants
 from settings.labels import Label
 from settings.path_dir_file import PathDirFile
@@ -53,7 +55,9 @@ class Dataset:
         self.items = None
 
         # Fold
+        self.full_train_transaction = None
         self.train_transaction = None
+        self.validation_transaction = None
         self.test_transaction = None
 
         # Domain Variable
@@ -120,6 +124,10 @@ class Dataset:
         self.transactions = pd.read_csv(
             os.path.join(self.dataset_clean_path, PathDirFile.TRANSACTIONS_FILE)
         )
+        self.transactions = self.transactions.astype({
+            Label.USER_ID: 'str',
+            Label.ITEM_ID: 'str'
+        })
 
     def get_transactions(self) -> pd.DataFrame():
         """
@@ -138,7 +146,29 @@ class Dataset:
         """
         self.transactions = new_transactions
 
-    # TRAIN AND TEST DATA
+    # ############################################################################################ #
+    # ################################ Train, Validation and Test Data ########################### #
+    # ############################################################################################ #
+    def get_full_train_transactions(self, trial: int, fold: int) -> pd.DataFrame:
+        """
+        Get the train transaction set.
+        :param trial: An int that represents a number of an experimental trial.
+        :param fold: An int that represents a number of a fold.
+        :return: A pandas Dataframe with the train transactions.
+        """
+        # If it is the first requisition, load from the file
+        if self.full_train_transaction is None:
+            if self.train_transaction is None:
+                self.load_train_transactions(trial=trial, fold=fold)
+
+            if self.validation_transaction is None:
+                self.load_validation_transactions(trial=trial, fold=fold)
+
+            self.full_train_transaction = pd.concat(
+                [self.train_transaction, self.validation_transaction]
+            )
+        return self.full_train_transaction
+
     def load_train_transactions(self, trial: int, fold: int):
         """
         Load a train transaction set.
@@ -158,8 +188,30 @@ class Dataset:
         """
         # If it is the first requisition, load from the file
         if self.train_transaction is None:
-            self.load_train_transactions(trial, fold)
+            self.load_train_transactions(trial=trial, fold=fold)
         return self.train_transaction
+
+    def load_validation_transactions(self, trial: int, fold: int):
+        """
+        Load a validation transaction set.
+        :param trial: An int that represents a number of an experimental trial.
+        :param fold: An int that represents a number of a fold.
+        """
+        # TODO: colocar o caminho dentro da classe gerenciadora de caminhos
+        fold_dir = "/".join([self.dataset_clean_path, "trial-" + str(trial), "fold-" + str(fold)])
+        self.validation_transaction = pd.read_csv(os.path.join(fold_dir, PathDirFile.VALIDATION_FILE))
+
+    def get_validation_transactions(self, trial: int, fold: int) -> pd.DataFrame:
+        """
+        Get the train transaction set.
+        :param trial: An int that represents a number of an experimental trial.
+        :param fold: An int that represents a number of a fold.
+        :return: A pandas Dataframe with the train transactions.
+        """
+        # If it is the first requisition, load from the file
+        if self.validation_transaction is None:
+            self.load_validation_transactions(trial=trial, fold=fold)
+        return self.validation_transaction
 
     def load_test_transactions(self, trial: int, fold: int):
         """
@@ -221,6 +273,9 @@ class Dataset:
         self.items = pd.read_csv(
             os.path.join(self.dataset_clean_path, PathDirFile.ITEMS_FILE)
         )
+        self.items = self.items.astype({
+            Label.ITEM_ID: 'str'
+        })
 
     def load_clean_dataset(self):
         """
@@ -264,6 +319,10 @@ class Dataset:
         """
         self.transactions.drop([Label.TIME], inplace=True, axis=1)
 
+    # ############################################################################################ #
+    # ################################# K-fold Cross Validation ################################## #
+    # ############################################################################################ #
+
     def clean_data(self):
         """
         Caller to clean the transactions and items
@@ -299,7 +358,9 @@ class Dataset:
         """
         for trial in range(1, n_trials + 1):
             logger.info("+ Preparing trial: " + str(trial))
-            results = split.split_with_joblib(transactions_df=self.transactions, trial=trial, n_folds=n_folds)
+            results = split.split_with_joblib(
+                transactions_df=self.transactions, trial=trial, n_folds=n_folds
+            )
             for k in range(n_folds):
                 train_df, test_df = results[k]
 
@@ -318,6 +379,10 @@ class Dataset:
                     test_df.drop(columns=['index'], inplace=True)
                 test_df.to_csv(test_path, index=False, mode='w+')
 
+    # ############################################################################################ #
+    # ################################## Sequential Validation ################################### #
+    # ############################################################################################ #
+
     def mining_data_and_create_fold_based_on_time(
             self, n_trials: int = Constants.N_TRIAL_VALUE, n_folds: int = Constants.K_FOLDS_VALUE
     ):
@@ -330,16 +395,15 @@ class Dataset:
         # Clean and filter the data
         self.clean_data()
         # Creating Folds
-        self.create_folds_based_on_time(n_trials=n_trials, n_folds=n_folds)
+        self.create_dataset_based_on_time(n_folds=n_folds)
 
-    def create_folds_based_on_time(
-            self, n_trials: int = Constants.N_TRIAL_VALUE, n_folds: int = Constants.K_FOLDS_VALUE
+    def create_dataset_based_on_time(
+            self, n_folds: int = Constants.K_FOLDS_VALUE
     ) -> None:
         """
         Create all folds to be used by the system.
         The clean dataset produce n_trials with n_folds.
 
-        :param n_trials: An int that represents a number of experimental trials to create.
         :param n_folds: An int that represents a number of the k folds.
         """
         self.transactions.sort_values(by=[Label.TIME], inplace=True)
@@ -385,6 +449,7 @@ class Dataset:
 
         self.items = self.items[self.items[Label.ITEM_ID].isin(self.transactions[Label.ITEM_ID])]
 
+        # Rewriting keys
         self.items.sort_values(by=[Label.ITEM_ID], inplace=True)
         translation_index_items = {old_index: new_index for new_index, old_index in
                                    enumerate(self.items[Label.ITEM_ID].tolist())}
@@ -411,6 +476,7 @@ class Dataset:
         test_df[Label.USER_ID] = [translation_index_user[old_index] for old_index in
                                   test_df[Label.USER_ID].tolist()]
 
+        # Preparing to Save
         self.transactions.sort_values(by=[Label.USER_ID], inplace=True)
         self.items.sort_values(by=[Label.ITEM_ID], inplace=True)
         self.transactions.reset_index(drop=True, inplace=True)
@@ -418,7 +484,12 @@ class Dataset:
         train_df.reset_index(drop=True, inplace=True)
         test_df.reset_index(drop=True, inplace=True)
         self.transactions.to_csv(
-            str(os.path.join(self.dataset_clean_path, PathDirFile.TRANSACTIONS_FILE)), index=False, mode='w+'
+            str(os.path.join(self.dataset_clean_path, PathDirFile.TRANSACTIONS_FILE)),
+            index=False, mode='w+'
+        )
+        self.items.to_csv(
+            os.path.join(self.dataset_clean_path, PathDirFile.ITEMS_FILE),
+            index=False, mode='w+'
         )
         train_df.to_csv(train_path, index=False, mode='w+')
         test_df.to_csv(test_path, index=False, mode='w+')
@@ -428,6 +499,73 @@ class Dataset:
         print(max(self.transactions[Label.USER_ID].tolist()))
         print(self.transactions[Label.USER_ID].min())
         print(len(self.transactions[Label.USER_ID].unique()))
+
+        set_1 = set({str(ix) for ix in self.transactions['ITEM_ID'].unique().tolist()})
+        set_2 = set({str(ix) for ix in self.items['ITEM_ID'].unique().tolist()})
+
+        if set_1 != set_2:
+            raise IndexError(
+                'There are a problem with the ITEM IDs. '
+            )
+
+    # ############################################################################################ #
+    # ################################## CVTT Cross Validation ################################### #
+    # ############################################################################################ #
+
+    def mining_data_and_create_fold_based_on_cvtt(
+            self, n_folds: int = Constants.K_FOLDS_VALUE
+    ):
+        """
+        The raw dataset is preprocessed and the clean dataset produce n_trials with n_folds.
+
+        :param n_folds: An int that represents a number of the k folds.
+        """
+        # Clean and filter the data
+        self.clean_data()
+        # Creating Folds
+        self.create_fold_based_on_cvtt(n_folds=n_folds)
+
+    def create_fold_based_on_cvtt(
+            self, n_folds: int = Constants.K_FOLDS_VALUE
+    ) -> None:
+        """
+        Create all folds to be used by the system.
+        The clean dataset produce n_trials with n_folds.
+
+        :param n_folds: An int that represents a number of the k folds.
+        """
+        self.transactions.sort_values(by=[Label.TIME], inplace=True)
+
+        instance = CrossValidationThroughTime(transactions_df=self.transactions, n_folds=n_folds)
+        train_list, valid_list, test_list = instance.main()
+        for k in range(n_folds):
+            train_df = pd.concat(train_list[k])
+            valid_df = pd.concat(valid_list[k])
+            test_df = pd.concat(test_list[k])
+
+            logger.info("+ + Preparing fold: " + str(k + 1))
+            fold_dir = "/".join([self.dataset_clean_path, "trial-" + str(1), "fold-" + str(k + 1)])
+            if not os.path.exists(fold_dir):
+                os.makedirs(fold_dir)
+
+            train_path = os.path.join(fold_dir, PathDirFile.TRAIN_FILE)
+            if 'index' in train_df.columns.tolist():
+                train_df.drop(columns=['index'], inplace=True)
+            train_df.to_csv(train_path, index=False, mode='w+')
+
+            valid_path = os.path.join(fold_dir, PathDirFile.VALIDATION_FILE)
+            if 'index' in valid_df.columns.tolist():
+                valid_df.drop(columns=['index'], inplace=True)
+            valid_df.to_csv(valid_path, index=False, mode='w+')
+
+            test_path = os.path.join(fold_dir, PathDirFile.TEST_FILE)
+            if 'index' in test_df.columns.tolist():
+                test_df.drop(columns=['index'], inplace=True)
+            test_df.to_csv(test_path, index=False, mode='w+')
+
+    # ############################################################################################ #
+    # ####################################### Cut Methods ######################################## #
+    # ############################################################################################ #
 
     @staticmethod
     def cut_users(

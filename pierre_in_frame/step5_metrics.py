@@ -22,11 +22,10 @@ def applying_evaluation_metrics(
         metrics: list, recommender: str, dataset: str, trial: int, fold: int,
         distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str,
         checkpoint: str
-):
+) -> None:
     """
     Function to apply the evaluation metrics.
     """
-    load_monitoring = []
     instance = ApplyingMetric(
         recommender=recommender, dataset=dataset, trial=trial, fold=fold,
         distribution=distribution, fairness=fairness, relevance=relevance,
@@ -45,6 +44,8 @@ def applying_evaluation_metrics(
             instance.load_mrr()
         elif m == Label.UNEXPECTEDNESS:
             instance.load_unexpectedness()
+        elif m == Label.ILS:
+            instance.load_ils()
         elif m == Label.ANIC:
             instance.load_rec_baseline()
             instance.load_anc()
@@ -60,52 +61,38 @@ def applying_evaluation_metrics(
         elif m == Label.SERENDIPITY:
             instance.load_rec_baseline()
             instance.load_serendipity()
-        elif m == Label.EXP_MC:
+        elif m == Label.EXPLAIN_MC:
             instance.load_rec_baseline()
             instance.load_exp_mc()
-        elif m == Label.INC_MC:
+
+        elif m == Label.NUMBER_INC_MC:
             instance.load_rec_baseline()
-            instance.load_inc_dec_mc(choice=True)
-        elif m == Label.DEC_MC:
+            instance.load_inc_dec_mc(increase=True)
+        elif m == Label.NUMBER_DEC_MC:
             instance.load_rec_baseline()
-            instance.load_inc_dec_mc(choice=False)
-        elif m == Label.NOVELTY:
-            load_monitoring.append(
-                evaluation_interface.applying_novelty(
-                    recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-                    distribution=distribution, fairness=fairness, relevance=relevance,
-                    weight=weight, tradeoff=tradeoff, selector=selector, checkpoint=checkpoint
-                )
-            )
+            instance.load_inc_dec_mc(increase=False)
+        elif m == Label.VALUE_INC_MC:
+            instance.load_rec_baseline()
+            instance.load_user_inc_dec_mc(increase=True)
+        elif m == Label.VALUE_DEC_MC:
+            instance.load_rec_baseline()
+            instance.load_user_inc_dec_mc(increase=False)
         elif m == Label.COVERAGE:
-            load_monitoring.append(
-                evaluation_interface.applying_coverage(
-                    recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-                    distribution=distribution, fairness=fairness, relevance=relevance,
-                    weight=weight, tradeoff=tradeoff, selector=selector, checkpoint=checkpoint
-                )
-            )
+            instance.load_coverage()
         elif m == Label.PERSONALIZATION:
-            load_monitoring.append(
-                evaluation_interface.applying_personalization(
-                    recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-                    distribution=distribution, fairness=fairness, relevance=relevance,
-                    weight=weight, tradeoff=tradeoff, selector=selector, checkpoint=checkpoint
-                )
-            )
+            instance.load_personalization()
+        elif m == Label.NOVELTY:
+            instance.load_novelty()
         elif m == "TIME":
-            load_monitoring.append(
-                evaluation_interface.execution_time_fold(
-                    recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-                    distribution=distribution, fairness=fairness, relevance=relevance,
-                    weight=weight, tradeoff=tradeoff, selector=selector, checkpoint=checkpoint
-                )
+            evaluation_interface.execution_time_fold(
+                recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+                distribution=distribution, fairness=fairness, relevance=relevance,
+                weight=weight, tradeoff=tradeoff, selector=selector, checkpoint=checkpoint
             )
         else:
             continue
 
         instance.compute()
-    return load_monitoring
 
 
 def starting_cluster(

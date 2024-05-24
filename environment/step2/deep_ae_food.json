@@ -1,0 +1,12 @@
+{
+  "opt": "RECOMMENDER",
+  "based_on": "CVTT",
+  "n_inter": 50,
+  "n_jobs": 1,
+  "n_threads": 63,
+  "n_cv": 3,
+  "dataset": ["food"],
+  "recommender": ["DEEP_AE"],
+  "fold": 3,
+  "trial": 1
+}

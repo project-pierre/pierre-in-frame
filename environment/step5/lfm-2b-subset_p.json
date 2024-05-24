@@ -1,27 +1,31 @@
 {
   "multiprocessing": "joblib",
-  "n_jobs": 30,
+  "n_jobs": 5,
   "checkpoint": "NO",
   "opt": "EVALUATION_METRICS",
-  "metric": ["MAP", "MRR"],
-  "recommender": ["ALS", "BPR", "DAE"],
-  "cluster": [],
-  "dataset": ["ml-20m", "food", "lfm-2b-subset"],
-  "fold": [1],
+  "metric": [
+    "PERSONALIZATION"
+  ],
+  "recommender": ["BPR", "ALS"],
+  "dataset": ["lfm-2b-subset"],
+  "fold": [1, 2, 3],
   "trial": [1],
   "tradeoff": ["LIN"],
   "fairness": ["KL"],
   "relevance": ["SUM"],
   "weight": [
-    "C@0.0", "C@0.1", "C@0.2", "C@0.3", "C@0.4", "C@0.5",
-    "C@0.6", "C@0.7", "C@0.8", "C@0.9", "C@1.0"
+    "C@0.0", "C@0.1", "C@0.2",
+    "C@0.3", "C@0.4", "C@0.5",
+    "C@0.6", "C@0.7", "C@0.8",
+    "C@0.9", "C@1.0"
   ],
   "distribution": [
-    "CWS", 
+    "CWS",
     "WPS",
+    "GLEB",
     "TWB",
-    "GLEB_TWB",
     "TSW",
+    "TWB_GLEB",
     "TSW_GLEB",
     "TSW_TWB_GLEB",
     "TSW_TWB_GLEB_P"

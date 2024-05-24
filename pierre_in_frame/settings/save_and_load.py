@@ -73,6 +73,33 @@ class SaveAndLoad:
         preference_distribution_path = PathDirFile.preference_distribution_file(
             dataset=dataset, fold=fold, trial=trial, filename=distribution + '.' + ext
         )
+        return read_csv(preference_distribution_path, index_col=0).fillna(0)
+
+    # ########################################################################################### #
+
+    @staticmethod
+    def save_item_class_one_hot_encode(
+            data: DataFrame, dataset: str, ext: str = 'csv'
+    ):
+        """
+        This method is to save the item one hot encode file.
+        """
+        data.to_csv(
+            PathDirFile.item_class_one_hot_encode_file(
+                dataset=dataset, filename="item_one_hot_encode" + '.' + ext
+            ), mode='w+'
+        )
+
+    @staticmethod
+    def load_item_class_one_hot_encode(
+            dataset: str, ext: str = 'csv'
+    ) -> DataFrame:
+        """
+        This method is to load the one hot encode file.
+        """
+        preference_distribution_path = PathDirFile.item_class_one_hot_encode_file(
+                dataset=dataset, filename="item_one_hot_encode" + '.' + ext
+        )
         return read_csv(preference_distribution_path, index_col=0)
 
     # ########################################################################################### #
@@ -99,22 +126,22 @@ class SaveAndLoad:
     # ########################################################################################### #
 
     @staticmethod
-    def save_hyperparameters_recommender(best_params: dict, dataset: str, trial: int, fold: int, algorithm: str):
+    def save_hyperparameters_recommender(best_params: dict, dataset: str, algorithm: str):
         """
         TODO: Docstring
         """
         with open(PathDirFile.set_recommender_hyperparameter_file(
-                opt=Label.RECOMMENDER, dataset=dataset, algorithm=algorithm, trial=trial, fold=fold
+                opt=Label.RECOMMENDER, dataset=dataset, algorithm=algorithm
         ), 'w') as fp:
             json.dump(best_params, fp, cls=NpEncoder)
 
     @staticmethod
-    def load_hyperparameters_recommender(dataset: str, algorithm: str, trial: int, fold: int):
+    def load_hyperparameters_recommender(dataset: str, algorithm: str):
         """
         TODO: Docstring
         """
         path_to_open = PathDirFile.get_recommender_hyperparameter_file(
-            opt=Label.RECOMMENDER, dataset=dataset, algorithm=algorithm, trial=trial, fold=fold
+            opt=Label.RECOMMENDER, dataset=dataset, algorithm=algorithm
         )
         with open(path_to_open) as json_file:
             params = json.load(json_file)
@@ -123,23 +150,27 @@ class SaveAndLoad:
 
     @staticmethod
     def save_hyperparameters_conformity(
-            best_params: dict, dataset: str, recommender: str, cluster: str, distribution: str):
+            best_params: dict, dataset: str, cluster: str, distribution: str):
         """
         TODO: Docstring
         """
         with open(PathDirFile.set_conformity_hyperparameter_file(
-                opt=Label.CONFORMITY, dataset=dataset, recommender=recommender, cluster=cluster,
+                opt=Label.CONFORMITY, dataset=dataset, cluster=cluster,
                 distribution=distribution
         ), 'w') as fp:
             json.dump(best_params, fp)
 
     @staticmethod
-    def load_hyperparameters_conformity(dataset: str, recommender: str, cluster: str, distribution: str):
+    def load_hyperparameters_conformity(
+            dataset: str, cluster: str, distribution: str
+    ):
         """
         TODO: Docstring
         """
         path_to_open = PathDirFile.get_conformity_hyperparameter_file(
-            opt=Label.CONFORMITY, dataset=dataset, recommender=recommender, cluster=cluster, distribution=distribution)
+            opt=Label.CONFORMITY, dataset=dataset,
+            cluster=cluster, distribution=distribution
+        )
         with open(path_to_open) as json_file:
             params = json.load(json_file)
 
@@ -159,7 +190,9 @@ class SaveAndLoad:
         )
 
     @staticmethod
-    def save_search_conformity_time(data: DataFrame, dataset: str, algorithm: str, distribution: str):
+    def save_search_conformity_time(
+            data: DataFrame, dataset: str, algorithm: str, distribution: str
+    ):
         """
         TODO: Docstring
         """
@@ -279,7 +312,8 @@ class SaveAndLoad:
     def save_conformity_metric_time(
             data: DataFrame,
             cluster: str, recommender: str, dataset: str, trial: int, fold: int,
-            distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str
+            distribution: str, fairness: str, relevance: str, weight: str,
+            tradeoff: str, selector: str
     ):
         """
         TODO: Docstring

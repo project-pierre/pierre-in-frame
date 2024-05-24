@@ -21,7 +21,8 @@ class RecommenderSearch:
 
     def __init__(
             self, recommender: str, dataset: str, trial: int = None, fold: int = None,
-            n_inter: int = Constants.N_INTER, n_jobs: int = Constants.N_CORES, n_cv: int = Constants.K_FOLDS_VALUE
+            n_inter: int = Constants.N_INTER, n_jobs: int = Constants.N_CORES,
+            n_cv: int = Constants.K_FOLDS_VALUE
     ):
         self.measures = ['rmse', 'mae', 'fcp', 'mse']
         self.trial = trial
@@ -64,7 +65,7 @@ class RecommenderSearch:
         )
         gs.fit(
             PandasSurprise.pandas_transform_all_dataset_to_surprise(
-                self.dataset.get_train_transactions(trial=self.trial, fold=self.fold)
+                self.dataset.get_full_train_transactions(trial=self.trial, fold=self.fold)
             )
         )
         return gs
@@ -76,6 +77,6 @@ class RecommenderSearch:
         gs = self.__search()
         # Saving
         SaveAndLoad.save_hyperparameters_recommender(
-            best_params=gs.best_params, dataset=self.dataset.system_name, algorithm=self.recommender_name,
-            trial=self.trial, fold=self.fold
+            best_params=gs.best_params,
+            dataset=self.dataset.system_name, algorithm=self.recommender_name
         )
