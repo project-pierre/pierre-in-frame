@@ -2,17 +2,9 @@
   "opt": "CONFORMITY",
   "dataset": ["ml-1m"],
   "cluster": [
-    "SPECTRAL",
     "DBSCAN",
     "OPTICS",
-    "BIRCH",
-    "GAUSSIAN",
-    "BAYESIAN",
-    "IF",
-    "OSVM",
-    "ENVELOPE",
-    "SGD",
-    "LOF"
+    "OSVM"
   ],
   "distribution": [
     "CWS",
