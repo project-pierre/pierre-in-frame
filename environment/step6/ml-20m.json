@@ -12,7 +12,7 @@
     "COVERAGE",
     "UNEXPECTEDNESS"
   ],
-  "recommender": ["BPR", "ALS"],
+  "recommender": ["BPR", "ALS", "DEEP_AE"],
   "dataset": ["ml-20m"],
   "fold": [1, 2, 3],
   "trial": [1],

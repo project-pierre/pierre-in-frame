@@ -14,7 +14,7 @@
     "COVERAGE",
     "UNEXPECTEDNESS"
   ],
-  "recommender": ["ALS", "BPR"],
+  "recommender": ["ALS", "BPR", "DEEP_AE"],
   "tradeoff": ["LIN"],
   "fairness": ["KL"],
   "relevance": ["SUM"],
