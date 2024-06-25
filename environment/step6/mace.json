@@ -3,15 +3,6 @@
   "n_jobs": 63,
   "opt": "EVALUATION_METRICS",
   "metric": [
-    "ILS",
-    "MC",
-    "MAMC",
-    "MAP",
-    "MRR",
-    "SERENDIPITY",
-    "COVERAGE",
-    "PERSONALIZATION",
-    "UNEXPECTEDNESS",
     "MACE"
   ],
   "recommender": ["BPR", "ALS", "DEEP_AE"],
