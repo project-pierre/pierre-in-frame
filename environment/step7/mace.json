@@ -1,7 +1,9 @@
 {
-  "multiprocessing": "joblib",
-  "n_jobs": 63,
   "opt": "EVALUATION_METRICS",
+  "view": "CHART",
+  "dataset": ["ml-20m", "lfm-2b-subset", "food"],
+  "type": ["LINE"],
+  "goal": ["DISTRIBUTION_LABEL"],
   "metric": [
     "ILS",
     "MC",
@@ -15,9 +17,6 @@
     "MACE"
   ],
   "recommender": ["BPR", "ALS", "DEEP_AE"],
-  "dataset": ["ml-20m", "lfm-2b-subset", "food"],
-  "fold": [1, 2, 3],
-  "trial": [1],
   "tradeoff": ["LIN"],
   "fairness": ["KL"],
   "relevance": ["SUM"],

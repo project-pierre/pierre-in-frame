@@ -11,8 +11,7 @@
     "SERENDIPITY",
     "COVERAGE",
     "PERSONALIZATION",
-    "UNEXPECTEDNESS",
-    "MACE"
+    "UNEXPECTEDNESS"
   ],
   "recommender": ["BPR", "ALS", "DEEP_AE"],
   "dataset": ["ml-20m", "lfm-2b-subset", "food"],
