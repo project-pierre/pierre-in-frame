@@ -1,6 +1,6 @@
 {
   "opt": "RECOMMENDER",
-  "based_on": "CVTT",
+  "based_on": "RANDOM",
   "n_inter": 50,
   "n_jobs": 63,
   "n_threads": 1,

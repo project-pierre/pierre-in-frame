@@ -1,6 +1,6 @@
 {
   "opt": "SPLIT",
-  "based_on": "CVTT",
+  "based_on": "RANDOM",
   "dataset": "food",
   "n_folds": 3,
   "n_trials": 1,
