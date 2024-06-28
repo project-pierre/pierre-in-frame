@@ -6,7 +6,7 @@
   "n_threads": 1,
   "n_cv": 3,
   "dataset": ["food"],
-  "recommender": ["BPR", "ALS"],
+  "recommender": ["BPR"],
   "fold": 3,
   "trial": 1
 }
