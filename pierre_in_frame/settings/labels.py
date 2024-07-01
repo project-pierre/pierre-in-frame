@@ -74,9 +74,10 @@ class Label:
     DEEP_AE = "DEEP_AE"
     DAE = "DAE"
     EASE = "EASE"
+    BPRKNN = "BPRKNN"
 
     PIERRE_RECOMMENDERS = [
-        DEEP_AE, DAE, EASE
+        DEEP_AE, DAE, EASE, BPRKNN
     ]
     ENCODERS_RECOMMENDERS = [DEEP_AE, DAE]
     EASE_RECOMMENDERS = [EASE]
