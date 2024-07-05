@@ -66,6 +66,16 @@ class PierreParams:
         "lambda_": uniform(0.1, 1.0).rvs(size=size),
         "implicit": [True, False]
     }
+    BPR_PARAMS = {
+        "factors": randint(10, 150).rvs(size=size),
+        "lambda_item": uniform(0.0000001, 0.00001).rvs(size=size),
+        "lambda_user": uniform(0.0000001, 0.00001).rvs(size=size),
+        "lambda_bias": uniform(0.0000001, 0.00001).rvs(size=size),
+        "learning_rate": uniform(0.0001, 0.1).rvs(size=size),
+        "iterations": randint(10, 150).rvs(size=size),
+        "random_state": [42],
+        "num_threads": [1]
+    }
 
 
 class ConformityParams:

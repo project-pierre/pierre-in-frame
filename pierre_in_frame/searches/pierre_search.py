@@ -79,14 +79,33 @@ class PierreGridSearch(BaseSearch):
             )
             map_value.append(PierreGridSearch.__fit_and_metric(recommender, train, test))
 
+    @staticmethod
+    def fit_bpr_graph(
+            factors, learning_rate, iterations, lambda_bias, lambda_user, lambda_item,
+            train_list, valid_list, list_size
+    ):
+        """
+        Fits the pierre grid search algorithm to the training set and testing set.
+        """
+        map_value = []
+
+        for train, test in zip(train_list, valid_list):
+            recommender = recommender_pierre.BPRGRAPH.BPRGRAPH(
+                factors=factors, learning_rate=learning_rate,
+                iterations=iterations, list_size=list_size,
+                lambda_bias=lambda_bias, lambda_user=lambda_user, lambda_item=lambda_item
+            )
+            map_value.append(PierreGridSearch.__fit_and_metric(recommender, train, test))
+
         return {
             "map": mean(map_value),
             "params": {
                 "factors": factors,
-                "regularization": regularization,
+                "lambda_user": lambda_user,
+                "lambda_item": lambda_item,
+                "lambda_bias": lambda_bias,
                 "learning_rate": learning_rate,
-                "iterations": iterations,
-                "random_state": random_state
+                "iterations": iterations
             }
         }
 
@@ -137,7 +156,7 @@ class PierreGridSearch(BaseSearch):
         Fits the pierre grid search algorithm to the training set and testing set.
         """
         rec_lists_df = recommender.train_and_produce_rec_list(
-            user_transactions_df=train
+            user_transactions_df=deepcopy(train)
         )
         metric_instance = MeanAveragePrecision(
             users_rec_list_df=rec_lists_df,
@@ -192,6 +211,20 @@ class PierreGridSearch(BaseSearch):
             params_to_use = combination
         return params_to_use
 
+    def get_bpr_graph_params(self):
+        param_distributions = PierreParams.BPR_PARAMS
+
+        combination = list(itertools.product(*[
+            param_distributions['factors'], param_distributions['learning_rate'],
+            param_distributions['lambda_item'], param_distributions['lambda_user'], param_distributions['lambda_bias'],
+            param_distributions['iterations']
+        ]))
+        if self.n_inter < int(len(combination)):
+            params_to_use = random.sample(combination, self.n_inter)
+        else:
+            params_to_use = combination
+        return params_to_use
+
     def preparing_recommenders(self):
         if self.algorithm in Label.ENCODERS_RECOMMENDERS:
             params_to_use = self.get_params_dae()
@@ -232,6 +265,23 @@ class PierreGridSearch(BaseSearch):
                     train_list=deepcopy(self.train_list),
                     valid_list=deepcopy(self.valid_list)
                 ) for lambda_, implicit in params_to_use
+            ))
+        elif self.algorithm in Label.BPRGRAPH:
+            params_to_use = self.get_bpr_graph_params()
+            print("Total of combinations: ", str(len(params_to_use)))
+
+            self.output = list(Parallel(n_jobs=self.n_jobs, verbose=100)(
+                delayed(PierreGridSearch.fit_bpr_graph)(
+                    factors=int(factors),
+                    lambda_item=float(lambda_item),
+                    lambda_user=float(lambda_user),
+                    lambda_bias=float(lambda_bias),
+                    learning_rate=int(learning_rate), iterations=int(iterations),
+                    train_list=deepcopy(self.train_list),
+                    valid_list=deepcopy(self.valid_list),
+                    list_size=self.list_size
+                ) for factors, learning_rate, lambda_item, lambda_user, lambda_bias, iterations
+                in params_to_use
             ))
         else:
             params_to_use = self.get_bpr_params()
