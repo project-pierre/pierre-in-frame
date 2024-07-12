@@ -20,11 +20,14 @@ class Label:
     YEAR = 'YEAR'
 
     CVTT = "CVTT"
-    SINGLE_SPLIT = 'SINGLE_SPLIT'
+    CROSS_TRAIN_VALIDATION_TEST = "CROSS_TRAIN_VALIDATION_TEST"
 
     BASED_ON_VALIDATION = [
-        CVTT, SINGLE_SPLIT
+        CVTT, CROSS_TRAIN_VALIDATION_TEST
     ]
+
+    TIME_SINGLE_SPLIT = 'TIME_SINGLE_SPLIT'
+    CROSS_VALIDATION = 'CROSS_VALIDATION'
 
     ########################################################
     # Preprocessing OPTION labels
