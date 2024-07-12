@@ -132,7 +132,7 @@ class SaveAndLoad:
         """
         with open(PathDirFile.set_recommender_hyperparameter_file(
                 opt=Label.RECOMMENDER, dataset=dataset, algorithm=algorithm
-        ), 'w') as fp:
+        ), 'w+') as fp:
             json.dump(best_params, fp, cls=NpEncoder)
 
     @staticmethod
