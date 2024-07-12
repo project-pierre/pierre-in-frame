@@ -180,6 +180,52 @@ class PierreGridSearch(BaseSearch):
         }
 
     @staticmethod
+    def fit_popularity(
+            train_list, valid_list, list_size
+    ):
+        """
+        Fits the pierre grid search algorithm to the training set and testing set.
+        """
+        map_value = []
+        mrr_value = []
+
+        for train, test in zip(train_list, valid_list):
+            recommender = recommender_pierre.baselines.Popularity.PopularityRecommender(list_size=list_size)
+            mapv, mrrv = PierreGridSearch.__fit_and_metric(recommender, train, test)
+            map_value.append(mapv)
+            mrr_value.append(mrrv)
+
+        return {
+            "map": mean(map_value),
+            "mrr": mean(mrr_value),
+            "params": {
+            }
+        }
+
+    @staticmethod
+    def fit_random(
+            train_list, valid_list, list_size
+    ):
+        """
+        Fits the pierre grid search algorithm to the training set and testing set.
+        """
+        map_value = []
+        mrr_value = []
+
+        for train, test in zip(train_list, valid_list):
+            recommender = recommender_pierre.baselines.Random.RandomRecommender(list_size=list_size)
+            mapv, mrrv = PierreGridSearch.__fit_and_metric(recommender, train, test)
+            map_value.append(mapv)
+            mrr_value.append(mrrv)
+
+        return {
+            "map": mean(map_value),
+            "mrr": mean(mrr_value),
+            "params": {
+            }
+        }
+
+    @staticmethod
     def __fit_and_metric(recommender, train, test):
         """
         Fits the pierre grid search algorithm to the training set and testing set.
@@ -299,6 +345,21 @@ class PierreGridSearch(BaseSearch):
                     valid_list=deepcopy(self.valid_list)
                 ) for lambda_, implicit in params_to_use
             ))
+        elif self.algorithm in Label.POPULARITY_REC:
+            self.output = []
+            self.output.append(PierreGridSearch.fit_popularity(
+                train_list=deepcopy(self.train_list),
+                valid_list=deepcopy(self.valid_list),
+                list_size=self.list_size
+            ))
+        elif self.algorithm in Label.RANDOM_REC:
+            self.output = []
+            self.output.append(PierreGridSearch.fit_random(
+                train_list=deepcopy(self.train_list),
+                valid_list=deepcopy(self.valid_list),
+                list_size=self.list_size
+            ))
+
         elif self.algorithm in Label.BPRGRAPH:
             params_to_use = self.get_bpr_graph_params()
             print("Total of combinations: ", str(len(params_to_use)))
