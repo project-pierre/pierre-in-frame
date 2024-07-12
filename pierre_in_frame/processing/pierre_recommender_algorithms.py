@@ -17,7 +17,7 @@ class PierreRecommenderAlgorithm:
     def __init__(
             self,
             recommender_name: str, dataset_name: str, fold: int, trial: int,
-            list_size: int, metric: str = "map"
+            list_size: int, based_on: str, metric: str = "map"
     ):
         """
         Class constructor.
@@ -34,6 +34,7 @@ class PierreRecommenderAlgorithm:
         self.trial = trial
         self.recommender = None
         self.list_size = list_size
+        self.based_on = based_on
 
         # Load the surprise recommender algorithm
         full_params = SaveAndLoad.load_hyperparameters_recommender(
@@ -62,9 +63,14 @@ class PierreRecommenderAlgorithm:
         """
         # fit the recommender algorithm
         logger.info(">>> Fit the recommender algorithm")
-        users_preferences = self.dataset.get_full_train_transactions(
-            fold=self.fold, trial=self.trial
-        )
+        if self.based_on in Label.BASED_ON_VALIDATION:
+            users_preferences = self.dataset.get_full_train_transactions(
+                fold=self.fold, trial=self.trial
+            )
+        else:
+            users_preferences = self.dataset.get_train_transactions(
+                fold=self.fold, trial=self.trial
+            )
 
         rec_lists_df = self.recommender.train_and_produce_rec_list(
             user_transactions_df=users_preferences

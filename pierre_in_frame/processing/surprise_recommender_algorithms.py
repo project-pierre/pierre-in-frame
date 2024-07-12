@@ -23,7 +23,7 @@ class SurpriseRecommenderAlgorithm:
     def __init__(
             self,
             recommender_name: str, dataset_name: str, fold: int, trial: int,
-            metric: str, list_size: int
+            metric: str, based_on: str, list_size: int
     ):
         """
         Class constructor.
@@ -41,6 +41,7 @@ class SurpriseRecommenderAlgorithm:
         self.trial = trial
         self.recommender = None
         self.list_size = list_size
+        self.based_on = based_on
 
         # Load the surprise recommender algorithm
         if self.recommender_name == Label.SLOPE:
@@ -119,9 +120,14 @@ class SurpriseRecommenderAlgorithm:
         """
         # fit the recommender algorithm
         logger.info(">>> Fit the recommender algorithm")
-        users_preferences = self.dataset.get_full_train_transactions(
-            fold=self.fold, trial=self.trial
-        )
+        if self.based_on in Label.BASED_ON_VALIDATION:
+            users_preferences = self.dataset.get_full_train_transactions(
+                fold=self.fold, trial=self.trial
+            )
+        else:
+            users_preferences = self.dataset.get_train_transactions(
+                fold=self.fold, trial=self.trial
+            )
         self.recommender.fit(
             PandasSurprise.pandas_transform_trainset_to_surprise(users_preferences)
         )

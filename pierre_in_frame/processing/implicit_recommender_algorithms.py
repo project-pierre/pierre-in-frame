@@ -20,7 +20,7 @@ class ImplicitRecommenderAlgorithm:
     def __init__(
             self,
             recommender_name: str, dataset_name: str, fold: int, trial: int,
-            list_size: int, metric: str = "map"
+            list_size: int, based_on: str, metric: str = "map"
     ):
         """
         Class constructor.
@@ -37,6 +37,7 @@ class ImplicitRecommenderAlgorithm:
         self.trial = trial
         self.recommender = None
         self.list_size = list_size
+        self.based_on = based_on
 
         # Load the surprise recommender algorithm
         full_params = SaveAndLoad.load_hyperparameters_recommender(
@@ -86,9 +87,14 @@ class ImplicitRecommenderAlgorithm:
         """
         # fit the recommender algorithm
         logger.info(">>> Fit the recommender algorithm")
-        users_preferences = self.dataset.get_full_train_transactions(
-            fold=self.fold, trial=self.trial
-        )
+        if self.based_on in Label.BASED_ON_VALIDATION:
+            users_preferences = self.dataset.get_full_train_transactions(
+                fold=self.fold, trial=self.trial
+            )
+        else:
+            users_preferences = self.dataset.get_train_transactions(
+                fold=self.fold, trial=self.trial
+            )
 
         sparse_customer_item = sparse.csr_matrix(
             (
