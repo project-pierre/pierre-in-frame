@@ -89,7 +89,7 @@ class RegisteredDataset:
                 profile_len_cut_value=profile_len_cut_value,
                 test_len_cut_value=test_len_cut_value
             )
-            if based_on == Label.TIME:
+            if based_on == Label.TIME_SINGLE_SPLIT:
                 instance.mining_data_and_create_fold_based_on_time(n_trials=n_trials, n_folds=n_folds)
             elif based_on == Label.CVTT:
                 instance.mining_data_and_create_fold_based_on_cvtt(n_folds=n_folds)
@@ -103,7 +103,7 @@ class RegisteredDataset:
                 profile_len_cut_value=profile_len_cut_value,
                 test_len_cut_value=test_len_cut_value
             )
-            if based_on == Label.TIME:
+            if based_on == Label.TIME_SINGLE_SPLIT:
                 instance.mining_data_and_create_fold_based_on_time(n_trials=n_trials, n_folds=n_folds)
             elif based_on == Label.CVTT:
                 instance.mining_data_and_create_fold_based_on_cvtt(n_folds=n_folds)
@@ -117,7 +117,7 @@ class RegisteredDataset:
                 profile_len_cut_value=profile_len_cut_value,
                 test_len_cut_value=test_len_cut_value
             )
-            if based_on == Label.TIME:
+            if based_on == Label.TIME_SINGLE_SPLIT:
                 instance.mining_data_and_create_fold_based_on_time(n_trials=n_trials, n_folds=n_folds)
             elif based_on == Label.CVTT:
                 instance.mining_data_and_create_fold_based_on_cvtt(n_folds=n_folds)
@@ -131,7 +131,7 @@ class RegisteredDataset:
                 profile_len_cut_value=profile_len_cut_value,
                 test_len_cut_value=test_len_cut_value
             )
-            if based_on == Label.TIME:
+            if based_on == Label.TIME_SINGLE_SPLIT:
                 instance.mining_data_and_create_fold_based_on_time(n_trials=n_trials, n_folds=n_folds)
             elif based_on == Label.CVTT:
                 instance.mining_data_and_create_fold_based_on_cvtt(n_folds=n_folds)
@@ -145,7 +145,7 @@ class RegisteredDataset:
                 profile_len_cut_value=profile_len_cut_value,
                 test_len_cut_value=test_len_cut_value
             )
-            if based_on == Label.TIME:
+            if based_on == Label.TIME_SINGLE_SPLIT:
                 instance.mining_data_and_create_fold_based_on_time(n_trials=n_trials, n_folds=n_folds)
             elif based_on == Label.CVTT:
                 instance.mining_data_and_create_fold_based_on_cvtt(n_folds=n_folds)
@@ -159,7 +159,7 @@ class RegisteredDataset:
                 profile_len_cut_value=profile_len_cut_value,
                 test_len_cut_value=test_len_cut_value
             )
-            if based_on == Label.TIME:
+            if based_on == Label.TIME_SINGLE_SPLIT:
                 instance.mining_data_and_create_fold_based_on_time(n_trials=n_trials, n_folds=n_folds)
             elif based_on == Label.CVTT:
                 instance.mining_data_and_create_fold_based_on_cvtt(n_folds=n_folds)
@@ -173,7 +173,7 @@ class RegisteredDataset:
                 profile_len_cut_value=profile_len_cut_value,
                 test_len_cut_value=test_len_cut_value
             )
-            if based_on == Label.TIME:
+            if based_on == Label.TIME_SINGLE_SPLIT:
                 instance.mining_data_and_create_fold_based_on_time(n_trials=n_trials, n_folds=n_folds)
             elif based_on == Label.CVTT:
                 instance.mining_data_and_create_fold_based_on_cvtt(n_folds=n_folds)
@@ -187,7 +187,7 @@ class RegisteredDataset:
                 profile_len_cut_value=profile_len_cut_value,
                 test_len_cut_value=test_len_cut_value
             )
-            if based_on == Label.TIME:
+            if based_on == Label.TIME_SINGLE_SPLIT:
                 instance.mining_data_and_create_fold_based_on_time(n_trials=n_trials, n_folds=n_folds)
             elif based_on == Label.CVTT:
                 instance.mining_data_and_create_fold_based_on_cvtt(n_folds=n_folds)

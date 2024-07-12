@@ -1,12 +1,12 @@
 {
   "opt": "RECOMMENDER",
-  "based_on": "CVTT",
+  "based_on": "TIME_SINGLE_SPLIT",
   "n_inter": 50,
-  "n_jobs": 1,
+  "n_jobs": 50,
   "n_threads": 1,
   "n_cv": 3,
   "dataset": ["food"],
-  "recommender": ["RANDOM_REC", "POPULARITY_REC"],
+  "recommender": ["BPR", "BPRKNN", "BPRGRAPH", "RANDOM_REC", "POPULARITY_REC"],
   "fold": 3,
   "trial": 1
 }
