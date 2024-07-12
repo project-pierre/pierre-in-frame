@@ -3,6 +3,8 @@ from pprint import pprint
 from datasets.registred_datasets import RegisteredDataset
 from settings.save_and_load import SaveAndLoad
 
+from settings.labels import Label
+
 
 class BaseSearch:
     """
@@ -40,9 +42,14 @@ class BaseSearch:
                 self.train_list.append(self.dataset.get_train_transactions(
                     fold=f, trial=t
                 ))
-                self.valid_list.append(self.dataset.get_validation_transactions(
-                    fold=f, trial=t
-                ))
+                if self.based_on in Label.BASED_ON_VALIDATION:
+                    self.valid_list.append(self.dataset.get_validation_transactions(
+                        fold=f, trial=t
+                    ))
+                else:
+                    self.valid_list.append(self.dataset.get_test_transactions(
+                        fold=f, trial=t
+                    ))
 
     def defining_metric_and_save(self):
         """

@@ -20,6 +20,11 @@ class Label:
     YEAR = 'YEAR'
 
     CVTT = "CVTT"
+    SINGLE_SPLIT = 'SINGLE_SPLIT'
+
+    BASED_ON_VALIDATION = [
+        CVTT, SINGLE_SPLIT
+    ]
 
     ########################################################
     # Preprocessing OPTION labels

@@ -11,7 +11,7 @@ from statistics import mean
 
 import recommender_pierre
 from searches.parameters import ImplicitParams
-from scikit_pierre.metrics.evaluation import MeanAveragePrecision
+from scikit_pierre.metrics.evaluation import MeanAveragePrecision, MeanReciprocalRank
 from searches.base_search import BaseSearch
 from searches.parameters import PierreParams
 from settings.labels import Label
@@ -47,15 +47,20 @@ class PierreGridSearch(BaseSearch):
         Fits the pierre grid search algorithm to the training set and testing set.
         """
         map_value = []
+        mrr_value = []
 
         for train, test in zip(train_list, valid_list):
             recommender = recommender_pierre.EASEModel.EASEModel(
                 lambda_=lambda_, implicit=implicit
             )
-            map_value.append(PierreGridSearch.__fit_and_metric(recommender, train, test))
+
+            mapv, mrrv = PierreGridSearch.__fit_and_metric(recommender, train, test)
+            map_value.append(mapv)
+            mrr_value.append(mrrv)
 
         return {
             "map": mean(map_value),
+            "mrr": mean(mrr_value),
             "params": {
                 "lambda_": lambda_,
                 "implicit": implicit
@@ -71,13 +76,29 @@ class PierreGridSearch(BaseSearch):
         Fits the pierre grid search algorithm to the training set and testing set.
         """
         map_value = []
+        mrr_value = []
 
         for train, test in zip(train_list, valid_list):
             recommender = recommender_pierre.BPRKNN.BPRKNN(
                 factors=factors, regularization=regularization, learning_rate=learning_rate,
                 iterations=iterations, seed=random_state, list_size=list_size
             )
-            map_value.append(PierreGridSearch.__fit_and_metric(recommender, train, test))
+
+            mapv, mrrv = PierreGridSearch.__fit_and_metric(recommender, train, test)
+            map_value.append(mapv)
+            mrr_value.append(mrrv)
+
+        return {
+            "map": mean(map_value),
+            "mrr": mean(mrr_value),
+            "params": {
+                "factors": factors,
+                "regularization": regularization,
+                "learning_rate": learning_rate,
+                "iterations": iterations,
+                "random_state": random_state
+            }
+        }
 
     @staticmethod
     def fit_bpr_graph(
@@ -88,6 +109,7 @@ class PierreGridSearch(BaseSearch):
         Fits the pierre grid search algorithm to the training set and testing set.
         """
         map_value = []
+        mrr_value = []
 
         for train, test in zip(train_list, valid_list):
             recommender = recommender_pierre.BPRGRAPH.BPRGRAPH(
@@ -95,10 +117,13 @@ class PierreGridSearch(BaseSearch):
                 iterations=iterations, list_size=list_size,
                 lambda_bias=lambda_bias, lambda_user=lambda_user, lambda_item=lambda_item
             )
-            map_value.append(PierreGridSearch.__fit_and_metric(recommender, train, test))
+            mapv, mrrv = PierreGridSearch.__fit_and_metric(recommender, train, test)
+            map_value.append(mapv)
+            mrr_value.append(mrrv)
 
         return {
             "map": mean(map_value),
+            "mrr": mean(mrr_value),
             "params": {
                 "factors": factors,
                 "lambda_user": lambda_user,
@@ -123,6 +148,7 @@ class PierreGridSearch(BaseSearch):
         Fits the pierre grid search algorithm to the training set and testing set.
         """
         map_value = []
+        mrr_value = []
 
         for train, test in zip(train_list, valid_list):
             if algorithm == Label.DEEP_AE:
@@ -137,10 +163,13 @@ class PierreGridSearch(BaseSearch):
                     reg=int(reg),
                     batch=64
                 )
-            map_value.append(PierreGridSearch.__fit_and_metric(recommender, train, test))
+            mapv, mrrv = PierreGridSearch.__fit_and_metric(recommender, train, test)
+            map_value.append(mapv)
+            mrr_value.append(mrrv)
 
         return {
             "map": mean(map_value),
+            "mrr": mean(mrr_value),
             "params": {
                 "factors": factors,
                 "epochs": epochs,
@@ -158,11 +187,15 @@ class PierreGridSearch(BaseSearch):
         rec_lists_df = recommender.train_and_produce_rec_list(
             user_transactions_df=deepcopy(train)
         )
-        metric_instance = MeanAveragePrecision(
+        map_metric_instance = MeanAveragePrecision(
             users_rec_list_df=rec_lists_df,
             users_test_set_df=test
         )
-        return metric_instance.compute()
+        mrr_metric_instance = MeanReciprocalRank(
+            users_rec_list_df=rec_lists_df,
+            users_test_set_df=test
+        )
+        return map_metric_instance.compute(), mrr_metric_instance.compute()
 
     def get_params_dae(self):
         """

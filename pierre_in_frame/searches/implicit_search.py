@@ -9,7 +9,7 @@ from joblib import Parallel, delayed
 from scipy import sparse
 from statistics import mean
 
-from scikit_pierre.metrics.evaluation import MeanAveragePrecision
+from scikit_pierre.metrics.evaluation import MeanAveragePrecision, MeanReciprocalRank
 from searches.base_search import BaseSearch
 from searches.parameters import ImplicitParams
 from settings.labels import Label
@@ -82,6 +82,7 @@ class ImplicitGridSearch(BaseSearch):
             train_list, valid_list, list_size
     ):
         map_value = []
+        mrr_value = []
 
         for train, validation in zip(train_list, valid_list):
             recommender = implicit.als.AlternatingLeastSquares(
@@ -95,10 +96,16 @@ class ImplicitGridSearch(BaseSearch):
                 users_rec_list_df=rec_lists_df,
                 users_test_set_df=validation
             )
+            mrr_metric_instance = MeanReciprocalRank(
+                users_rec_list_df=rec_lists_df,
+                users_test_set_df=validation
+            )
             map_value.append(metric_instance.compute())
+            mrr_value.append(mrr_metric_instance.compute())
 
         return {
             "map": mean(map_value),
+            "mrr": mean(mrr_value),
             "params": {
                 "factors": factors,
                 "regularization": regularization,
@@ -114,6 +121,7 @@ class ImplicitGridSearch(BaseSearch):
             train_list, valid_list, list_size
     ):
         map_value = []
+        mrr_value = []
 
         for train, validation in zip(train_list, valid_list):
             recommender = implicit.bpr.BayesianPersonalizedRanking(
@@ -127,10 +135,16 @@ class ImplicitGridSearch(BaseSearch):
                 users_rec_list_df=rec_lists_df,
                 users_test_set_df=validation
             )
+            mrr_metric_instance = MeanReciprocalRank(
+                users_rec_list_df=rec_lists_df,
+                users_test_set_df=validation
+            )
             map_value.append(metric_instance.compute())
+            mrr_value.append(mrr_metric_instance.compute())
 
         return {
             "map": mean(map_value),
+            "mrr": mean(mrr_value),
             "params": {
                 "factors": factors,
                 "regularization": regularization,
