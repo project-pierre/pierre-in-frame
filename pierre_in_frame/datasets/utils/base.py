@@ -387,6 +387,9 @@ class Dataset:
         except OSError as e:
             print("Error: %s - %s." % (e.filename, e.strerror))
 
+        if not os.path.exists(self.dataset_clean_path):
+            os.makedirs(self.dataset_clean_path)
+
     # ############################################################################################ #
     # ################################## Sequential Validation ################################### #
     # ############################################################################################ #
