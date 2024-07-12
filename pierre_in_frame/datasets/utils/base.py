@@ -1,3 +1,4 @@
+import shutil
 from collections import Counter
 from copy import deepcopy
 
@@ -341,6 +342,7 @@ class Dataset:
         :param n_trials: An int that represents a number of experimental trials to create.
         :param n_folds: An int that represents a number of the k folds.
         """
+        self.delete_dataset()
         # Clean and filter the data
         self.clean_data()
         # Creating Folds
@@ -379,6 +381,12 @@ class Dataset:
                     test_df.drop(columns=['index'], inplace=True)
                 test_df.to_csv(test_path, index=False, mode='w+')
 
+    def delete_dataset(self):
+        try:
+            shutil.rmtree(self.dataset_clean_path)
+        except OSError as e:
+            print("Error: %s - %s." % (e.filename, e.strerror))
+
     # ############################################################################################ #
     # ################################## Sequential Validation ################################### #
     # ############################################################################################ #
@@ -392,6 +400,7 @@ class Dataset:
         :param n_trials: An int that represents a number of experimental trials to create.
         :param n_folds: An int that represents a number of the k folds.
         """
+        self.delete_dataset()
         # Clean and filter the data
         self.clean_data()
         # Creating Folds
@@ -520,6 +529,7 @@ class Dataset:
 
         :param n_folds: An int that represents a number of the k folds.
         """
+        self.delete_dataset()
         # Clean and filter the data
         self.clean_data()
         # Creating Folds
