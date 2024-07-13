@@ -1,6 +1,6 @@
 {
   "opt": "SPLIT",
-  "based_on": "TIME_SINGLE_SPLIT",
+  "based_on": "CROSS_VALIDATION",
   "dataset": "food",
   "n_folds": 3,
   "n_trials": 1,
