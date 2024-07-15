@@ -5,7 +5,7 @@ from datasets.movielens_twenty_million import MovielensTwentyMillion
 from datasets.my_anime_list import MyAnimeList
 from datasets.taste_profile import TasteProfile
 from datasets.twitter_movies import TwitterMovies
-from datasets.utils.base import Dataset
+from datasets.utils.base_preprocess import Dataset
 from datasets.yahoo_movies import YahooMovies
 from settings.labels import Label
 
@@ -81,117 +81,40 @@ class RegisteredDataset:
         :param n_trials: An int that represents a number of the experimental trial.
         :param n_folds: An int that represents a number of the k folds.
         """
+        instance = None
+
         # Movielens One Million
         if dataset == RegisteredDataset.MOVIELENS_ONE_MILLION_DATASET:
             instance = MovielensOneMillion()
-            instance.set_experiment_variables(
-                cut_value=cut_value, item_cut_value=item_cut_value,
-                profile_len_cut_value=profile_len_cut_value,
-                test_len_cut_value=test_len_cut_value
-            )
-            if based_on == Label.TIME_SINGLE_SPLIT:
-                instance.mining_data_and_create_fold_based_on_time(n_trials=n_trials, n_folds=n_folds)
-            elif based_on == Label.CVTT:
-                instance.mining_data_and_create_fold_based_on_cvtt(n_folds=n_folds)
-            else:
-                instance.mining_data_and_create_fold(n_trials=n_trials, n_folds=n_folds)
         # Movielens Twenty Millions Movies
         elif dataset == RegisteredDataset.MOVIELENS_TWENTY_MILLION_DATASET:
             instance = MovielensTwentyMillion()
-            instance.set_experiment_variables(
-                cut_value=cut_value, item_cut_value=item_cut_value,
-                profile_len_cut_value=profile_len_cut_value,
-                test_len_cut_value=test_len_cut_value
-            )
-            if based_on == Label.TIME_SINGLE_SPLIT:
-                instance.mining_data_and_create_fold_based_on_time(n_trials=n_trials, n_folds=n_folds)
-            elif based_on == Label.CVTT:
-                instance.mining_data_and_create_fold_based_on_cvtt(n_folds=n_folds)
-            else:
-                instance.mining_data_and_create_fold(n_trials=n_trials, n_folds=n_folds)
         # Food.com Recipe
         elif dataset == RegisteredDataset.FOOD_COM_RECIPE_DATASET:
             instance = FoodComRecipe()
-            instance.set_experiment_variables(
-                cut_value=cut_value, item_cut_value=item_cut_value,
-                profile_len_cut_value=profile_len_cut_value,
-                test_len_cut_value=test_len_cut_value
-            )
-            if based_on == Label.TIME_SINGLE_SPLIT:
-                instance.mining_data_and_create_fold_based_on_time(n_trials=n_trials, n_folds=n_folds)
-            elif based_on == Label.CVTT:
-                instance.mining_data_and_create_fold_based_on_cvtt(n_folds=n_folds)
-            else:
-                instance.mining_data_and_create_fold(n_trials=n_trials, n_folds=n_folds)
         # Yahoo Movies
         elif dataset == RegisteredDataset.YAHOO_MOVIES_DATASET:
             instance = YahooMovies()
-            instance.set_experiment_variables(
-                cut_value=cut_value, item_cut_value=item_cut_value,
-                profile_len_cut_value=profile_len_cut_value,
-                test_len_cut_value=test_len_cut_value
-            )
-            if based_on == Label.TIME_SINGLE_SPLIT:
-                instance.mining_data_and_create_fold_based_on_time(n_trials=n_trials, n_folds=n_folds)
-            elif based_on == Label.CVTT:
-                instance.mining_data_and_create_fold_based_on_cvtt(n_folds=n_folds)
-            else:
-                instance.mining_data_and_create_fold(n_trials=n_trials, n_folds=n_folds)
         # Taste Profile
         elif dataset == RegisteredDataset.TASTE_PROFILE_DATASET:
             instance = TasteProfile()
-            instance.set_experiment_variables(
-                cut_value=cut_value, item_cut_value=item_cut_value,
-                profile_len_cut_value=profile_len_cut_value,
-                test_len_cut_value=test_len_cut_value
-            )
-            if based_on == Label.TIME_SINGLE_SPLIT:
-                instance.mining_data_and_create_fold_based_on_time(n_trials=n_trials, n_folds=n_folds)
-            elif based_on == Label.CVTT:
-                instance.mining_data_and_create_fold_based_on_cvtt(n_folds=n_folds)
-            else:
-                instance.mining_data_and_create_fold(n_trials=n_trials, n_folds=n_folds)
         # My Anime List
         elif dataset == RegisteredDataset.MY_ANIME_LIST_DATASET:
             instance = MyAnimeList()
-            instance.set_experiment_variables(
-                cut_value=cut_value, item_cut_value=item_cut_value,
-                profile_len_cut_value=profile_len_cut_value,
-                test_len_cut_value=test_len_cut_value
-            )
-            if based_on == Label.TIME_SINGLE_SPLIT:
-                instance.mining_data_and_create_fold_based_on_time(n_trials=n_trials, n_folds=n_folds)
-            elif based_on == Label.CVTT:
-                instance.mining_data_and_create_fold_based_on_cvtt(n_folds=n_folds)
-            else:
-                instance.mining_data_and_create_fold(n_trials=n_trials, n_folds=n_folds)
         # Twitter Movies
         elif dataset == RegisteredDataset.TWITTER_MOVIES_DATASET:
             instance = TwitterMovies()
-            instance.set_experiment_variables(
-                cut_value=cut_value, item_cut_value=item_cut_value,
-                profile_len_cut_value=profile_len_cut_value,
-                test_len_cut_value=test_len_cut_value
-            )
-            if based_on == Label.TIME_SINGLE_SPLIT:
-                instance.mining_data_and_create_fold_based_on_time(n_trials=n_trials, n_folds=n_folds)
-            elif based_on == Label.CVTT:
-                instance.mining_data_and_create_fold_based_on_cvtt(n_folds=n_folds)
-            else:
-                instance.mining_data_and_create_fold(n_trials=n_trials, n_folds=n_folds)
         # Last FM Two Billion
         elif dataset == RegisteredDataset.LASTFM_TWO_BILLION_DATASET:
             instance = LastFMTwoBillion()
-            instance.set_experiment_variables(
-                cut_value=cut_value, item_cut_value=item_cut_value,
-                profile_len_cut_value=profile_len_cut_value,
-                test_len_cut_value=test_len_cut_value
-            )
-            if based_on == Label.TIME_SINGLE_SPLIT:
-                instance.mining_data_and_create_fold_based_on_time(n_trials=n_trials, n_folds=n_folds)
-            elif based_on == Label.CVTT:
-                instance.mining_data_and_create_fold_based_on_cvtt(n_folds=n_folds)
-            else:
-                instance.mining_data_and_create_fold(n_trials=n_trials, n_folds=n_folds)
         else:
             raise "The requested dataset is not registered in the system"
+
+        instance.set_experiment_variables(
+            cut_value=cut_value, item_cut_value=item_cut_value,
+            profile_len_cut_value=profile_len_cut_value,
+            test_len_cut_value=test_len_cut_value
+        )
+        instance.choosing_preprocessing(
+            n_trials=n_trials, n_folds=n_folds, based_on=based_on
+        )

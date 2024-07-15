@@ -11,7 +11,7 @@ import pandas as pd
 from numpy import mean
 from numpy.ma import median
 
-from datasets.utils.base import Dataset
+from datasets.utils.base_preprocess import Dataset
 from settings.constants import Constants
 from settings.labels import Label
 from settings.path_dir_file import PathDirFile

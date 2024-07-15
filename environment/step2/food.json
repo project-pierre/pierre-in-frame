@@ -1,10 +1,10 @@
 {
   "opt": "RECOMMENDER",
-  "based_on": "CROSS_VALIDATION",
+  "based_on": "CROSS_TRAIN_VALIDATION_TEST",
   "n_inter": 50,
   "n_jobs": 50,
   "n_threads": 1,
-  "n_cv": 3,
+  "n_cv": 5,
   "dataset": ["food"],
   "recommender": ["BPR", "BPRKNN", "BPRGRAPH", "RANDOM_REC", "POPULARITY_REC"],
   "fold": 3,

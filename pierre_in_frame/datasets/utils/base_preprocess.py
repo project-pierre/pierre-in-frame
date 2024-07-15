@@ -12,6 +12,7 @@ import pandas as pd
 from numpy import mean, array_split
 
 from datasets.utils import split
+from datasets.utils.kfold import KFoldTrainValidationTest
 from datasets.utils.split import SequentialTimeSplit, CrossValidationThroughTime
 from settings.constants import Constants
 from settings.labels import Label
@@ -321,8 +322,25 @@ class Dataset:
         self.transactions.drop([Label.TIME], inplace=True, axis=1)
 
     # ############################################################################################ #
-    # ################################# K-fold Cross Validation ################################## #
+    # ################################ To choice Pre-Processing ################################## #
     # ############################################################################################ #
+
+    def choosing_preprocessing(
+            self, n_trials: int, n_folds: int, based_on: str
+    ):
+        """
+        Choosing the pre-processing method
+        """
+        if based_on == Label.TIME_SINGLE_SPLIT:
+            self.mining_data_and_create_fold_based_on_time(n_trials=n_trials, n_folds=n_folds)
+        elif based_on == Label.CVTT:
+            self.mining_data_and_create_fold_based_on_cvtt(n_folds=n_folds)
+        elif based_on == Label.CROSS_VALIDATION:
+            self.mining_data_and_create_fold(n_trials=n_trials, n_folds=n_folds)
+        elif based_on == Label.CROSS_TRAIN_VALIDATION_TEST:
+            self.mining_data_and_create_fold_based_on_tvt(n_trials=n_trials, n_folds=n_folds)
+        else:
+            raise f"Invalid based_on value! {based_on} does not exists!"
 
     def clean_data(self):
         """
@@ -332,6 +350,80 @@ class Dataset:
         self.clean_items()
         # Extract the transactions
         self.clean_transactions()
+
+    def delete_dataset(self):
+        try:
+            shutil.rmtree(self.dataset_clean_path)
+        except OSError as e:
+            print("Error: %s - %s." % (e.filename, e.strerror))
+
+        if not os.path.exists(self.dataset_clean_path):
+            os.makedirs(self.dataset_clean_path)
+
+    # ############################################################################################ #
+    # ######################## K-fold Cross Validation Train-Validation-test ##################### #
+    # ############################################################################################ #
+
+    def mining_data_and_create_fold_based_on_tvt(
+            self, n_trials: int = Constants.N_TRIAL_VALUE, n_folds: int = Constants.K_FOLDS_VALUE
+    ):
+        """
+        The raw dataset is preprocessed and the clean dataset produce n_trials with n_folds.
+
+        :param n_trials: An int that represents a number of experimental trials to create.
+        :param n_folds: An int that represents a number of the k folds.
+        """
+        # Deleting old files from previous dataset pre-process
+        self.delete_dataset()
+        # Clean and filter the data
+        self.clean_data()
+        # Creating Folds
+        self.create_folds_based_on_tvt(n_trials=n_trials, n_folds=n_folds)
+
+    def create_folds_based_on_tvt(
+            self, n_trials: int = Constants.N_TRIAL_VALUE, n_folds: int = Constants.K_FOLDS_VALUE
+    ) -> None:
+        """
+        Create all folds to be used by the system.
+        The clean dataset produce n_trials with n_folds.
+
+        :param n_trials: An int that represents a number of experimental trials to create.
+        :param n_folds: An int that represents a number of the k folds.
+        """
+        for trial in range(1, n_trials + 1):
+            logger.info("+ Preparing trial: " + str(trial))
+            instance = KFoldTrainValidationTest(
+                transactions_df=self.transactions, n_trial=trial, n_folds=n_folds
+            )
+            train_list, valid_list, test_list = instance.main()
+            for k in range(n_folds):
+                train_df = pd.concat(train_list[k])
+                validation_df = pd.concat(valid_list[k])
+                test_df = pd.concat(test_list[k])
+
+                logger.info("+ + Preparing fold: " + str(k + 1))
+                fold_dir = "/".join([self.dataset_clean_path, "trial-" + str(trial), "fold-" + str(k + 1)])
+                if not os.path.exists(fold_dir):
+                    os.makedirs(fold_dir)
+
+                train_path = os.path.join(fold_dir, PathDirFile.TRAIN_FILE)
+                if 'index' in train_df.columns.tolist():
+                    train_df.drop(columns=['index'], inplace=True)
+                train_df.to_csv(train_path, index=False, mode='w+')
+
+                validation_path = os.path.join(fold_dir, PathDirFile.VALIDATION_FILE)
+                if 'index' in validation_df.columns.tolist():
+                    validation_df.drop(columns=['index'], inplace=True)
+                validation_df.to_csv(validation_path, index=False, mode='w+')
+
+                test_path = os.path.join(fold_dir, PathDirFile.TEST_FILE)
+                if 'index' in test_df.columns.tolist():
+                    test_df.drop(columns=['index'], inplace=True)
+                test_df.to_csv(test_path, index=False, mode='w+')
+
+    # ############################################################################################ #
+    # ################################# K-fold Cross Validation ################################## #
+    # ############################################################################################ #
 
     def mining_data_and_create_fold(
             self, n_trials: int = Constants.N_TRIAL_VALUE, n_folds: int = Constants.K_FOLDS_VALUE
@@ -380,15 +472,6 @@ class Dataset:
                 if 'index' in test_df.columns.tolist():
                     test_df.drop(columns=['index'], inplace=True)
                 test_df.to_csv(test_path, index=False, mode='w+')
-
-    def delete_dataset(self):
-        try:
-            shutil.rmtree(self.dataset_clean_path)
-        except OSError as e:
-            print("Error: %s - %s." % (e.filename, e.strerror))
-
-        if not os.path.exists(self.dataset_clean_path):
-            os.makedirs(self.dataset_clean_path)
 
     # ############################################################################################ #
     # ################################## Sequential Validation ################################### #
