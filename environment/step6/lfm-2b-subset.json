@@ -1,15 +1,10 @@
 {
   "multiprocessing": "joblib",
-  "n_jobs": 53,
+  "n_jobs": 61,
   "opt": "EVALUATION_METRICS",
   "metric": [
-    "MC",
-    "MAMC",
     "MAP",
-    "MRR",
-    "SERENDIPITY",
-    "COVERAGE",
-    "UNEXPECTEDNESS"
+    "MACE"
   ],
   "recommender": ["ALS", "BPR", "DEEP_AE"],
   "dataset": ["lfm-2b-subset"],

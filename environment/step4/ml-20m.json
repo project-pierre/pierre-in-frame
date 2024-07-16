@@ -3,7 +3,7 @@
   "n_jobs": 63,
   "checkpoint": "NO",
   "dataset": ["ml-20m"],
-  "recommender": ["BPR", "ALS"],
+  "recommender": ["DEEP_AE", "BPR", "ALS"],
   "fold": [1, 2, 3],
   "trial": [1],
   "tradeoff": ["LIN"],

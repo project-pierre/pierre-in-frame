@@ -1,6 +1,6 @@
 {
   "opt": "SPLIT",
-  "based_on": "CROSS_TRAIN_VALIDATION_TEST",
+  "based_on": "CVTT",
   "dataset": "food",
   "n_folds": 5,
   "n_trials": 1,

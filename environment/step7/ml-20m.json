@@ -2,16 +2,11 @@
   "opt": "EVALUATION_METRICS",
   "view": "CHART",
   "dataset": ["ml-20m"],
-  "type": ["LINE", "HEAT_WELCH"],
+  "type": ["LINE"],
   "goal": ["DISTRIBUTION_LABEL"],
   "metric": [
-    "MC",
-    "MAMC",
     "MAP",
-    "MRR",
-    "SERENDIPITY",
-    "COVERAGE",
-    "UNEXPECTEDNESS"
+    "MACE"
   ],
   "recommender": ["ALS", "BPR", "DEEP_AE"],
   "tradeoff": ["LIN"],

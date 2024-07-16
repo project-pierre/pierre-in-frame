@@ -1,17 +1,10 @@
 {
   "multiprocessing": "joblib",
-  "n_jobs": 60,
+  "n_jobs": 61,
   "opt": "EVALUATION_METRICS",
   "metric": [
-    "ILS",
-    "MC",
-    "MAMC",
     "MAP",
-    "MRR",
-    "SERENDIPITY",
-    "COVERAGE",
-    "PERSONALIZATION",
-    "UNEXPECTEDNESS"
+    "MACE"
   ],
   "recommender": ["ALS", "BPR", "DEEP_AE"],
   "dataset": ["food"],

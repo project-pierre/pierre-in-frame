@@ -4,16 +4,10 @@
   "checkpoint": "NO",
   "opt": "EVALUATION_METRICS",
   "metric": [
-    "ILS",
-    "MC",
-    "MAMC",
     "MAP",
-    "MRR",
-    "SERENDIPITY",
-    "COVERAGE",
-    "UNEXPECTEDNESS"
+    "MACE"
   ],
-  "recommender": ["BPR", "ALS"],
+  "recommender": ["BPR", "ALS", "DEEP_AE"],
   "dataset": ["ml-20m"],
   "fold": [1, 2, 3],
   "trial": [1],
