@@ -66,6 +66,10 @@ class BaseSearch:
         SaveAndLoad.save_hyperparameters_recommender(
             best_params=best_params, dataset=self.dataset.system_name, algorithm=self.algorithm
         )
+        # Saving
+        SaveAndLoad.save_hyperparameters_recommender(
+            best_params=self.output, dataset=self.dataset.system_name, algorithm=self.algorithm + "_all"
+        )
 
     def preparing_recommenders(self):
         """
