@@ -27,7 +27,7 @@ class SurpriseParams:
 
 
 class ImplicitParams:
-    size = 10
+    size = 50
     ALS_PARAMS = {
         "factors": randint(10, 150).rvs(size=size),
         "regularization": uniform(0.0003, 0.1).rvs(size=size),
