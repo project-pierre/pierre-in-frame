@@ -19,7 +19,10 @@ from utils.step import Step
 logger = logging.getLogger(__name__)
 
 
-def starting_recommender(dataset: str, recommender: str, trial: int, fold: int, checkpoint: str, metric: str, list_size: int) -> None:
+def starting_recommender(
+        dataset: str, recommender: str, trial: int, fold: int,
+        checkpoint: str, metric: str, list_size: int, based_on: str
+) -> None:
     """
     Function to starting the recommender algorithm.
 
@@ -52,19 +55,19 @@ def starting_recommender(dataset: str, recommender: str, trial: int, fold: int, 
                 recommender_algorithm = SurpriseRecommenderAlgorithm(
                     dataset_name=dataset, trial=trial, fold=fold, recommender_name=recommender,
                     metric=metric,
-                    list_size=list_size
+                    list_size=list_size, based_on=based_on
                 )
                 recommender_algorithm.run()
             elif recommender in Label.IMPLICIT_RECOMMENDERS:
                 recommender_algorithm = ImplicitRecommenderAlgorithm(
                     dataset_name=dataset, trial=trial, fold=fold, recommender_name=recommender,
-                    list_size=list_size
+                    list_size=list_size, based_on=based_on
                 )
                 recommender_algorithm.run()
             elif recommender in Label.PIERRE_RECOMMENDERS:
                 recommender_algorithm = PierreRecommenderAlgorithm(
                     dataset_name=dataset, trial=trial, fold=fold, recommender_name=recommender,
-                    list_size=list_size
+                    list_size=list_size, based_on=based_on
                 )
                 recommender_algorithm.run()
             else:
@@ -146,7 +149,7 @@ class PierreStep3(Step):
             self.experimental_settings['recommender'], self.experimental_settings['dataset'],
             self.experimental_settings['fold'], self.experimental_settings['trial'],
             [self.experimental_settings['checkpoint']], [self.experimental_settings['metric']],
-            [self.experimental_settings['list_size']]
+            [self.experimental_settings['list_size']], [self.experimental_settings['based_on']]
         ]
 
         system_combination = list(itertools.product(*combination))
@@ -156,8 +159,8 @@ class PierreStep3(Step):
         Parallel(n_jobs=self.experimental_settings['n_jobs'])(
             delayed(starting_recommender)(
                 recommender=recommender, dataset=dataset, trial=trial, fold=fold, checkpoint=checkpoint,
-                metric=metric, list_size=list_size
-            ) for recommender, dataset, fold, trial, checkpoint, metric, list_size in system_combination
+                metric=metric, list_size=list_size, based_on=based_on
+            ) for recommender, dataset, fold, trial, checkpoint, metric, list_size, based_on in system_combination
         )
 
         # Finishing the Step

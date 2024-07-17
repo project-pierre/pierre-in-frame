@@ -1,5 +1,6 @@
 {
   "opt": "RECOMMENDER",
+  "based_on": "CVTT",
   "n_jobs": 61,
   "checkpoint": "YES",
   "dataset": ["ml-20m", "food", "ml-1m"],

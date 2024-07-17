@@ -1,5 +1,6 @@
 {
   "opt": "RECOMMENDER",
+  "based_on": "CVTT",
   "n_jobs": 63,
   "checkpoint": "NO",
   "dataset": ["lfm-2b-subset"],
