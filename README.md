@@ -52,9 +52,9 @@ To run the framework it is necessary to go to dir: `cd pierre_in_frame/`.
 Inside this directory are seven python scripts. Each step has a set of parameters that are necessary to run.    
 
 ### Step 1: Pre-processing
-The pre-processing step is implemented for cleaning, filtering and modeling the data.
-The framework pre-processing the dataset to provide a structure to be used by all next steps.
-It applies a data partition by your choice. We have implemented four pre-process validation methods.
+The pre-processing step is implemented to clean, filter, and model the data.
+The framework pre-processes the dataset to provide a structure to be used in all the next steps.
+It applies a data partition of your choice. We have implemented four pre-process validation methods.
 The pre-processing script provides three functionality to config the experiment:
 1. Pre-process based on validation method  
    1.1. Movielens 20M: `python3 step1_preprocessing.py from_file=YES file_name=ml-20m`  
@@ -69,34 +69,34 @@ The pre-processing script provides three functionality to config the experiment:
    3.2. Food.com: `python3 step1_preprocessing.py from_file=YES file_name=food_ohe`  
    3.3. Last.fm 2B: `python3 step1_preprocessing.py from_file=YES file_name=lfm-2b-subset_ohe`  
 
-You can find the environment files from step 1 in the directory `environment/step1/`.
+You can find the environment files from step 1 in the `environment/step1/` directory.
 
 #### Run Examples
-In the directory `shell`, there are examples of script to run the step 1 for the three dataset cited above.
-From the main project directory, you can run the command: `sh shell/step1.sh > ./logs/step1.log 2>&1 & disown`.
-It will run all step 1 commands showed above.
+In the directory `shell`, there are examples of scripts to run step 1 for the three datasets cited above.
+You can run the command from the main project directory: `sh shell/step1.sh > ./logs/step1.log 2>&1 & disown`.
+It will run all step 1 commands shown above.
 
 ### Step 2: Best Parameter Search
-In this step, the Random Search method is applied to find the best set of hyperparameters.
-The best set of parameter values are saved inside the path `data/experiment/hyperparameters/<dataset_name>/`.
+This step applies the Random Search method to find the best set of hyperparameters.
+The best set of parameter values is saved inside the path `data/experiment/hyperparameters/<dataset_name>/`.
 
 #### Run Examples
 1. Movielens 20M   
-   1.1. CVTT + BPR + ALS: `python3 step2_random_search.py from_file=YES file_name=ml-20m`    
-   1.2. CVTT + DeepAE: `python3 step2_random_search.py from_file=YES file_name=deep_ae_ml-20m`    
+   1.1. CVTT + BPR + ALS: `python3 step2_searches.py from_file=YES file_name=ml-20m`    
+   1.2. CVTT + DeepAE: `python3 step2_searches.py from_file=YES file_name=deep_ae_ml-20m`    
 2. Food.com Recipes    
-   1.1. CVTT + BPR + ALS: `python3 step2_random_search.py from_file=YES file_name=food`    
-   1.2. CVTT + DeepAE: `python3 step2_random_search.py from_file=YES file_name=deep_ae_food`     
+   1.1. CVTT + BPR + ALS: `python3 step2_searches.py from_file=YES file_name=food`    
+   1.2. CVTT + DeepAE: `python3 step2_searches.py from_file=YES file_name=deep_ae_food`     
 3. Last.fm    
-   1.1. CVTT + BPR + ALS: `python3 step2_random_search.py from_file=YES file_name=lfm-2b-subset`    
-   1.2. CVTT + DeepAE: `python3 step2_random_search.py from_file=YES file_name=deep_ae_lfm-2b-subset`    
+   1.1. CVTT + BPR + ALS: `python3 step2_searches.py from_file=YES file_name=lfm-2b-subset`    
+   1.2. CVTT + DeepAE: `python3 step2_searches.py from_file=YES file_name=deep_ae_lfm-2b-subset`    
 
-In the directory `shell`, there are examples of script to run the step 2 for the three dataset cited above.
-From the main project directory, you can run the command: `sh shell/step2.sh > ./logs/step2.log 2>&1 & disown`.
-It will run all step 2 commands showed above.
+In the directory `shell`, there are examples of scripts to run step 2 for the three datasets cited above.
+You can run the command from the main project directory: `sh shell/step2.sh > ./logs/step2.log 2>&1 & disown`.
+It will run all step 2 commands shown above.
 
 ### Step 3: Processing
-The processing step uses the data pre-processed and the hyperparameters to train the chosen recommender algorithm.
+The processing step uses the pre-processed data and the hyperparameters to train the chosen recommender algorithm.
 The prediction generates a set of candidate items to be used by the post-processing.
 All candidate items set are saved inside `data/experiment/{dataset}/candidate_items/{recommender}/trial-{trial}/fold-{fold}/candidate_items.csv`.
 
@@ -112,13 +112,13 @@ All candidate items set are saved inside `data/experiment/{dataset}/candidate_it
    1.1. BPR + ALS: `python3 step3_processing.py from_file=YES file_name=lfm-2b-subset`    
    1.2. DeepAE: `python3 step3_processing.py from_file=YES file_name=deep_ae_lfm-2b-subset`
 
-In the directory `shell`, there are examples of script to run the step 3 for the three dataset cited above.
-From the main project directory, you can run the command: `sh shell/step3.sh > ./logs/step3.log 2>&1 & disown`.
-It will run all step 3 commands showed above.
+In the directory `shell`, there are examples of scripts to run step 3 for the three datasets cited above.
+You can run the command from the main project directory: `sh shell/step3.sh > ./logs/step3.log 2>&1 & disown`.
+It will run all step 3 commands shown above.
 
 ### Step 4: Post-processing
-Post-processing is the focus of this framework. We use the Scikit-Pierre to post-processing the candidate items given by the recommender algorithms provided by the Scikit-Surprise or other recommender library.
-The parameters given from the command line are used to create one or more recommendation systems. So, you can change them and create a lot of different systems. It is possible to use the same candidate items set, given as entry to different post-processing formulations.
+Post-processing is the focus of this framework. We use the Scikit-Pierre to post-process the candidate items given by the recommender algorithms provided by the Scikit-Surprise or other recommender libraries.
+The parameters given from the command line are used to create one or more recommendation systems. So, you can change them and create a lot of different systems. Using the same candidate items set as entries to different post-processing formulations is possible.
 The recommendations produced by this step are saved in `data/experiment/<dataset_name>/recommendation_lists/`.
 
 #### Run Examples
@@ -126,29 +126,29 @@ The recommendations produced by this step are saved in `data/experiment/<dataset
 2. Food.com Recipes: `python3 step4_postprocessing.py from_file=YES file_name=food`     
 3. Last.fm: `python3 step4_postprocessing.py from_file=YES file_name=lfm-2b-subset`
 
-In the directory `shell`, there are examples of script to run the **step 4** for the three dataset cited above.
-From the main project directory, you can run the command: `sh shell/step4.sh > ./logs/step4.log 2>&1 & disown`.
-It will run all step 4 commands showed above.
+In the directory `shell`, there are examples of scripts to run the **step 4** for the three datasets cited above.
+You can run the command from the main project directory: `sh shell/step4.sh > ./logs/step4.log 2>&1 & disown`.
+It will run all step 4 commands shown above.
 
 ### Step 5: Metric
 In the Metric step, the recommendation lists produced by the post-processing are evaluated.
 In version 0.1, the framework provides five metrics: **TIME**, **MAP**, **MRR**, **MACE** and **MRMC**.
 In version 0.2, the framework provides news metrics, such as: **ILS**, **COVERAGE**, **UNEXPECTED**, **SERENDIPITY** and **MAMC**.
-All metrics are provided by Scikit-Pierre. The Scikit-Surprise provides other metrics, so it is possible to call these too.
-The system that you want to evaluate is given by the same parameters from the post-processing.
+Scikit-Pierre provides all metrics. The Scikit-Surprise provides other metrics, so it is possible to call these, too.
+The system you want to evaluate is given the same parameters from the post-processing.
 
 #### Run Examples
 1. Movielens 20M: `python3 step5_metrics.py from_file=YES file_name=ml-20m`    
 2. Food.com Recipes: `python3 step5_metrics.py from_file=YES file_name=food`     
 3. Last.fm: `python3 step5_metrics.py from_file=YES file_name=lfm-2b-subset`
 
-In the directory `shell`, there are examples of script to run the **step 5** for the three dataset cited above.
-From the main project directory, you can run the command: `sh shell/step5.sh > ./logs/step5.log 2>&1 & disown`.
-It will run all step 5 commands showed above.
+In the directory `shell`, there are examples of scripts to run the **step 5** for the three datasets cited above.
+You can run the command from the main project directory: `sh shell/step5.sh > ./logs/step5.log 2>&1 & disown`.
+It will run all step 5 commands shown above.
 
 ### Step 6: Protocol
-Protocol step compiles all metrics results, applying an average along the trials and folds.
-The final values are the systems performances in each metric.
+The protocol step compiles all metrics results, applying an average along the trials and folds.
+The final values are the system's performance in each metric.
 Coefficients are applied as a new metric. We inherit the coefficients from Scikit-Pierre.
 The final file is saved inside: `results/decision/{dataset}/decision.csv`.
 
@@ -157,13 +157,13 @@ The final file is saved inside: `results/decision/{dataset}/decision.csv`.
 2. Food.com Recipes: `python3 step6_protocol.py from_file=YES file_name=food`     
 3. Last.fm: `python3 step6_protocol.py from_file=YES file_name=lfm-2b-subset`
 
-In the directory `shell`, there are examples of script to run the **step 6** for the three dataset cited above.
-From the main project directory, you can run the command: `sh shell/step6.sh > ./logs/step6.log 2>&1 & disown`.
-It will run all step 6 commands showed above.
+In the directory `shell`, there are examples of scripts to run the **step 6** for the three datasets cited above.
+You can run the command from the main project directory: `sh shell/step6.sh > ./logs/step6.log 2>&1 & disown`.
+It will run all step 6 commands shown above.
 
 ### Step 7: Charts
-The Chart step uses the compiled raw results from the Protocol step to produce figures, tables, comparisons and research questions.
-It is the last step on the framework. The result files are saved inside: `results/graphics/results/{dataset}/{filename}`.
+The Chart step uses the compiled raw results from the Protocol step to produce figures, tables, comparisons, and research questions.
+It is the last step in the framework. The result files are saved inside: `results/graphics/results/{dataset}/{filename}`.
 
 #### Run Examples
 1. Movielens 20M: `python3 step7_charts_tables.py from_file=YES file_name=ml-20m`    

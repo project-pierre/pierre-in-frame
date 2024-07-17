@@ -4,7 +4,7 @@
   "n_jobs": 63,
   "checkpoint": "NO",
   "dataset": ["food"],
-  "recommender": ["BPR"],
+  "recommender": ["ALS", "BPR"],
   "fold": [1, 2, 3],
   "trial": [1],
   "list_size": 100,
