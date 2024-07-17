@@ -38,8 +38,8 @@ class ImplicitParams:
     }
     BPR_PARAMS = {
         "factors": randint(10, 150).rvs(size=size),
-        "regularization": uniform(0.0003, 0.1).rvs(size=size),
-        "learning_rate": uniform(0.0003, 0.1).rvs(size=size),
+        "regularization": uniform(0.001, 0.1).rvs(size=size),
+        "learning_rate": uniform(0.001, 0.1).rvs(size=size),
         "iterations": randint(10, 150).rvs(size=size),
         "random_state": [42],
         "num_threads": [1]
