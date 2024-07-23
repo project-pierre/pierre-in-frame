@@ -9,7 +9,9 @@
     "UNEXPECTEDNESS",
     "MAMC",
     "SERENDIPITY",
-    "MC"
+    "MC",
+    "ILS",
+    "PERSONALIZATION"
   ],
   "recommender": ["BPR"],
   "dataset": ["food"],
