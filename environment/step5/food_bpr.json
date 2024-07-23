@@ -4,8 +4,11 @@
   "checkpoint": "NO",
   "opt": "EVALUATION_METRICS",
   "metric": [
-    "MAP",
-    "MACE"
+    "COVERAGE",
+    "UNEXPECTEDNESS",
+    "MAMC",
+    "SERENDIPITY",
+    "MC"
   ],
   "recommender": ["BPR"],
   "dataset": ["food"],
