@@ -6,7 +6,12 @@
   "goal": ["DISTRIBUTION_LABEL"],
   "metric": [
     "MAP",
-    "MACE"
+    "MACE",
+    "COVERAGE",
+    "UNEXPECTEDNESS",
+    "MAMC",
+    "SERENDIPITY",
+    "MC"
   ],
   "recommender": ["BPR"],
   "tradeoff": ["LIN"],

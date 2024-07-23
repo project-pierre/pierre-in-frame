@@ -4,7 +4,12 @@
   "opt": "EVALUATION_METRICS",
   "metric": [
     "MAP",
-    "MACE"
+    "MACE",
+    "COVERAGE",
+    "UNEXPECTEDNESS",
+    "MAMC",
+    "SERENDIPITY",
+    "MC"
   ],
   "recommender": ["BPR"],
   "dataset": ["food"],

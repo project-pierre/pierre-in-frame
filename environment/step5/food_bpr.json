@@ -1,14 +1,11 @@
 {
   "multiprocessing": "joblib",
-  "n_jobs": 61,
+  "n_jobs": 5,
   "checkpoint": "NO",
   "opt": "EVALUATION_METRICS",
   "metric": [
-    "COVERAGE",
-    "UNEXPECTEDNESS",
-    "MAMC",
-    "SERENDIPITY",
-    "MC"
+    "ILS",
+    "PERSONALIZATION"
   ],
   "recommender": ["BPR"],
   "dataset": ["food"],
